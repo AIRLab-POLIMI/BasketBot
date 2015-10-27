@@ -1,0 +1,1428 @@
+ARM GAS  /tmp/ccimyAF9.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.eabi_attribute 28, 1
+   5              		.fpu fpv4-sp-d16
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 6
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.thumb
+  16              		.file	"chmemcore.c"
+  17              		.text
+  18              	.Ltext0:
+  19              		.cfi_sections	.debug_frame
+  20              		.section	.bss.nextmem,"aw",%nobits
+  21              		.align	2
+  22              		.type	nextmem, %object
+  23              		.size	nextmem, 4
+  24              	nextmem:
+  25 0000 00000000 		.space	4
+  26              		.section	.bss.endmem,"aw",%nobits
+  27              		.align	2
+  28              		.type	endmem, %object
+  29              		.size	endmem, 4
+  30              	endmem:
+  31 0000 00000000 		.space	4
+  32              		.section	.bss.realendmem,"aw",%nobits
+  33              		.align	2
+  34              		.type	realendmem, %object
+  35              		.size	realendmem, 4
+  36              	realendmem:
+  37 0000 00000000 		.space	4
+  38              		.section	.text._core_init,"ax",%progbits
+  39              		.align	2
+  40              		.p2align 4,,15
+  41              		.global	_core_init
+  42              		.thumb
+  43              		.thumb_func
+  44              		.type	_core_init, %function
+  45              	_core_init:
+  46              	.LFB7:
+  47              		.file 1 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c"
+  48              		.loc 1 67 0
+  49              		.cfi_startproc
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52              		@ link register save eliminated.
+  53              		.loc 1 71 0
+  54 0000 064B     		ldr	r3, .L2
+  55 0002 0733     		adds	r3, r3, #7
+  56 0004 23F00703 		bic	r3, r3, #7
+  57 0008 1A46     		mov	r2, r3
+ARM GAS  /tmp/ccimyAF9.s 			page 2
+
+
+  58 000a 054B     		ldr	r3, .L2+4
+  59 000c 1A60     		str	r2, [r3]
+  60              		.loc 1 72 0
+  61 000e 054B     		ldr	r3, .L2+8
+  62 0010 23F00703 		bic	r3, r3, #7
+  63 0014 1A46     		mov	r2, r3
+  64 0016 044B     		ldr	r3, .L2+12
+  65 0018 1A60     		str	r2, [r3]
+  66              		.loc 1 78 0
+  67 001a 7047     		bx	lr
+  68              	.L3:
+  69              		.align	2
+  70              	.L2:
+  71 001c 00000000 		.word	__heap_base__
+  72 0020 00000000 		.word	nextmem
+  73 0024 00000000 		.word	__heap_end__
+  74 0028 00000000 		.word	endmem
+  75              		.cfi_endproc
+  76              	.LFE7:
+  77              		.size	_core_init, .-_core_init
+  78 002c AFF30080 		.section	.text.chCoreAlloc,"ax",%progbits
+  79              		.align	2
+  80              		.p2align 4,,15
+  81              		.global	chCoreAlloc
+  82              		.thumb
+  83              		.thumb_func
+  84              		.type	chCoreAlloc, %function
+  85              	chCoreAlloc:
+  86              	.LFB8:
+  87              		.loc 1 92 0
+  88              		.cfi_startproc
+  89              		@ args = 0, pretend = 0, frame = 16
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91 0000 00B5     		push	{lr}
+  92              		.cfi_def_cfa_offset 4
+  93              		.cfi_offset 14, -4
+  94 0002 85B0     		sub	sp, sp, #20
+  95              		.cfi_def_cfa_offset 24
+  96 0004 0190     		str	r0, [sp, #4]
+  97              	.LBB2:
+  98              		.loc 1 95 0
+  99 0006 2023     		movs	r3, #32
+ 100              	@ 95 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c" 1
+ 101 0008 83F31188 		msr     BASEPRI, r3
+ 102              	@ 0 "" 2
+ 103              		.thumb
+ 104              	.LBE2:
+ 105 000c FFF7FEFF 		bl	dbg_check_lock
+ 106              		.loc 1 96 0
+ 107 0010 0198     		ldr	r0, [sp, #4]
+ 108 0012 FFF7FEFF 		bl	chCoreAllocI
+ 109 0016 0390     		str	r0, [sp, #12]
+ 110              		.loc 1 97 0
+ 111 0018 FFF7FEFF 		bl	dbg_check_unlock
+ 112              	.LBB3:
+ 113 001c 0023     		movs	r3, #0
+ 114              	@ 97 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c" 1
+ARM GAS  /tmp/ccimyAF9.s 			page 3
+
+
+ 115 001e 83F31188 		msr     BASEPRI, r3
+ 116              	@ 0 "" 2
+ 117              		.thumb
+ 118              	.LBE3:
+ 119              		.loc 1 98 0
+ 120 0022 039B     		ldr	r3, [sp, #12]
+ 121              		.loc 1 99 0
+ 122 0024 1846     		mov	r0, r3
+ 123 0026 05B0     		add	sp, sp, #20
+ 124              		@ sp needed
+ 125 0028 5DF804FB 		ldr	pc, [sp], #4
+ 126              		.cfi_endproc
+ 127              	.LFE8:
+ 128              		.size	chCoreAlloc, .-chCoreAlloc
+ 129 002c AFF30080 		.section	.text.chCoreAllocI,"ax",%progbits
+ 130              		.align	2
+ 131              		.p2align 4,,15
+ 132              		.global	chCoreAllocI
+ 133              		.thumb
+ 134              		.thumb_func
+ 135              		.type	chCoreAllocI, %function
+ 136              	chCoreAllocI:
+ 137              	.LFB9:
+ 138              		.loc 1 113 0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 16
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142 0000 00B5     		push	{lr}
+ 143              		.cfi_def_cfa_offset 4
+ 144              		.cfi_offset 14, -4
+ 145 0002 85B0     		sub	sp, sp, #20
+ 146              		.cfi_def_cfa_offset 24
+ 147 0004 0190     		str	r0, [sp, #4]
+ 148              		.loc 1 116 0
+ 149 0006 FFF7FEFF 		bl	chDbgCheckClassI
+ 150              		.loc 1 118 0
+ 151 000a 019B     		ldr	r3, [sp, #4]
+ 152 000c 0733     		adds	r3, r3, #7
+ 153 000e 23F00703 		bic	r3, r3, #7
+ 154 0012 0193     		str	r3, [sp, #4]
+ 155              		.loc 1 119 0
+ 156 0014 0C4B     		ldr	r3, .L9
+ 157 0016 1B68     		ldr	r3, [r3]
+ 158 0018 1A46     		mov	r2, r3
+ 159 001a 0C4B     		ldr	r3, .L9+4
+ 160 001c 1B68     		ldr	r3, [r3]
+ 161 001e D31A     		subs	r3, r2, r3
+ 162 0020 1A46     		mov	r2, r3
+ 163 0022 019B     		ldr	r3, [sp, #4]
+ 164 0024 9A42     		cmp	r2, r3
+ 165 0026 01D2     		bcs	.L7
+ 166              		.loc 1 120 0
+ 167 0028 0023     		movs	r3, #0
+ 168 002a 09E0     		b	.L8
+ 169              	.L7:
+ 170              		.loc 1 121 0
+ 171 002c 074B     		ldr	r3, .L9+4
+ARM GAS  /tmp/ccimyAF9.s 			page 4
+
+
+ 172 002e 1B68     		ldr	r3, [r3]
+ 173 0030 0393     		str	r3, [sp, #12]
+ 174              		.loc 1 122 0
+ 175 0032 064B     		ldr	r3, .L9+4
+ 176 0034 1A68     		ldr	r2, [r3]
+ 177 0036 019B     		ldr	r3, [sp, #4]
+ 178 0038 1A44     		add	r2, r2, r3
+ 179 003a 044B     		ldr	r3, .L9+4
+ 180 003c 1A60     		str	r2, [r3]
+ 181              		.loc 1 123 0
+ 182 003e 039B     		ldr	r3, [sp, #12]
+ 183              	.L8:
+ 184              		.loc 1 124 0
+ 185 0040 1846     		mov	r0, r3
+ 186 0042 05B0     		add	sp, sp, #20
+ 187              		@ sp needed
+ 188 0044 5DF804FB 		ldr	pc, [sp], #4
+ 189              	.L10:
+ 190              		.align	2
+ 191              	.L9:
+ 192 0048 00000000 		.word	endmem
+ 193 004c 00000000 		.word	nextmem
+ 194              		.cfi_endproc
+ 195              	.LFE9:
+ 196              		.size	chCoreAllocI, .-chCoreAllocI
+ 197              		.section	.text.chCoreStatus,"ax",%progbits
+ 198              		.align	2
+ 199              		.p2align 4,,15
+ 200              		.global	chCoreStatus
+ 201              		.thumb
+ 202              		.thumb_func
+ 203              		.type	chCoreStatus, %function
+ 204              	chCoreStatus:
+ 205              	.LFB10:
+ 206              		.loc 1 133 0
+ 207              		.cfi_startproc
+ 208              		@ args = 0, pretend = 0, frame = 0
+ 209              		@ frame_needed = 0, uses_anonymous_args = 0
+ 210              		@ link register save eliminated.
+ 211              		.loc 1 135 0
+ 212 0000 034B     		ldr	r3, .L13
+ 213 0002 1B68     		ldr	r3, [r3]
+ 214 0004 1A46     		mov	r2, r3
+ 215 0006 034B     		ldr	r3, .L13+4
+ 216 0008 1B68     		ldr	r3, [r3]
+ 217 000a D31A     		subs	r3, r2, r3
+ 218              		.loc 1 136 0
+ 219 000c 1846     		mov	r0, r3
+ 220 000e 7047     		bx	lr
+ 221              	.L14:
+ 222              		.align	2
+ 223              	.L13:
+ 224 0010 00000000 		.word	endmem
+ 225 0014 00000000 		.word	nextmem
+ 226              		.cfi_endproc
+ 227              	.LFE10:
+ 228              		.size	chCoreStatus, .-chCoreStatus
+ARM GAS  /tmp/ccimyAF9.s 			page 5
+
+
+ 229 0018 AFF30080 		.section	.text.chCoreReserve,"ax",%progbits
+ 229      AFF30080 
+ 230              		.align	2
+ 231              		.p2align 4,,15
+ 232              		.global	chCoreReserve
+ 233              		.thumb
+ 234              		.thumb_func
+ 235              		.type	chCoreReserve, %function
+ 236              	chCoreReserve:
+ 237              	.LFB11:
+ 238              		.loc 1 138 0
+ 239              		.cfi_startproc
+ 240              		@ args = 0, pretend = 0, frame = 16
+ 241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242 0000 00B5     		push	{lr}
+ 243              		.cfi_def_cfa_offset 4
+ 244              		.cfi_offset 14, -4
+ 245 0002 85B0     		sub	sp, sp, #20
+ 246              		.cfi_def_cfa_offset 24
+ 247 0004 0190     		str	r0, [sp, #4]
+ 248              	.LBB4:
+ 249              		.loc 1 141 0
+ 250 0006 2023     		movs	r3, #32
+ 251              	@ 141 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c" 1
+ 252 0008 83F31188 		msr     BASEPRI, r3
+ 253              	@ 0 "" 2
+ 254              		.thumb
+ 255              	.LBE4:
+ 256 000c FFF7FEFF 		bl	dbg_check_lock
+ 257              		.loc 1 142 0
+ 258 0010 0198     		ldr	r0, [sp, #4]
+ 259 0012 FFF7FEFF 		bl	chCoreReserveI
+ 260 0016 0390     		str	r0, [sp, #12]
+ 261              		.loc 1 143 0
+ 262 0018 FFF7FEFF 		bl	dbg_check_unlock
+ 263              	.LBB5:
+ 264 001c 0023     		movs	r3, #0
+ 265              	@ 143 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c" 1
+ 266 001e 83F31188 		msr     BASEPRI, r3
+ 267              	@ 0 "" 2
+ 268              		.thumb
+ 269              	.LBE5:
+ 270              		.loc 1 144 0
+ 271 0022 039B     		ldr	r3, [sp, #12]
+ 272              		.loc 1 145 0
+ 273 0024 1846     		mov	r0, r3
+ 274 0026 05B0     		add	sp, sp, #20
+ 275              		@ sp needed
+ 276 0028 5DF804FB 		ldr	pc, [sp], #4
+ 277              		.cfi_endproc
+ 278              	.LFE11:
+ 279              		.size	chCoreReserve, .-chCoreReserve
+ 280 002c AFF30080 		.section	.text.chCoreReserveI,"ax",%progbits
+ 281              		.align	2
+ 282              		.p2align 4,,15
+ 283              		.global	chCoreReserveI
+ 284              		.thumb
+ARM GAS  /tmp/ccimyAF9.s 			page 6
+
+
+ 285              		.thumb_func
+ 286              		.type	chCoreReserveI, %function
+ 287              	chCoreReserveI:
+ 288              	.LFB12:
+ 289              		.loc 1 147 0
+ 290              		.cfi_startproc
+ 291              		@ args = 0, pretend = 0, frame = 8
+ 292              		@ frame_needed = 0, uses_anonymous_args = 0
+ 293 0000 00B5     		push	{lr}
+ 294              		.cfi_def_cfa_offset 4
+ 295              		.cfi_offset 14, -4
+ 296 0002 83B0     		sub	sp, sp, #12
+ 297              		.cfi_def_cfa_offset 16
+ 298 0004 0190     		str	r0, [sp, #4]
+ 299              		.loc 1 149 0
+ 300 0006 FFF7FEFF 		bl	chDbgCheckClassI
+ 301              		.loc 1 151 0
+ 302 000a 019B     		ldr	r3, [sp, #4]
+ 303 000c 0733     		adds	r3, r3, #7
+ 304 000e 23F00703 		bic	r3, r3, #7
+ 305 0012 0193     		str	r3, [sp, #4]
+ 306              		.loc 1 152 0
+ 307 0014 0C4B     		ldr	r3, .L20
+ 308 0016 1B68     		ldr	r3, [r3]
+ 309 0018 1A46     		mov	r2, r3
+ 310 001a 0C4B     		ldr	r3, .L20+4
+ 311 001c 1B68     		ldr	r3, [r3]
+ 312 001e D31A     		subs	r3, r2, r3
+ 313 0020 1A46     		mov	r2, r3
+ 314 0022 019B     		ldr	r3, [sp, #4]
+ 315 0024 9A42     		cmp	r2, r3
+ 316 0026 01D2     		bcs	.L18
+ 317              		.loc 1 153 0
+ 318 0028 0023     		movs	r3, #0
+ 319 002a 08E0     		b	.L19
+ 320              	.L18:
+ 321              		.loc 1 154 0
+ 322 002c 064B     		ldr	r3, .L20
+ 323 002e 1A68     		ldr	r2, [r3]
+ 324 0030 019B     		ldr	r3, [sp, #4]
+ 325 0032 5B42     		negs	r3, r3
+ 326 0034 1A44     		add	r2, r2, r3
+ 327 0036 044B     		ldr	r3, .L20
+ 328 0038 1A60     		str	r2, [r3]
+ 329              		.loc 1 155 0
+ 330 003a 034B     		ldr	r3, .L20
+ 331 003c 1B68     		ldr	r3, [r3]
+ 332              	.L19:
+ 333              		.loc 1 156 0
+ 334 003e 1846     		mov	r0, r3
+ 335 0040 03B0     		add	sp, sp, #12
+ 336              		@ sp needed
+ 337 0042 5DF804FB 		ldr	pc, [sp], #4
+ 338              	.L21:
+ 339 0046 00BF     		.align	2
+ 340              	.L20:
+ 341 0048 00000000 		.word	endmem
+ARM GAS  /tmp/ccimyAF9.s 			page 7
+
+
+ 342 004c 00000000 		.word	nextmem
+ 343              		.cfi_endproc
+ 344              	.LFE12:
+ 345              		.size	chCoreReserveI, .-chCoreReserveI
+ 346              		.section	.text.chCoreUnreserve,"ax",%progbits
+ 347              		.align	2
+ 348              		.p2align 4,,15
+ 349              		.global	chCoreUnreserve
+ 350              		.thumb
+ 351              		.thumb_func
+ 352              		.type	chCoreUnreserve, %function
+ 353              	chCoreUnreserve:
+ 354              	.LFB13:
+ 355              		.loc 1 158 0
+ 356              		.cfi_startproc
+ 357              		@ args = 0, pretend = 0, frame = 16
+ 358              		@ frame_needed = 0, uses_anonymous_args = 0
+ 359 0000 00B5     		push	{lr}
+ 360              		.cfi_def_cfa_offset 4
+ 361              		.cfi_offset 14, -4
+ 362 0002 85B0     		sub	sp, sp, #20
+ 363              		.cfi_def_cfa_offset 24
+ 364 0004 0190     		str	r0, [sp, #4]
+ 365              	.LBB6:
+ 366              		.loc 1 161 0
+ 367 0006 2023     		movs	r3, #32
+ 368              	@ 161 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c" 1
+ 369 0008 83F31188 		msr     BASEPRI, r3
+ 370              	@ 0 "" 2
+ 371              		.thumb
+ 372              	.LBE6:
+ 373 000c FFF7FEFF 		bl	dbg_check_lock
+ 374              		.loc 1 162 0
+ 375 0010 0198     		ldr	r0, [sp, #4]
+ 376 0012 FFF7FEFF 		bl	chCoreUnreserveI
+ 377 0016 0390     		str	r0, [sp, #12]
+ 378              		.loc 1 163 0
+ 379 0018 FFF7FEFF 		bl	dbg_check_unlock
+ 380              	.LBB7:
+ 381 001c 0023     		movs	r3, #0
+ 382              	@ 163 "/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmemcore.c" 1
+ 383 001e 83F31188 		msr     BASEPRI, r3
+ 384              	@ 0 "" 2
+ 385              		.thumb
+ 386              	.LBE7:
+ 387              		.loc 1 164 0
+ 388 0022 039B     		ldr	r3, [sp, #12]
+ 389              		.loc 1 165 0
+ 390 0024 1846     		mov	r0, r3
+ 391 0026 05B0     		add	sp, sp, #20
+ 392              		@ sp needed
+ 393 0028 5DF804FB 		ldr	pc, [sp], #4
+ 394              		.cfi_endproc
+ 395              	.LFE13:
+ 396              		.size	chCoreUnreserve, .-chCoreUnreserve
+ 397 002c AFF30080 		.section	.text.chCoreUnreserveI,"ax",%progbits
+ 398              		.align	2
+ARM GAS  /tmp/ccimyAF9.s 			page 8
+
+
+ 399              		.p2align 4,,15
+ 400              		.global	chCoreUnreserveI
+ 401              		.thumb
+ 402              		.thumb_func
+ 403              		.type	chCoreUnreserveI, %function
+ 404              	chCoreUnreserveI:
+ 405              	.LFB14:
+ 406              		.loc 1 167 0
+ 407              		.cfi_startproc
+ 408              		@ args = 0, pretend = 0, frame = 8
+ 409              		@ frame_needed = 0, uses_anonymous_args = 0
+ 410 0000 00B5     		push	{lr}
+ 411              		.cfi_def_cfa_offset 4
+ 412              		.cfi_offset 14, -4
+ 413 0002 83B0     		sub	sp, sp, #12
+ 414              		.cfi_def_cfa_offset 16
+ 415 0004 0190     		str	r0, [sp, #4]
+ 416              		.loc 1 169 0
+ 417 0006 FFF7FEFF 		bl	chDbgCheckClassI
+ 418              		.loc 1 171 0
+ 419 000a 019B     		ldr	r3, [sp, #4]
+ 420 000c 0733     		adds	r3, r3, #7
+ 421 000e 23F00703 		bic	r3, r3, #7
+ 422 0012 0193     		str	r3, [sp, #4]
+ 423              		.loc 1 172 0
+ 424 0014 0B4B     		ldr	r3, .L27
+ 425 0016 1B68     		ldr	r3, [r3]
+ 426 0018 1A46     		mov	r2, r3
+ 427 001a 0B4B     		ldr	r3, .L27+4
+ 428 001c 1B68     		ldr	r3, [r3]
+ 429 001e D31A     		subs	r3, r2, r3
+ 430 0020 1A46     		mov	r2, r3
+ 431 0022 019B     		ldr	r3, [sp, #4]
+ 432 0024 9A42     		cmp	r2, r3
+ 433 0026 01D2     		bcs	.L25
+ 434              		.loc 1 173 0
+ 435 0028 0023     		movs	r3, #0
+ 436 002a 07E0     		b	.L26
+ 437              	.L25:
+ 438              		.loc 1 174 0
+ 439 002c 064B     		ldr	r3, .L27+4
+ 440 002e 1A68     		ldr	r2, [r3]
+ 441 0030 019B     		ldr	r3, [sp, #4]
+ 442 0032 1A44     		add	r2, r2, r3
+ 443 0034 044B     		ldr	r3, .L27+4
+ 444 0036 1A60     		str	r2, [r3]
+ 445              		.loc 1 175 0
+ 446 0038 034B     		ldr	r3, .L27+4
+ 447 003a 1B68     		ldr	r3, [r3]
+ 448              	.L26:
+ 449              		.loc 1 176 0
+ 450 003c 1846     		mov	r0, r3
+ 451 003e 03B0     		add	sp, sp, #12
+ 452              		@ sp needed
+ 453 0040 5DF804FB 		ldr	pc, [sp], #4
+ 454              	.L28:
+ 455              		.align	2
+ARM GAS  /tmp/ccimyAF9.s 			page 9
+
+
+ 456              	.L27:
+ 457 0044 00000000 		.word	realendmem
+ 458 0048 00000000 		.word	endmem
+ 459              		.cfi_endproc
+ 460              	.LFE14:
+ 461              		.size	chCoreUnreserveI, .-chCoreUnreserveI
+ 462 004c AFF30080 		.text
+ 463              	.Letext0:
+ 464              		.file 2 "/usr/lib/gcc/arm-none-eabi/4.8/include/stddef.h"
+ 465              		.file 3 "/usr/include/newlib/machine/_default_types.h"
+ 466              		.file 4 "/usr/include/newlib/stdint.h"
+ 467              		.section	.debug_info,"",%progbits
+ 468              	.Ldebug_info0:
+ 469 0000 03030000 		.4byte	0x303
+ 470 0004 0400     		.2byte	0x4
+ 471 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 472 000a 04       		.byte	0x4
+ 473 000b 01       		.uleb128 0x1
+ 474 000c 24010000 		.4byte	.LASF29
+ 475 0010 01       		.byte	0x1
+ 476 0011 1D020000 		.4byte	.LASF30
+ 477 0015 00000000 		.4byte	.Ldebug_ranges0+0
+ 478 0019 00000000 		.4byte	0
+ 479 001d 00000000 		.4byte	.Ldebug_line0
+ 480 0021 02       		.uleb128 0x2
+ 481 0022 04       		.byte	0x4
+ 482 0023 05       		.byte	0x5
+ 483 0024 696E7400 		.ascii	"int\000"
+ 484 0028 03       		.uleb128 0x3
+ 485 0029 11000000 		.4byte	.LASF2
+ 486 002d 02       		.byte	0x2
+ 487 002e D4       		.byte	0xd4
+ 488 002f 33000000 		.4byte	0x33
+ 489 0033 04       		.uleb128 0x4
+ 490 0034 04       		.byte	0x4
+ 491 0035 07       		.byte	0x7
+ 492 0036 B2000000 		.4byte	.LASF0
+ 493 003a 04       		.uleb128 0x4
+ 494 003b 01       		.byte	0x1
+ 495 003c 06       		.byte	0x6
+ 496 003d 77020000 		.4byte	.LASF1
+ 497 0041 03       		.uleb128 0x3
+ 498 0042 07000000 		.4byte	.LASF3
+ 499 0046 03       		.byte	0x3
+ 500 0047 1D       		.byte	0x1d
+ 501 0048 4C000000 		.4byte	0x4c
+ 502 004c 04       		.uleb128 0x4
+ 503 004d 01       		.byte	0x1
+ 504 004e 08       		.byte	0x8
+ 505 004f 8E000000 		.4byte	.LASF4
+ 506 0053 04       		.uleb128 0x4
+ 507 0054 02       		.byte	0x2
+ 508 0055 05       		.byte	0x5
+ 509 0056 13020000 		.4byte	.LASF5
+ 510 005a 04       		.uleb128 0x4
+ 511 005b 02       		.byte	0x2
+ 512 005c 07       		.byte	0x7
+ARM GAS  /tmp/ccimyAF9.s 			page 10
+
+
+ 513 005d 18000000 		.4byte	.LASF6
+ 514 0061 04       		.uleb128 0x4
+ 515 0062 04       		.byte	0x4
+ 516 0063 05       		.byte	0x5
+ 517 0064 63020000 		.4byte	.LASF7
+ 518 0068 03       		.uleb128 0x3
+ 519 0069 9C000000 		.4byte	.LASF8
+ 520 006d 03       		.byte	0x3
+ 521 006e 41       		.byte	0x41
+ 522 006f 73000000 		.4byte	0x73
+ 523 0073 04       		.uleb128 0x4
+ 524 0074 04       		.byte	0x4
+ 525 0075 07       		.byte	0x7
+ 526 0076 55000000 		.4byte	.LASF9
+ 527 007a 04       		.uleb128 0x4
+ 528 007b 08       		.byte	0x8
+ 529 007c 05       		.byte	0x5
+ 530 007d 04010000 		.4byte	.LASF10
+ 531 0081 04       		.uleb128 0x4
+ 532 0082 08       		.byte	0x8
+ 533 0083 07       		.byte	0x7
+ 534 0084 BF000000 		.4byte	.LASF11
+ 535 0088 03       		.uleb128 0x3
+ 536 0089 D6000000 		.4byte	.LASF12
+ 537 008d 04       		.byte	0x4
+ 538 008e 2A       		.byte	0x2a
+ 539 008f 41000000 		.4byte	0x41
+ 540 0093 03       		.uleb128 0x3
+ 541 0094 85000000 		.4byte	.LASF13
+ 542 0098 04       		.byte	0x4
+ 543 0099 42       		.byte	0x42
+ 544 009a 68000000 		.4byte	0x68
+ 545 009e 04       		.uleb128 0x4
+ 546 009f 01       		.byte	0x1
+ 547 00a0 02       		.byte	0x2
+ 548 00a1 83020000 		.4byte	.LASF14
+ 549 00a5 05       		.uleb128 0x5
+ 550 00a6 04       		.byte	0x4
+ 551 00a7 04       		.uleb128 0x4
+ 552 00a8 04       		.byte	0x4
+ 553 00a9 07       		.byte	0x7
+ 554 00aa FB000000 		.4byte	.LASF15
+ 555 00ae 04       		.uleb128 0x4
+ 556 00af 01       		.byte	0x1
+ 557 00b0 08       		.byte	0x8
+ 558 00b1 12010000 		.4byte	.LASF16
+ 559 00b5 06       		.uleb128 0x6
+ 560 00b6 04       		.byte	0x4
+ 561 00b7 88000000 		.4byte	0x88
+ 562 00bb 07       		.uleb128 0x7
+ 563 00bc A7000000 		.4byte	.LASF31
+ 564 00c0 01       		.byte	0x1
+ 565 00c1 43       		.byte	0x43
+ 566 00c2 00000000 		.4byte	.LFB7
+ 567 00c6 2C000000 		.4byte	.LFE7-.LFB7
+ 568 00ca 01       		.uleb128 0x1
+ 569 00cb 9C       		.byte	0x9c
+ARM GAS  /tmp/ccimyAF9.s 			page 11
+
+
+ 570 00cc E7000000 		.4byte	0xe7
+ 571 00d0 08       		.uleb128 0x8
+ 572 00d1 DE000000 		.4byte	.LASF17
+ 573 00d5 01       		.byte	0x1
+ 574 00d6 45       		.byte	0x45
+ 575 00d7 E7000000 		.4byte	0xe7
+ 576 00db 08       		.uleb128 0x8
+ 577 00dc 17010000 		.4byte	.LASF18
+ 578 00e0 01       		.byte	0x1
+ 579 00e1 46       		.byte	0x46
+ 580 00e2 E7000000 		.4byte	0xe7
+ 581 00e6 00       		.byte	0
+ 582 00e7 09       		.uleb128 0x9
+ 583 00e8 88000000 		.4byte	0x88
+ 584 00ec F2000000 		.4byte	0xf2
+ 585 00f0 0A       		.uleb128 0xa
+ 586 00f1 00       		.byte	0
+ 587 00f2 0B       		.uleb128 0xb
+ 588 00f3 57020000 		.4byte	.LASF19
+ 589 00f7 01       		.byte	0x1
+ 590 00f8 5C       		.byte	0x5c
+ 591 00f9 A5000000 		.4byte	0xa5
+ 592 00fd 00000000 		.4byte	.LFB8
+ 593 0101 2C000000 		.4byte	.LFE8-.LFB8
+ 594 0105 01       		.uleb128 0x1
+ 595 0106 9C       		.byte	0x9c
+ 596 0107 58010000 		.4byte	0x158
+ 597 010b 0C       		.uleb128 0xc
+ 598 010c 50000000 		.4byte	.LASF21
+ 599 0110 01       		.byte	0x1
+ 600 0111 5C       		.byte	0x5c
+ 601 0112 28000000 		.4byte	0x28
+ 602 0116 02       		.uleb128 0x2
+ 603 0117 91       		.byte	0x91
+ 604 0118 6C       		.sleb128 -20
+ 605 0119 0D       		.uleb128 0xd
+ 606 011a 7000     		.ascii	"p\000"
+ 607 011c 01       		.byte	0x1
+ 608 011d 5D       		.byte	0x5d
+ 609 011e A5000000 		.4byte	0xa5
+ 610 0122 02       		.uleb128 0x2
+ 611 0123 91       		.byte	0x91
+ 612 0124 74       		.sleb128 -12
+ 613 0125 0E       		.uleb128 0xe
+ 614 0126 06000000 		.4byte	.LBB2
+ 615 012a 06000000 		.4byte	.LBE2-.LBB2
+ 616 012e 40010000 		.4byte	0x140
+ 617 0132 0D       		.uleb128 0xd
+ 618 0133 746D7000 		.ascii	"tmp\000"
+ 619 0137 01       		.byte	0x1
+ 620 0138 5F       		.byte	0x5f
+ 621 0139 93000000 		.4byte	0x93
+ 622 013d 01       		.uleb128 0x1
+ 623 013e 53       		.byte	0x53
+ 624 013f 00       		.byte	0
+ 625 0140 0F       		.uleb128 0xf
+ 626 0141 1C000000 		.4byte	.LBB3
+ARM GAS  /tmp/ccimyAF9.s 			page 12
+
+
+ 627 0145 06000000 		.4byte	.LBE3-.LBB3
+ 628 0149 0D       		.uleb128 0xd
+ 629 014a 746D7000 		.ascii	"tmp\000"
+ 630 014e 01       		.byte	0x1
+ 631 014f 61       		.byte	0x61
+ 632 0150 93000000 		.4byte	0x93
+ 633 0154 01       		.uleb128 0x1
+ 634 0155 53       		.byte	0x53
+ 635 0156 00       		.byte	0
+ 636 0157 00       		.byte	0
+ 637 0158 0B       		.uleb128 0xb
+ 638 0159 33000000 		.4byte	.LASF20
+ 639 015d 01       		.byte	0x1
+ 640 015e 71       		.byte	0x71
+ 641 015f A5000000 		.4byte	0xa5
+ 642 0163 00000000 		.4byte	.LFB9
+ 643 0167 50000000 		.4byte	.LFE9-.LFB9
+ 644 016b 01       		.uleb128 0x1
+ 645 016c 9C       		.byte	0x9c
+ 646 016d 8C010000 		.4byte	0x18c
+ 647 0171 0C       		.uleb128 0xc
+ 648 0172 50000000 		.4byte	.LASF21
+ 649 0176 01       		.byte	0x1
+ 650 0177 71       		.byte	0x71
+ 651 0178 28000000 		.4byte	0x28
+ 652 017c 02       		.uleb128 0x2
+ 653 017d 91       		.byte	0x91
+ 654 017e 6C       		.sleb128 -20
+ 655 017f 0D       		.uleb128 0xd
+ 656 0180 7000     		.ascii	"p\000"
+ 657 0182 01       		.byte	0x1
+ 658 0183 72       		.byte	0x72
+ 659 0184 A5000000 		.4byte	0xa5
+ 660 0188 02       		.uleb128 0x2
+ 661 0189 91       		.byte	0x91
+ 662 018a 74       		.sleb128 -12
+ 663 018b 00       		.byte	0
+ 664 018c 10       		.uleb128 0x10
+ 665 018d 67000000 		.4byte	.LASF32
+ 666 0191 01       		.byte	0x1
+ 667 0192 85       		.byte	0x85
+ 668 0193 28000000 		.4byte	0x28
+ 669 0197 00000000 		.4byte	.LFB10
+ 670 019b 18000000 		.4byte	.LFE10-.LFB10
+ 671 019f 01       		.uleb128 0x1
+ 672 01a0 9C       		.byte	0x9c
+ 673 01a1 0B       		.uleb128 0xb
+ 674 01a2 89020000 		.4byte	.LASF22
+ 675 01a6 01       		.byte	0x1
+ 676 01a7 8A       		.byte	0x8a
+ 677 01a8 A5000000 		.4byte	0xa5
+ 678 01ac 00000000 		.4byte	.LFB11
+ 679 01b0 2C000000 		.4byte	.LFE11-.LFB11
+ 680 01b4 01       		.uleb128 0x1
+ 681 01b5 9C       		.byte	0x9c
+ 682 01b6 07020000 		.4byte	0x207
+ 683 01ba 0C       		.uleb128 0xc
+ARM GAS  /tmp/ccimyAF9.s 			page 13
+
+
+ 684 01bb 50000000 		.4byte	.LASF21
+ 685 01bf 01       		.byte	0x1
+ 686 01c0 8A       		.byte	0x8a
+ 687 01c1 28000000 		.4byte	0x28
+ 688 01c5 02       		.uleb128 0x2
+ 689 01c6 91       		.byte	0x91
+ 690 01c7 6C       		.sleb128 -20
+ 691 01c8 0D       		.uleb128 0xd
+ 692 01c9 7000     		.ascii	"p\000"
+ 693 01cb 01       		.byte	0x1
+ 694 01cc 8B       		.byte	0x8b
+ 695 01cd A5000000 		.4byte	0xa5
+ 696 01d1 02       		.uleb128 0x2
+ 697 01d2 91       		.byte	0x91
+ 698 01d3 74       		.sleb128 -12
+ 699 01d4 0E       		.uleb128 0xe
+ 700 01d5 06000000 		.4byte	.LBB4
+ 701 01d9 06000000 		.4byte	.LBE4-.LBB4
+ 702 01dd EF010000 		.4byte	0x1ef
+ 703 01e1 0D       		.uleb128 0xd
+ 704 01e2 746D7000 		.ascii	"tmp\000"
+ 705 01e6 01       		.byte	0x1
+ 706 01e7 8D       		.byte	0x8d
+ 707 01e8 93000000 		.4byte	0x93
+ 708 01ec 01       		.uleb128 0x1
+ 709 01ed 53       		.byte	0x53
+ 710 01ee 00       		.byte	0
+ 711 01ef 0F       		.uleb128 0xf
+ 712 01f0 1C000000 		.4byte	.LBB5
+ 713 01f4 06000000 		.4byte	.LBE5-.LBB5
+ 714 01f8 0D       		.uleb128 0xd
+ 715 01f9 746D7000 		.ascii	"tmp\000"
+ 716 01fd 01       		.byte	0x1
+ 717 01fe 8F       		.byte	0x8f
+ 718 01ff 93000000 		.4byte	0x93
+ 719 0203 01       		.uleb128 0x1
+ 720 0204 53       		.byte	0x53
+ 721 0205 00       		.byte	0
+ 722 0206 00       		.byte	0
+ 723 0207 0B       		.uleb128 0xb
+ 724 0208 EC000000 		.4byte	.LASF23
+ 725 020c 01       		.byte	0x1
+ 726 020d 93       		.byte	0x93
+ 727 020e A5000000 		.4byte	0xa5
+ 728 0212 00000000 		.4byte	.LFB12
+ 729 0216 50000000 		.4byte	.LFE12-.LFB12
+ 730 021a 01       		.uleb128 0x1
+ 731 021b 9C       		.byte	0x9c
+ 732 021c 2F020000 		.4byte	0x22f
+ 733 0220 0C       		.uleb128 0xc
+ 734 0221 50000000 		.4byte	.LASF21
+ 735 0225 01       		.byte	0x1
+ 736 0226 93       		.byte	0x93
+ 737 0227 28000000 		.4byte	0x28
+ 738 022b 02       		.uleb128 0x2
+ 739 022c 91       		.byte	0x91
+ 740 022d 74       		.sleb128 -12
+ARM GAS  /tmp/ccimyAF9.s 			page 14
+
+
+ 741 022e 00       		.byte	0
+ 742 022f 0B       		.uleb128 0xb
+ 743 0230 40000000 		.4byte	.LASF24
+ 744 0234 01       		.byte	0x1
+ 745 0235 9E       		.byte	0x9e
+ 746 0236 A5000000 		.4byte	0xa5
+ 747 023a 00000000 		.4byte	.LFB13
+ 748 023e 2C000000 		.4byte	.LFE13-.LFB13
+ 749 0242 01       		.uleb128 0x1
+ 750 0243 9C       		.byte	0x9c
+ 751 0244 95020000 		.4byte	0x295
+ 752 0248 0C       		.uleb128 0xc
+ 753 0249 50000000 		.4byte	.LASF21
+ 754 024d 01       		.byte	0x1
+ 755 024e 9E       		.byte	0x9e
+ 756 024f 28000000 		.4byte	0x28
+ 757 0253 02       		.uleb128 0x2
+ 758 0254 91       		.byte	0x91
+ 759 0255 6C       		.sleb128 -20
+ 760 0256 0D       		.uleb128 0xd
+ 761 0257 7000     		.ascii	"p\000"
+ 762 0259 01       		.byte	0x1
+ 763 025a 9F       		.byte	0x9f
+ 764 025b A5000000 		.4byte	0xa5
+ 765 025f 02       		.uleb128 0x2
+ 766 0260 91       		.byte	0x91
+ 767 0261 74       		.sleb128 -12
+ 768 0262 0E       		.uleb128 0xe
+ 769 0263 06000000 		.4byte	.LBB6
+ 770 0267 06000000 		.4byte	.LBE6-.LBB6
+ 771 026b 7D020000 		.4byte	0x27d
+ 772 026f 0D       		.uleb128 0xd
+ 773 0270 746D7000 		.ascii	"tmp\000"
+ 774 0274 01       		.byte	0x1
+ 775 0275 A1       		.byte	0xa1
+ 776 0276 93000000 		.4byte	0x93
+ 777 027a 01       		.uleb128 0x1
+ 778 027b 53       		.byte	0x53
+ 779 027c 00       		.byte	0
+ 780 027d 0F       		.uleb128 0xf
+ 781 027e 1C000000 		.4byte	.LBB7
+ 782 0282 06000000 		.4byte	.LBE7-.LBB7
+ 783 0286 0D       		.uleb128 0xd
+ 784 0287 746D7000 		.ascii	"tmp\000"
+ 785 028b 01       		.byte	0x1
+ 786 028c A3       		.byte	0xa3
+ 787 028d 93000000 		.4byte	0x93
+ 788 0291 01       		.uleb128 0x1
+ 789 0292 53       		.byte	0x53
+ 790 0293 00       		.byte	0
+ 791 0294 00       		.byte	0
+ 792 0295 0B       		.uleb128 0xb
+ 793 0296 74000000 		.4byte	.LASF25
+ 794 029a 01       		.byte	0x1
+ 795 029b A7       		.byte	0xa7
+ 796 029c A5000000 		.4byte	0xa5
+ 797 02a0 00000000 		.4byte	.LFB14
+ARM GAS  /tmp/ccimyAF9.s 			page 15
+
+
+ 798 02a4 4C000000 		.4byte	.LFE14-.LFB14
+ 799 02a8 01       		.uleb128 0x1
+ 800 02a9 9C       		.byte	0x9c
+ 801 02aa BD020000 		.4byte	0x2bd
+ 802 02ae 0C       		.uleb128 0xc
+ 803 02af 50000000 		.4byte	.LASF21
+ 804 02b3 01       		.byte	0x1
+ 805 02b4 A7       		.byte	0xa7
+ 806 02b5 28000000 		.4byte	0x28
+ 807 02b9 02       		.uleb128 0x2
+ 808 02ba 91       		.byte	0x91
+ 809 02bb 74       		.sleb128 -12
+ 810 02bc 00       		.byte	0
+ 811 02bd 11       		.uleb128 0x11
+ 812 02be 2B000000 		.4byte	.LASF26
+ 813 02c2 01       		.byte	0x1
+ 814 02c3 3A       		.byte	0x3a
+ 815 02c4 B5000000 		.4byte	0xb5
+ 816 02c8 05       		.uleb128 0x5
+ 817 02c9 03       		.byte	0x3
+ 818 02ca 00000000 		.4byte	nextmem
+ 819 02ce 11       		.uleb128 0x11
+ 820 02cf 00000000 		.4byte	.LASF27
+ 821 02d3 01       		.byte	0x1
+ 822 02d4 3B       		.byte	0x3b
+ 823 02d5 B5000000 		.4byte	0xb5
+ 824 02d9 05       		.uleb128 0x5
+ 825 02da 03       		.byte	0x3
+ 826 02db 00000000 		.4byte	endmem
+ 827 02df 11       		.uleb128 0x11
+ 828 02e0 6C020000 		.4byte	.LASF28
+ 829 02e4 01       		.byte	0x1
+ 830 02e5 3C       		.byte	0x3c
+ 831 02e6 B5000000 		.4byte	0xb5
+ 832 02ea 05       		.uleb128 0x5
+ 833 02eb 03       		.byte	0x3
+ 834 02ec 00000000 		.4byte	realendmem
+ 835 02f0 08       		.uleb128 0x8
+ 836 02f1 DE000000 		.4byte	.LASF17
+ 837 02f5 01       		.byte	0x1
+ 838 02f6 45       		.byte	0x45
+ 839 02f7 E7000000 		.4byte	0xe7
+ 840 02fb 08       		.uleb128 0x8
+ 841 02fc 17010000 		.4byte	.LASF18
+ 842 0300 01       		.byte	0x1
+ 843 0301 46       		.byte	0x46
+ 844 0302 E7000000 		.4byte	0xe7
+ 845 0306 00       		.byte	0
+ 846              		.section	.debug_abbrev,"",%progbits
+ 847              	.Ldebug_abbrev0:
+ 848 0000 01       		.uleb128 0x1
+ 849 0001 11       		.uleb128 0x11
+ 850 0002 01       		.byte	0x1
+ 851 0003 25       		.uleb128 0x25
+ 852 0004 0E       		.uleb128 0xe
+ 853 0005 13       		.uleb128 0x13
+ 854 0006 0B       		.uleb128 0xb
+ARM GAS  /tmp/ccimyAF9.s 			page 16
+
+
+ 855 0007 03       		.uleb128 0x3
+ 856 0008 0E       		.uleb128 0xe
+ 857 0009 55       		.uleb128 0x55
+ 858 000a 17       		.uleb128 0x17
+ 859 000b 11       		.uleb128 0x11
+ 860 000c 01       		.uleb128 0x1
+ 861 000d 10       		.uleb128 0x10
+ 862 000e 17       		.uleb128 0x17
+ 863 000f 00       		.byte	0
+ 864 0010 00       		.byte	0
+ 865 0011 02       		.uleb128 0x2
+ 866 0012 24       		.uleb128 0x24
+ 867 0013 00       		.byte	0
+ 868 0014 0B       		.uleb128 0xb
+ 869 0015 0B       		.uleb128 0xb
+ 870 0016 3E       		.uleb128 0x3e
+ 871 0017 0B       		.uleb128 0xb
+ 872 0018 03       		.uleb128 0x3
+ 873 0019 08       		.uleb128 0x8
+ 874 001a 00       		.byte	0
+ 875 001b 00       		.byte	0
+ 876 001c 03       		.uleb128 0x3
+ 877 001d 16       		.uleb128 0x16
+ 878 001e 00       		.byte	0
+ 879 001f 03       		.uleb128 0x3
+ 880 0020 0E       		.uleb128 0xe
+ 881 0021 3A       		.uleb128 0x3a
+ 882 0022 0B       		.uleb128 0xb
+ 883 0023 3B       		.uleb128 0x3b
+ 884 0024 0B       		.uleb128 0xb
+ 885 0025 49       		.uleb128 0x49
+ 886 0026 13       		.uleb128 0x13
+ 887 0027 00       		.byte	0
+ 888 0028 00       		.byte	0
+ 889 0029 04       		.uleb128 0x4
+ 890 002a 24       		.uleb128 0x24
+ 891 002b 00       		.byte	0
+ 892 002c 0B       		.uleb128 0xb
+ 893 002d 0B       		.uleb128 0xb
+ 894 002e 3E       		.uleb128 0x3e
+ 895 002f 0B       		.uleb128 0xb
+ 896 0030 03       		.uleb128 0x3
+ 897 0031 0E       		.uleb128 0xe
+ 898 0032 00       		.byte	0
+ 899 0033 00       		.byte	0
+ 900 0034 05       		.uleb128 0x5
+ 901 0035 0F       		.uleb128 0xf
+ 902 0036 00       		.byte	0
+ 903 0037 0B       		.uleb128 0xb
+ 904 0038 0B       		.uleb128 0xb
+ 905 0039 00       		.byte	0
+ 906 003a 00       		.byte	0
+ 907 003b 06       		.uleb128 0x6
+ 908 003c 0F       		.uleb128 0xf
+ 909 003d 00       		.byte	0
+ 910 003e 0B       		.uleb128 0xb
+ 911 003f 0B       		.uleb128 0xb
+ARM GAS  /tmp/ccimyAF9.s 			page 17
+
+
+ 912 0040 49       		.uleb128 0x49
+ 913 0041 13       		.uleb128 0x13
+ 914 0042 00       		.byte	0
+ 915 0043 00       		.byte	0
+ 916 0044 07       		.uleb128 0x7
+ 917 0045 2E       		.uleb128 0x2e
+ 918 0046 01       		.byte	0x1
+ 919 0047 3F       		.uleb128 0x3f
+ 920 0048 19       		.uleb128 0x19
+ 921 0049 03       		.uleb128 0x3
+ 922 004a 0E       		.uleb128 0xe
+ 923 004b 3A       		.uleb128 0x3a
+ 924 004c 0B       		.uleb128 0xb
+ 925 004d 3B       		.uleb128 0x3b
+ 926 004e 0B       		.uleb128 0xb
+ 927 004f 27       		.uleb128 0x27
+ 928 0050 19       		.uleb128 0x19
+ 929 0051 11       		.uleb128 0x11
+ 930 0052 01       		.uleb128 0x1
+ 931 0053 12       		.uleb128 0x12
+ 932 0054 06       		.uleb128 0x6
+ 933 0055 40       		.uleb128 0x40
+ 934 0056 18       		.uleb128 0x18
+ 935 0057 9742     		.uleb128 0x2117
+ 936 0059 19       		.uleb128 0x19
+ 937 005a 01       		.uleb128 0x1
+ 938 005b 13       		.uleb128 0x13
+ 939 005c 00       		.byte	0
+ 940 005d 00       		.byte	0
+ 941 005e 08       		.uleb128 0x8
+ 942 005f 34       		.uleb128 0x34
+ 943 0060 00       		.byte	0
+ 944 0061 03       		.uleb128 0x3
+ 945 0062 0E       		.uleb128 0xe
+ 946 0063 3A       		.uleb128 0x3a
+ 947 0064 0B       		.uleb128 0xb
+ 948 0065 3B       		.uleb128 0x3b
+ 949 0066 0B       		.uleb128 0xb
+ 950 0067 49       		.uleb128 0x49
+ 951 0068 13       		.uleb128 0x13
+ 952 0069 3F       		.uleb128 0x3f
+ 953 006a 19       		.uleb128 0x19
+ 954 006b 3C       		.uleb128 0x3c
+ 955 006c 19       		.uleb128 0x19
+ 956 006d 00       		.byte	0
+ 957 006e 00       		.byte	0
+ 958 006f 09       		.uleb128 0x9
+ 959 0070 01       		.uleb128 0x1
+ 960 0071 01       		.byte	0x1
+ 961 0072 49       		.uleb128 0x49
+ 962 0073 13       		.uleb128 0x13
+ 963 0074 01       		.uleb128 0x1
+ 964 0075 13       		.uleb128 0x13
+ 965 0076 00       		.byte	0
+ 966 0077 00       		.byte	0
+ 967 0078 0A       		.uleb128 0xa
+ 968 0079 21       		.uleb128 0x21
+ARM GAS  /tmp/ccimyAF9.s 			page 18
+
+
+ 969 007a 00       		.byte	0
+ 970 007b 00       		.byte	0
+ 971 007c 00       		.byte	0
+ 972 007d 0B       		.uleb128 0xb
+ 973 007e 2E       		.uleb128 0x2e
+ 974 007f 01       		.byte	0x1
+ 975 0080 3F       		.uleb128 0x3f
+ 976 0081 19       		.uleb128 0x19
+ 977 0082 03       		.uleb128 0x3
+ 978 0083 0E       		.uleb128 0xe
+ 979 0084 3A       		.uleb128 0x3a
+ 980 0085 0B       		.uleb128 0xb
+ 981 0086 3B       		.uleb128 0x3b
+ 982 0087 0B       		.uleb128 0xb
+ 983 0088 27       		.uleb128 0x27
+ 984 0089 19       		.uleb128 0x19
+ 985 008a 49       		.uleb128 0x49
+ 986 008b 13       		.uleb128 0x13
+ 987 008c 11       		.uleb128 0x11
+ 988 008d 01       		.uleb128 0x1
+ 989 008e 12       		.uleb128 0x12
+ 990 008f 06       		.uleb128 0x6
+ 991 0090 40       		.uleb128 0x40
+ 992 0091 18       		.uleb128 0x18
+ 993 0092 9642     		.uleb128 0x2116
+ 994 0094 19       		.uleb128 0x19
+ 995 0095 01       		.uleb128 0x1
+ 996 0096 13       		.uleb128 0x13
+ 997 0097 00       		.byte	0
+ 998 0098 00       		.byte	0
+ 999 0099 0C       		.uleb128 0xc
+ 1000 009a 05       		.uleb128 0x5
+ 1001 009b 00       		.byte	0
+ 1002 009c 03       		.uleb128 0x3
+ 1003 009d 0E       		.uleb128 0xe
+ 1004 009e 3A       		.uleb128 0x3a
+ 1005 009f 0B       		.uleb128 0xb
+ 1006 00a0 3B       		.uleb128 0x3b
+ 1007 00a1 0B       		.uleb128 0xb
+ 1008 00a2 49       		.uleb128 0x49
+ 1009 00a3 13       		.uleb128 0x13
+ 1010 00a4 02       		.uleb128 0x2
+ 1011 00a5 18       		.uleb128 0x18
+ 1012 00a6 00       		.byte	0
+ 1013 00a7 00       		.byte	0
+ 1014 00a8 0D       		.uleb128 0xd
+ 1015 00a9 34       		.uleb128 0x34
+ 1016 00aa 00       		.byte	0
+ 1017 00ab 03       		.uleb128 0x3
+ 1018 00ac 08       		.uleb128 0x8
+ 1019 00ad 3A       		.uleb128 0x3a
+ 1020 00ae 0B       		.uleb128 0xb
+ 1021 00af 3B       		.uleb128 0x3b
+ 1022 00b0 0B       		.uleb128 0xb
+ 1023 00b1 49       		.uleb128 0x49
+ 1024 00b2 13       		.uleb128 0x13
+ 1025 00b3 02       		.uleb128 0x2
+ARM GAS  /tmp/ccimyAF9.s 			page 19
+
+
+ 1026 00b4 18       		.uleb128 0x18
+ 1027 00b5 00       		.byte	0
+ 1028 00b6 00       		.byte	0
+ 1029 00b7 0E       		.uleb128 0xe
+ 1030 00b8 0B       		.uleb128 0xb
+ 1031 00b9 01       		.byte	0x1
+ 1032 00ba 11       		.uleb128 0x11
+ 1033 00bb 01       		.uleb128 0x1
+ 1034 00bc 12       		.uleb128 0x12
+ 1035 00bd 06       		.uleb128 0x6
+ 1036 00be 01       		.uleb128 0x1
+ 1037 00bf 13       		.uleb128 0x13
+ 1038 00c0 00       		.byte	0
+ 1039 00c1 00       		.byte	0
+ 1040 00c2 0F       		.uleb128 0xf
+ 1041 00c3 0B       		.uleb128 0xb
+ 1042 00c4 01       		.byte	0x1
+ 1043 00c5 11       		.uleb128 0x11
+ 1044 00c6 01       		.uleb128 0x1
+ 1045 00c7 12       		.uleb128 0x12
+ 1046 00c8 06       		.uleb128 0x6
+ 1047 00c9 00       		.byte	0
+ 1048 00ca 00       		.byte	0
+ 1049 00cb 10       		.uleb128 0x10
+ 1050 00cc 2E       		.uleb128 0x2e
+ 1051 00cd 00       		.byte	0
+ 1052 00ce 3F       		.uleb128 0x3f
+ 1053 00cf 19       		.uleb128 0x19
+ 1054 00d0 03       		.uleb128 0x3
+ 1055 00d1 0E       		.uleb128 0xe
+ 1056 00d2 3A       		.uleb128 0x3a
+ 1057 00d3 0B       		.uleb128 0xb
+ 1058 00d4 3B       		.uleb128 0x3b
+ 1059 00d5 0B       		.uleb128 0xb
+ 1060 00d6 27       		.uleb128 0x27
+ 1061 00d7 19       		.uleb128 0x19
+ 1062 00d8 49       		.uleb128 0x49
+ 1063 00d9 13       		.uleb128 0x13
+ 1064 00da 11       		.uleb128 0x11
+ 1065 00db 01       		.uleb128 0x1
+ 1066 00dc 12       		.uleb128 0x12
+ 1067 00dd 06       		.uleb128 0x6
+ 1068 00de 40       		.uleb128 0x40
+ 1069 00df 18       		.uleb128 0x18
+ 1070 00e0 9742     		.uleb128 0x2117
+ 1071 00e2 19       		.uleb128 0x19
+ 1072 00e3 00       		.byte	0
+ 1073 00e4 00       		.byte	0
+ 1074 00e5 11       		.uleb128 0x11
+ 1075 00e6 34       		.uleb128 0x34
+ 1076 00e7 00       		.byte	0
+ 1077 00e8 03       		.uleb128 0x3
+ 1078 00e9 0E       		.uleb128 0xe
+ 1079 00ea 3A       		.uleb128 0x3a
+ 1080 00eb 0B       		.uleb128 0xb
+ 1081 00ec 3B       		.uleb128 0x3b
+ 1082 00ed 0B       		.uleb128 0xb
+ARM GAS  /tmp/ccimyAF9.s 			page 20
+
+
+ 1083 00ee 49       		.uleb128 0x49
+ 1084 00ef 13       		.uleb128 0x13
+ 1085 00f0 02       		.uleb128 0x2
+ 1086 00f1 18       		.uleb128 0x18
+ 1087 00f2 00       		.byte	0
+ 1088 00f3 00       		.byte	0
+ 1089 00f4 00       		.byte	0
+ 1090              		.section	.debug_aranges,"",%progbits
+ 1091 0000 54000000 		.4byte	0x54
+ 1092 0004 0200     		.2byte	0x2
+ 1093 0006 00000000 		.4byte	.Ldebug_info0
+ 1094 000a 04       		.byte	0x4
+ 1095 000b 00       		.byte	0
+ 1096 000c 0000     		.2byte	0
+ 1097 000e 0000     		.2byte	0
+ 1098 0010 00000000 		.4byte	.LFB7
+ 1099 0014 2C000000 		.4byte	.LFE7-.LFB7
+ 1100 0018 00000000 		.4byte	.LFB8
+ 1101 001c 2C000000 		.4byte	.LFE8-.LFB8
+ 1102 0020 00000000 		.4byte	.LFB9
+ 1103 0024 50000000 		.4byte	.LFE9-.LFB9
+ 1104 0028 00000000 		.4byte	.LFB10
+ 1105 002c 18000000 		.4byte	.LFE10-.LFB10
+ 1106 0030 00000000 		.4byte	.LFB11
+ 1107 0034 2C000000 		.4byte	.LFE11-.LFB11
+ 1108 0038 00000000 		.4byte	.LFB12
+ 1109 003c 50000000 		.4byte	.LFE12-.LFB12
+ 1110 0040 00000000 		.4byte	.LFB13
+ 1111 0044 2C000000 		.4byte	.LFE13-.LFB13
+ 1112 0048 00000000 		.4byte	.LFB14
+ 1113 004c 4C000000 		.4byte	.LFE14-.LFB14
+ 1114 0050 00000000 		.4byte	0
+ 1115 0054 00000000 		.4byte	0
+ 1116              		.section	.debug_ranges,"",%progbits
+ 1117              	.Ldebug_ranges0:
+ 1118 0000 00000000 		.4byte	.LFB7
+ 1119 0004 2C000000 		.4byte	.LFE7
+ 1120 0008 00000000 		.4byte	.LFB8
+ 1121 000c 2C000000 		.4byte	.LFE8
+ 1122 0010 00000000 		.4byte	.LFB9
+ 1123 0014 50000000 		.4byte	.LFE9
+ 1124 0018 00000000 		.4byte	.LFB10
+ 1125 001c 18000000 		.4byte	.LFE10
+ 1126 0020 00000000 		.4byte	.LFB11
+ 1127 0024 2C000000 		.4byte	.LFE11
+ 1128 0028 00000000 		.4byte	.LFB12
+ 1129 002c 50000000 		.4byte	.LFE12
+ 1130 0030 00000000 		.4byte	.LFB13
+ 1131 0034 2C000000 		.4byte	.LFE13
+ 1132 0038 00000000 		.4byte	.LFB14
+ 1133 003c 4C000000 		.4byte	.LFE14
+ 1134 0040 00000000 		.4byte	0
+ 1135 0044 00000000 		.4byte	0
+ 1136              		.section	.debug_line,"",%progbits
+ 1137              	.Ldebug_line0:
+ 1138 0000 83010000 		.section	.debug_str,"MS",%progbits,1
+ 1138      0200D300 
+ARM GAS  /tmp/ccimyAF9.s 			page 21
+
+
+ 1138      00000201 
+ 1138      FB0E0D00 
+ 1138      01010101 
+ 1139              	.LASF27:
+ 1140 0000 656E646D 		.ascii	"endmem\000"
+ 1140      656D00
+ 1141              	.LASF3:
+ 1142 0007 5F5F7569 		.ascii	"__uint8_t\000"
+ 1142      6E74385F 
+ 1142      7400
+ 1143              	.LASF2:
+ 1144 0011 73697A65 		.ascii	"size_t\000"
+ 1144      5F7400
+ 1145              	.LASF6:
+ 1146 0018 73686F72 		.ascii	"short unsigned int\000"
+ 1146      7420756E 
+ 1146      7369676E 
+ 1146      65642069 
+ 1146      6E7400
+ 1147              	.LASF26:
+ 1148 002b 6E657874 		.ascii	"nextmem\000"
+ 1148      6D656D00 
+ 1149              	.LASF20:
+ 1150 0033 6368436F 		.ascii	"chCoreAllocI\000"
+ 1150      7265416C 
+ 1150      6C6F6349 
+ 1150      00
+ 1151              	.LASF24:
+ 1152 0040 6368436F 		.ascii	"chCoreUnreserve\000"
+ 1152      7265556E 
+ 1152      72657365 
+ 1152      72766500 
+ 1153              	.LASF21:
+ 1154 0050 73697A65 		.ascii	"size\000"
+ 1154      00
+ 1155              	.LASF9:
+ 1156 0055 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1156      20756E73 
+ 1156      69676E65 
+ 1156      6420696E 
+ 1156      7400
+ 1157              	.LASF32:
+ 1158 0067 6368436F 		.ascii	"chCoreStatus\000"
+ 1158      72655374 
+ 1158      61747573 
+ 1158      00
+ 1159              	.LASF25:
+ 1160 0074 6368436F 		.ascii	"chCoreUnreserveI\000"
+ 1160      7265556E 
+ 1160      72657365 
+ 1160      72766549 
+ 1160      00
+ 1161              	.LASF13:
+ 1162 0085 75696E74 		.ascii	"uint32_t\000"
+ 1162      33325F74 
+ 1162      00
+ 1163              	.LASF4:
+ARM GAS  /tmp/ccimyAF9.s 			page 22
+
+
+ 1164 008e 756E7369 		.ascii	"unsigned char\000"
+ 1164      676E6564 
+ 1164      20636861 
+ 1164      7200
+ 1165              	.LASF8:
+ 1166 009c 5F5F7569 		.ascii	"__uint32_t\000"
+ 1166      6E743332 
+ 1166      5F7400
+ 1167              	.LASF31:
+ 1168 00a7 5F636F72 		.ascii	"_core_init\000"
+ 1168      655F696E 
+ 1168      697400
+ 1169              	.LASF0:
+ 1170 00b2 756E7369 		.ascii	"unsigned int\000"
+ 1170      676E6564 
+ 1170      20696E74 
+ 1170      00
+ 1171              	.LASF11:
+ 1172 00bf 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1172      206C6F6E 
+ 1172      6720756E 
+ 1172      7369676E 
+ 1172      65642069 
+ 1173              	.LASF12:
+ 1174 00d6 75696E74 		.ascii	"uint8_t\000"
+ 1174      385F7400 
+ 1175              	.LASF17:
+ 1176 00de 5F5F6865 		.ascii	"__heap_base__\000"
+ 1176      61705F62 
+ 1176      6173655F 
+ 1176      5F00
+ 1177              	.LASF23:
+ 1178 00ec 6368436F 		.ascii	"chCoreReserveI\000"
+ 1178      72655265 
+ 1178      73657276 
+ 1178      654900
+ 1179              	.LASF15:
+ 1180 00fb 73697A65 		.ascii	"sizetype\000"
+ 1180      74797065 
+ 1180      00
+ 1181              	.LASF10:
+ 1182 0104 6C6F6E67 		.ascii	"long long int\000"
+ 1182      206C6F6E 
+ 1182      6720696E 
+ 1182      7400
+ 1183              	.LASF16:
+ 1184 0112 63686172 		.ascii	"char\000"
+ 1184      00
+ 1185              	.LASF18:
+ 1186 0117 5F5F6865 		.ascii	"__heap_end__\000"
+ 1186      61705F65 
+ 1186      6E645F5F 
+ 1186      00
+ 1187              	.LASF29:
+ 1188 0124 474E5520 		.ascii	"GNU C 4.8.4 20141219 (release) -mcpu=cortex-m4 -mfl"
+ 1188      4320342E 
+ 1188      382E3420 
+ARM GAS  /tmp/ccimyAF9.s 			page 23
+
+
+ 1188      32303134 
+ 1188      31323139 
+ 1189 0157 6F61742D 		.ascii	"oat-abi=hard -mfpu=fpv4-sp-d16 -mno-thumb-interwork"
+ 1189      6162693D 
+ 1189      68617264 
+ 1189      202D6D66 
+ 1189      70753D66 
+ 1190 018a 202D6D74 		.ascii	" -mthumb -ggdb -O0 -fomit-frame-pointer -falign-fun"
+ 1190      68756D62 
+ 1190      202D6767 
+ 1190      6462202D 
+ 1190      4F30202D 
+ 1191 01bd 6374696F 		.ascii	"ctions=16 -ffunction-sections -fdata-sections -fno-"
+ 1191      6E733D31 
+ 1191      36202D66 
+ 1191      66756E63 
+ 1191      74696F6E 
+ 1192 01f0 636F6D6D 		.ascii	"common -fsingle-precision-constant\000"
+ 1192      6F6E202D 
+ 1192      6673696E 
+ 1192      676C652D 
+ 1192      70726563 
+ 1193              	.LASF5:
+ 1194 0213 73686F72 		.ascii	"short int\000"
+ 1194      7420696E 
+ 1194      7400
+ 1195              	.LASF30:
+ 1196 021d 2F686F6D 		.ascii	"/home/dave/r2p-sdk/core/ChibiOS/os/kernel/src/chmem"
+ 1196      652F6461 
+ 1196      76652F72 
+ 1196      32702D73 
+ 1196      646B2F63 
+ 1197 0250 636F7265 		.ascii	"core.c\000"
+ 1197      2E6300
+ 1198              	.LASF19:
+ 1199 0257 6368436F 		.ascii	"chCoreAlloc\000"
+ 1199      7265416C 
+ 1199      6C6F6300 
+ 1200              	.LASF7:
+ 1201 0263 6C6F6E67 		.ascii	"long int\000"
+ 1201      20696E74 
+ 1201      00
+ 1202              	.LASF28:
+ 1203 026c 7265616C 		.ascii	"realendmem\000"
+ 1203      656E646D 
+ 1203      656D00
+ 1204              	.LASF1:
+ 1205 0277 7369676E 		.ascii	"signed char\000"
+ 1205      65642063 
+ 1205      68617200 
+ 1206              	.LASF14:
+ 1207 0283 5F426F6F 		.ascii	"_Bool\000"
+ 1207      6C00
+ 1208              	.LASF22:
+ 1209 0289 6368436F 		.ascii	"chCoreReserve\000"
+ 1209      72655265 
+ 1209      73657276 
+ARM GAS  /tmp/ccimyAF9.s 			page 24
+
+
+ 1209      6500
+ 1210              		.ident	"GCC: (4.8.4-1+11-1) 4.8.4 20141219 (release)"
+ARM GAS  /tmp/ccimyAF9.s 			page 25
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 chmemcore.c
+     /tmp/ccimyAF9.s:21     .bss.nextmem:0000000000000000 $d
+     /tmp/ccimyAF9.s:24     .bss.nextmem:0000000000000000 nextmem
+     /tmp/ccimyAF9.s:27     .bss.endmem:0000000000000000 $d
+     /tmp/ccimyAF9.s:30     .bss.endmem:0000000000000000 endmem
+     /tmp/ccimyAF9.s:33     .bss.realendmem:0000000000000000 $d
+     /tmp/ccimyAF9.s:36     .bss.realendmem:0000000000000000 realendmem
+     /tmp/ccimyAF9.s:39     .text._core_init:0000000000000000 $t
+     /tmp/ccimyAF9.s:45     .text._core_init:0000000000000000 _core_init
+     /tmp/ccimyAF9.s:71     .text._core_init:000000000000001c $d
+     /tmp/ccimyAF9.s:79     .text.chCoreAlloc:0000000000000000 $t
+     /tmp/ccimyAF9.s:85     .text.chCoreAlloc:0000000000000000 chCoreAlloc
+     /tmp/ccimyAF9.s:136    .text.chCoreAllocI:0000000000000000 chCoreAllocI
+     /tmp/ccimyAF9.s:130    .text.chCoreAllocI:0000000000000000 $t
+     /tmp/ccimyAF9.s:192    .text.chCoreAllocI:0000000000000048 $d
+     /tmp/ccimyAF9.s:198    .text.chCoreStatus:0000000000000000 $t
+     /tmp/ccimyAF9.s:204    .text.chCoreStatus:0000000000000000 chCoreStatus
+     /tmp/ccimyAF9.s:224    .text.chCoreStatus:0000000000000010 $d
+     /tmp/ccimyAF9.s:230    .text.chCoreReserve:0000000000000000 $t
+     /tmp/ccimyAF9.s:236    .text.chCoreReserve:0000000000000000 chCoreReserve
+     /tmp/ccimyAF9.s:287    .text.chCoreReserveI:0000000000000000 chCoreReserveI
+     /tmp/ccimyAF9.s:281    .text.chCoreReserveI:0000000000000000 $t
+     /tmp/ccimyAF9.s:341    .text.chCoreReserveI:0000000000000048 $d
+     /tmp/ccimyAF9.s:347    .text.chCoreUnreserve:0000000000000000 $t
+     /tmp/ccimyAF9.s:353    .text.chCoreUnreserve:0000000000000000 chCoreUnreserve
+     /tmp/ccimyAF9.s:404    .text.chCoreUnreserveI:0000000000000000 chCoreUnreserveI
+     /tmp/ccimyAF9.s:398    .text.chCoreUnreserveI:0000000000000000 $t
+     /tmp/ccimyAF9.s:457    .text.chCoreUnreserveI:0000000000000044 $d
+                     .debug_frame:0000000000000010 $d
+     /tmp/ccimyAF9.s:78     .text._core_init:000000000000002c $t
+     /tmp/ccimyAF9.s:229    .text.chCoreStatus:0000000000000018 $t
+     /tmp/ccimyAF9.s:462    .text.chCoreUnreserveI:000000000000004c $t
+
+UNDEFINED SYMBOLS
+__heap_base__
+__heap_end__
+dbg_check_lock
+dbg_check_unlock
+chDbgCheckClassI

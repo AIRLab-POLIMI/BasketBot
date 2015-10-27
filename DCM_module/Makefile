@@ -11,7 +11,7 @@ endif
 
 ifeq ($(TEST),)
 	PACKAGES += led
-	PRJ_CPPSRC += main.cpp CurrentLoop.cpp
+	PRJ_CPPSRC += main.cpp
 endif
 
 PRJ_INC = .

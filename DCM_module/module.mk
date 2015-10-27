@@ -89,7 +89,8 @@ include $(MW)/middleware.mk
 include $(MW)/port/chibios/port.mk
 
 # Define linker script file here
-LDSCRIPT= ./STM32F103xB_bootloader.ld
+# TODO FIX!!!
+LDSCRIPT= $(MODULE_PATH)/STM32F103xB_bootloader.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

@@ -1,3 +1,5 @@
+#include "current_pid_node.hpp"
+
 #include "ch.h"
 #include "hal.h"
 
@@ -10,7 +12,6 @@
 #include <r2p/Subscriber.hpp>
 
 #include <r2p/node/pid.hpp>
-#include "current_pid_node.h"
 
 
 namespace r2p {

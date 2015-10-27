@@ -14,6 +14,6 @@ ifeq ($(TEST),)
 	PRJ_CPPSRC += main.cpp
 endif
 
-PRJ_INC = .
+PRJ_INC += qei.h
 
 include $(R2P_ROOT)/core/r2p.mk

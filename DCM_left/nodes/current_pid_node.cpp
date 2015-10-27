@@ -1,22 +1,17 @@
-#include "current_pid_node.hpp"
-
 #include "ch.h"
 #include "hal.h"
 
-//#include "config.h"
+#include "r2p/Middleware.hpp"
 
-#include <r2p/common.hpp>
-#include <r2p/Middleware.hpp>
-#include <r2p/Node.hpp>
-#include <r2p/Publisher.hpp>
-#include <r2p/Subscriber.hpp>
+#include "current_pid_node.hpp"
 
 #include <r2p/node/pid.hpp>
 
+#include "config.h"
+
+//extern PWMConfig pwmcfg;
 
 namespace r2p {
-
-extern PWMConfig pwmcfg;
 
 #define M1 72
 #define M2 73

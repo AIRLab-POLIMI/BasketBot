@@ -9,8 +9,6 @@
 
 #include "config.h"
 
-//extern PWMConfig pwmcfg;
-
 namespace r2p {
 
 #define M1 72
@@ -24,9 +22,9 @@ namespace r2p {
 #define ADC_BUF_DEPTH      32
 
 #define _R                 0.117f
-//#define _R                 8.5
+//#define _R                 8.5f
 #define _L                 2.5e-5f
-//#define _L                 5.7e-3
+//#define _L                 5.7e-3f
 #define _Kt                0.0164f
 #define _Tinv              26.0f*10.0f/3.0f
 
@@ -36,15 +34,19 @@ namespace r2p {
 #define _Ts                (252.0/72.0e6*(float)ADC_BUF_DEPTH)
 #define _maxV              24.0f
 
-#define _maxI              25.0f
-#define _precision         4096.0f
-#define _currentPrecision  2.0f*_maxI/_precision
-
 #define _pwmTicks          4096.0f
 
 static PID current_pid;
 static int index = 0;
 static int pwm = 0;
+
+/*===========================================================================*/
+/* Current sensor parameters.                                                */
+/*===========================================================================*/
+
+#define _Kcs              -0.0074
+#define _Qcs               15.1295
+
 
 /*===========================================================================*/
 /* Utility functions.                                                        */
@@ -68,23 +70,21 @@ void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	;
 
 	//Compute current
-	float current = 0.0;
+	int levels = 0.0;
 	for(unsigned int i = 0; i < n; i++)
 	{
-		current += buffer[i];
+		levels += buffer[i];
 	}
 
-	current /= (float) n;
+	float meanLevel = (float) levels / (float) n;
 
-	current *= _currentPrecision;
-	current -= _maxI + 0.65f;
+	float current = meanLevel * _Kcs + _Qcs ;
 
 	//compute control signal
 	float voltage = current_pid.update(current);
 
 	//Compute pwm signal and apply
 	pwm = _pwmTicks/_maxV*voltage;
-	//pwm = 0;
 
 	if (pwm > 0) {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
@@ -178,7 +178,7 @@ msg_t current_pid2_node(void * arg) {
 		}
 	}*/
 
-	current_pid.set(-1.0f);
+	current_pid.set(-1.0);
 
 	for (;;) {
 		if (node.spin(Time::ms(100))) {

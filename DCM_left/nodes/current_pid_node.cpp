@@ -21,24 +21,18 @@ namespace r2p {
 #define ADC_NUM_CHANNELS   1
 #define ADC_BUF_DEPTH      32
 
-#define _R                 0.117f
-//#define _R                 8.5f
-#define _L                 2.5e-5f
-//#define _L                 5.7e-3f
-#define _Kt                0.0164f
-#define _Tinv              26.0f*10.0f/3.0f
+//#define _R                 0.117f
+#define _R                 8.5f
+//#define _L                 2.5e-5f
+#define _L                 1.17e-3f
 
-#define _OmegaC            6000.0f
-#define _Kp                _OmegaC*_L
-#define _Ti                (_L/_R)
 #define _Ts                (252.0/72.0e6*(float)ADC_BUF_DEPTH)
-#define _maxV              24.0f
 
 #define _pwmTicks          4096.0f
 
 static PID current_pid;
-static int index = 0;
 static int pwm = 0;
+static float maxV = 0;
 
 /*===========================================================================*/
 /* Current sensor parameters.                                                */
@@ -47,16 +41,6 @@ static int pwm = 0;
 #define _Kcs              -0.0074
 #define _Qcs               15.1295
 
-
-/*===========================================================================*/
-/* Utility functions.                                                        */
-/*===========================================================================*/
-
-static uint8_t stm32_id8(void) {
-	const unsigned long * uid = (const unsigned long *) 0x1FFFF7E8;
-
-	return (uid[2] & 0xFF);
-}
 
 /*===========================================================================*/
 /* Current sense related.                                                    */
@@ -84,7 +68,7 @@ void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	float voltage = current_pid.update(current);
 
 	//Compute pwm signal and apply
-	pwm = _pwmTicks/_maxV*voltage;
+	pwm = _pwmTicks/maxV*voltage;
 
 	if (pwm > 0) {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
@@ -122,28 +106,38 @@ ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) };
  * PID node.
  */
 
+current_pid_node_conf defaultConf =
+{
+	"current_pid",
+	0,
+	0.110f,
+	1.17e-3f,
+	6000.0f,
+	24.0f
+};
+
 msg_t current_pid2_node(void * arg) {
-	Node node("pid");
+	//Configure current node
+	current_pid_node_conf* conf;
+	if(arg != NULL)
+		conf = (current_pid_node_conf *) arg;
+	else
+		conf = &defaultConf;
+
+
+	Node node(conf->name);
 	Subscriber<Current2Msg, 5> current_sub;
 	Current2Msg * msgp;
 	Time last_setpoint(0);
 
 	(void) arg;
 
-	chRegSetThreadName("pid_current");
+	chRegSetThreadName(conf->name);
 
-	current_pid.config(_Kp, _Ti, 0.0, _Ts, -_maxV, _maxV);
-
-	switch (stm32_id8()) {
-	case M1:
-		index = 0;
-		break;
-	case M2:
-		index = 1;
-		break;
-	default:
-		break;
-	}
+	float Kp = conf->omegaC*conf->L;
+	float Ti = conf->L/conf->R;
+	maxV = conf->maxV;
+	current_pid.config(Kp, Ti, 0.0, _Ts, -maxV, maxV);
 
 	// Init motor driver
 	palSetPad(DRIVER_GPIO, DRIVER_RESET);

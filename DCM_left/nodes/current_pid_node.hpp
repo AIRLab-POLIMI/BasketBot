@@ -18,6 +18,15 @@ public:
 	float value[2];
 }R2P_PACKED;
 
+struct current_pid_node_conf {
+	const char * name;
+	int index;
+	float L;
+	float R;
+	float omegaC;
+	float maxV;
+};
+
 msg_t current_pid2_node(void * arg);
 
 }

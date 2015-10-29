@@ -21,18 +21,12 @@ namespace r2p {
 #define ADC_NUM_CHANNELS   1
 #define ADC_BUF_DEPTH      32
 
-//#define _R                 0.117f
-#define _R                 8.5f
-//#define _L                 2.5e-5f
-#define _L                 1.17e-3f
-
 #define _Ts                (252.0/72.0e6*(float)ADC_BUF_DEPTH)
-
 #define _pwmTicks          4096.0f
 
 static PID current_pid;
 static int pwm = 0;
-static float maxV = 0;
+static float Kpwm = 0;
 
 /*===========================================================================*/
 /* Current sensor parameters.                                                */
@@ -53,6 +47,8 @@ void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	chSysLock()
 	;
 
+	(void) adcp;
+
 	//Compute current
 	int levels = 0.0;
 	for(unsigned int i = 0; i < n; i++)
@@ -68,7 +64,7 @@ void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	float voltage = current_pid.update(current);
 
 	//Compute pwm signal and apply
-	pwm = _pwmTicks/maxV*voltage;
+	pwm = Kpwm*voltage;
 
 	if (pwm > 0) {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
@@ -111,7 +107,7 @@ current_pid_node_conf defaultConf =
 	"current_pid",
 	0,
 	0.110f,
-	1.17e-3f,
+	2.5e-5f,
 	6000.0f,
 	24.0f
 };
@@ -136,8 +132,8 @@ msg_t current_pid2_node(void * arg) {
 
 	float Kp = conf->omegaC*conf->L;
 	float Ti = conf->L/conf->R;
-	maxV = conf->maxV;
-	current_pid.config(Kp, Ti, 0.0, _Ts, -maxV, maxV);
+	Kpwm = _pwmTicks/conf->maxV;
+	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV, conf->maxV);
 
 	// Init motor driver
 	palSetPad(DRIVER_GPIO, DRIVER_RESET);

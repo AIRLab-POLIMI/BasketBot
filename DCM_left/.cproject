@@ -28,6 +28,8 @@
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/include"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/modules/DCM_module"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/packages"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32F30x"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.170905984" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

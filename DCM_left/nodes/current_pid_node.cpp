@@ -126,8 +126,6 @@ msg_t current_pid2_node(void * arg) {
 	Current2Msg * msgp;
 	Time last_setpoint(0);
 
-	(void) arg;
-
 	chRegSetThreadName(conf->name);
 
 	float Kp = conf->omegaC*conf->L;

@@ -13,6 +13,11 @@
 namespace r2p
 {
 
+class CurrentMsg: public Message {
+public:
+	float value;
+}R2P_PACKED;
+
 class Current2Msg: public Message {
 public:
 	float value[2];
@@ -20,9 +25,10 @@ public:
 
 struct current_pid_node_conf {
 	const char * name;
+	const char * topic;
 	int index;
-	float L;
 	float R;
+	float L;
 	float omegaC;
 	float maxV;
 };

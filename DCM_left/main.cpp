@@ -19,13 +19,13 @@
 #define _RATIO 19.0f
 #define _PI 3.14159265359f
 
-#define MOTOR
+//#define MOTOR
 
 #ifdef MOTOR
 	#define _R                 0.117f
 	#define _L                 2.5e-5f
 #else
-	#define _R                 8.5f
+	#define _R                 8.2f
 	#define _L                 1.17e-3f
 #endif
 
@@ -63,7 +63,7 @@ int main(void) {
 	encoder_node_conf encoder_conf = {"encoder_node", "encoder0", R2T};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, encoder_node, &encoder_conf);
 
-	r2p::current_pid_node_conf pid_conf = { "current_pid", 0, _R, _L, 6000.0f, 24.0f};
+	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 1500.0f, 24.0f};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::current_pid2_node, &pid_conf);
 //	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::pwm2sub_node, NULL);
 //	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::pid_node, NULL);

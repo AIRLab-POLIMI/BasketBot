@@ -12,7 +12,7 @@
 /* HEADER FILES                                                              */
 /*===========================================================================*/
 
-#include "../GW_basketbot/urosMsgTypes.h"
+#include "urosMsgTypes.h"
 
 #ifdef __cplusplus
 extern "C" {

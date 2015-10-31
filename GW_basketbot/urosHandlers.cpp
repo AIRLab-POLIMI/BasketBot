@@ -9,7 +9,7 @@
 /* HEADER FILES                                                              */
 /*===========================================================================*/
 
-#include "../GW_basketbot/urosHandlers.h"
+#include "urosHandlers.h"
 #include <urosNode.h>
 #include <urosTcpRos.h>
 #include <urosUser.h>

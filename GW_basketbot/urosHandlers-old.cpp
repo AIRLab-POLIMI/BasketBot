@@ -22,7 +22,7 @@
 #include <r2p/msg/imu.hpp>
 #include <r2p/msg/led.hpp>
 #include <r2p/msg/motor.hpp>
-#include "../GW_basketbot/urosHandlers.h"
+#include "urosHandlers.h"
 
 /*===========================================================================*/
 /* GLOBAL VARIABLES                                                          */

@@ -18,7 +18,11 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.1346108105.1024401451" name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1189304185" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.2118492839" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/DCM_left}" command="make" id="cdt.managedbuild.target.gnu.builder.base.973650438" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/DCM_left}" command="make" id="cdt.managedbuild.target.gnu.builder.base.973650438" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+								</outputEntries>
+							</builder>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1939198604" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.536702180" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.883834017" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
@@ -30,6 +34,11 @@
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/packages"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32F30x"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/ports/GCC/ARMCMx"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/platforms/STM32"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.643664247" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="MODULE_NAME=&quot;&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.170905984" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -45,6 +54,85 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1404453980" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.754132920" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.toolchain.gnu.base.1346108105.78240173">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.base.1346108105.78240173" moduleId="org.eclipse.cdt.core.settings" name="R2P">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/TIMv1"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv1"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv2"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/RTCAN/platforms/STM32"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/ports/GCC/ARMCMx"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32F30x"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/packages"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/modules/DCM_module"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/RTCAN/include"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/Middleware/include"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/kernel/include"/>
+						<entry flags="RESOLVED" kind="includePath" name="/home/dave/r2p-sdk/core/ChibiOS/os/hal/include"/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="R2P stuff" id="cdt.managedbuild.toolchain.gnu.base.1346108105.78240173" name="R2P" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.1346108105.78240173." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.base.2000095969" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1666639183" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+							<builder buildPath="${workspace_loc:/DCM_left}" command="make" id="cdt.managedbuild.target.gnu.builder.base.722224568" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+								</outputEntries>
+							</builder>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.936417809" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1940932591" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+								<option id="gnu.cpp.compiler.option.include.paths.441872699" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/kernel/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/Middleware/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/modules/DCM_module"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/packages"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32F30x"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/ports/GCC/ARMCMx"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/platforms/STM32"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv2"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv1"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/TIMv1"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.904442467" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="MODULE_NAME=&quot;&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.519680811" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1357418554" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2058898571" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1579835982" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1938204461" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.180134135" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.325747797" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.350123749" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -69,6 +157,12 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.1346108105;cdt.managedbuild.toolchain.gnu.base.1346108105.1024401451;cdt.managedbuild.tool.gnu.c.compiler.base.698326869;cdt.managedbuild.tool.gnu.c.compiler.input.179665124">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.1346108105.78240173;cdt.managedbuild.toolchain.gnu.base.1346108105.78240173.;cdt.managedbuild.tool.gnu.c.compiler.base.1357418554;cdt.managedbuild.tool.gnu.c.compiler.input.2058898571">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.1346108105.78240173;cdt.managedbuild.toolchain.gnu.base.1346108105.78240173.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1940932591;cdt.managedbuild.tool.gnu.cpp.compiler.input.519680811">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.1346108105;cdt.managedbuild.toolchain.gnu.base.1346108105.1024401451;cdt.managedbuild.tool.gnu.cpp.compiler.base.1447352918;cdt.managedbuild.tool.gnu.cpp.compiler.input.1827615886">

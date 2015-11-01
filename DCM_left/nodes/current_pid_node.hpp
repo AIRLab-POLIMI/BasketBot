@@ -8,20 +8,10 @@
 #ifndef DCM_MODULE_CURRENTLOOP_H_
 #define DCM_MODULE_CURRENTLOOP_H_
 
-#include <r2p/Message.hpp>
+#include "ExtraMsgs.h"
 
 namespace r2p
 {
-
-class CurrentMsg: public Message {
-public:
-	float value;
-}R2P_PACKED;
-
-class Current2Msg: public Message {
-public:
-	float value[2];
-}R2P_PACKED;
 
 struct current_pid_node_conf {
 	const char * name;

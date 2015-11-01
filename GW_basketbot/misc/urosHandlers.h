@@ -12,7 +12,7 @@
 /* HEADER FILES                                                              */
 /*===========================================================================*/
 
-#include "../../GW_basketbot/misc/urosMsgTypes.h"
+#include "urosMsgTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,13 +22,9 @@ extern "C" {
 /* PUBLISHED TOPIC PROTOTYPES                                                */
 /*===========================================================================*/
 
-/*~~~ PUBLISHED TOPIC: /tiltone/odometry ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~ PUBLISHED TOPIC: /tiltone/current ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-uros_err_t pub_tpc__tiltone__odometry(UrosTcpRosStatus *tcpstp);
-
-/*~~~ PUBLISHED TOPIC: /tiltone/tilt ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-uros_err_t pub_tpc__tiltone__tilt(UrosTcpRosStatus *tcpstp);
+uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp);
 
 /*===========================================================================*/
 /* SUBSCRIBED TOPIC PROTOTYPES                                               */

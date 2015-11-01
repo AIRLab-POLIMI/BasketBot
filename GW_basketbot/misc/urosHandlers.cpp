@@ -30,7 +30,7 @@ r2p::Node current_node("ucurrentpub", false);
 r2p::Subscriber<r2p::CurrentMsg, 5> current_sub;
 
 r2p::Node vel_node("uvelpub", false);
-r2p::Publisher<r2p::TwistMsg> vel_pub;
+r2p::Publisher<r2p::Twist2DMsg> vel_pub;
 
 extern int activity;
 
@@ -120,7 +120,7 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
  */
 uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
 
-	r2p::TwistMsg *msgp;
+	r2p::Twist2DMsg *msgp;
 	static bool first_time = true;
 
 	if (first_time) {
@@ -141,13 +141,8 @@ uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
 		UROS_MSG_RECV_BODY(&msg, msg__geometry_msgs__Twist);
 
 		if (vel_pub.alloc(msgp)) {
-			msgp->angular[0] = msg.angular.x;
-			msgp->angular[1] = msg.angular.y;
-			msgp->angular[2] = msg.angular.z;
-
-			msgp->linear[0] = msg.linear.x;
-			msgp->linear[1] = msg.linear.y;
-			msgp->linear[2] = msg.linear.z;
+			msgp->angular = msg.angular.z;
+			msgp->linear = msg.linear.x;
 		}
 
 		vel_pub.publish(*msgp);

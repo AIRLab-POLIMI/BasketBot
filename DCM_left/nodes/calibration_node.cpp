@@ -79,12 +79,9 @@ msg_t calibration_node(void* arg) {
 /* Motor calibration.                                                        */
 /*===========================================================================*/
 
-#define ADC_NUM_CHANNELS   1
-#define ADC_BUF_DEPTH      128
-
 static float meanLevel = 0.0f;
 
-static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
+static adcsample_t adc_samples[128];
 
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
@@ -128,10 +125,10 @@ NULL, { { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
  */
 static const ADCConversionGroup adcgrpcfg = {
 TRUE,
-ADC_NUM_CHANNELS, current_callback,
+1, current_callback,
 NULL, 0, 0, /* CR1, CR2 */
 0, ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), /* SMPR2 */
-ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), 0, /* SQR2 */
+ADC_SQR1_NUM_CH(1), 0, /* SQR2 */
 ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) };
 
 static calibration_pub_node_conf defaultPubConf = { "motor_calibration_node",
@@ -160,15 +157,24 @@ msg_t motor_calibration_node(void * arg) {
 
 	// start pwm
 	int pwm = 2048;
-	pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
-	pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
+
+	if(pwm > 0)
+	{
+		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
+		pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
+	}
+	else
+	{
+		pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
+		pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
+	}
 
 	// wait some time
 	chThdSleepMilliseconds(500);
 
 	// Start the ADC driver and conversion
 	adcStart(&ADC_DRIVER, NULL);
-	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
+	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, 128);
 
 	// Start publishing current measures
 	for (;;) {

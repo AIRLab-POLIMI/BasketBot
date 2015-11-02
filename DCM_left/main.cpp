@@ -12,8 +12,6 @@
 
 #include "led/nodes/led.hpp"
 
-#define CALIBRATION
-
 #include "nodes/current_pid_node.hpp"
 #include "nodes/encoder_node.hpp"
 #include "nodes/calibration_node.hpp"
@@ -31,6 +29,8 @@
 	#define _R                 8.2f
 	#define _L                 1.17e-3f
 #endif
+
+#define CALIBRATION
 
 
 #define R2T ((1 / (2 * _PI)) * (_TICKS * _RATIO))
@@ -66,11 +66,12 @@ int main(void) {
 	encoder_node_conf encoder_conf = {"encoder_node", "encoder0", R2T};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, encoder_node, &encoder_conf);
 
-	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 1500.0f, 24.0f};
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::current_pid2_node, &pid_conf);
-
 #ifdef CALIBRATION
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::calibration_node, NULL);
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::motor_calibration_node, NULL);
+#else
+	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 1500.0f, 24.0f};
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::current_pid2_node, &pid_conf);
 #endif
 
 	for (;;) {

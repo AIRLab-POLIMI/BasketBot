@@ -86,7 +86,7 @@ ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) };
  * PID node.
  */
 
-current_pid_node_conf defaultConf = { "current_pid", "current_measure", 0,
+static current_pid_node_conf defaultConf = { "current_pid", "current_measure", 0,
 		0.110f, 2.5e-5f, 6000.0f, 24.0f };
 
 msg_t current_pid2_node(void * arg) {

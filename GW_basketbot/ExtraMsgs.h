@@ -12,6 +12,17 @@
 
 namespace r2p {
 
+class FloatMsg: public Message  {
+public:
+	float value;
+
+}R2P_PACKED;
+
+class FloatPackMsg: public Message  {
+public:
+	float value[20];
+}R2P_PACKED;
+
 class Twist2DMsg: public Message {
 public:
 	float angular;

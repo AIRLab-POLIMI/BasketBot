@@ -12,8 +12,11 @@
 
 #include "led/nodes/led.hpp"
 
+#define CALIBRATION
+
 #include "nodes/current_pid_node.hpp"
 #include "nodes/encoder_node.hpp"
+#include "nodes/calibration_node.hpp"
 
 #define _TICKS 48.0f
 #define _RATIO 19.0f
@@ -65,12 +68,15 @@ int main(void) {
 
 	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 1500.0f, 24.0f};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::current_pid2_node, &pid_conf);
-//	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::pwm2sub_node, NULL);
-//	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::pid_node, NULL);
+
+#ifdef CALIBRATION
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::calibration_node, NULL);
+#endif
 
 	for (;;) {
 		r2p::Thread::sleep(r2p::Time::ms(500));
 	}
+
 	return CH_SUCCESS;
 }
 }

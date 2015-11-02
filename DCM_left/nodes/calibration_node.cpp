@@ -156,7 +156,10 @@ msg_t motor_calibration_node(void * arg) {
 	pwmStart(&PWM_DRIVER, &pwmcfg);
 
 	// start pwm
-	int pwm = 2048;
+	float voltage = 12.0;
+
+	const float pwm_res = 4096.0f/24.0f;
+	int pwm = static_cast<int>(voltage*pwm_res);
 
 	if(pwm > 0)
 	{

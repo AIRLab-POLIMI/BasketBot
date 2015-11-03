@@ -30,7 +30,7 @@
 	#define _L                 1.17e-3f
 #endif
 
-//#define CALIBRATION
+#define CALIBRATION
 
 
 #define R2T ((1 / (2 * _PI)) * (_TICKS * _RATIO))

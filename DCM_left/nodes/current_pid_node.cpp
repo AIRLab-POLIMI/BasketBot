@@ -36,9 +36,9 @@ static float meanLevel = 0.0f;
 /* Current sense related.                                                    */
 /*===========================================================================*/
 
-adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
+static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
-void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
+static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	(void) adcp;
 
@@ -79,7 +79,7 @@ static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
 		};
 
 
-void pwm_callback(PWMDriver *pwmp)
+static void pwm_callback(PWMDriver *pwmp)
 {
 	(void) pwmp;
 

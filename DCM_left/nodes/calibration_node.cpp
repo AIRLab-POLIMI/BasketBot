@@ -73,15 +73,19 @@ msg_t calibration_node(void* arg) {
 
 	}
 
+	return CH_SUCCESS;
 }
 
 /*===========================================================================*/
 /* Motor calibration.                                                        */
 /*===========================================================================*/
 
+#define ADC_NUM_CHANNELS  1
+#define ADC_BUF_DEPTH     16
+
 static float meanLevel = 0.0f;
 
-static adcsample_t adc_samples[128];
+static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
@@ -106,30 +110,43 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 }
 
 /*
- * PWM configuration.
+ * ADC conversion group.
+ * Mode:        Circular buffer, 8 samples of 1 channel.
+ * Channels:    IN10.
  */
-static PWMConfig pwmcfg = { STM32_SYSCLK, /* 72MHz PWM clock frequency.   */
-4096, /* 12-bit PWM, 17KHz frequency. */
-NULL, { { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
+static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
+		ADC_NUM_CHANNELS, // num channels
+		current_callback, // end callback
+		NULL, // error callback
+		0, // CR1
+		0, // CR2
+		0, // SMPR1
+		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), // SMPR2
+		ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
+		0, // SQR2
+		ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) // SQR3
+		};
+
+
+static void pwm_callback(PWMDriver *pwmp)
+{
+	(void) pwmp;
+
+	chSysLockFromIsr();
+	adcStartConversionI(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
+	chSysUnlockFromIsr();
+}
+
+static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
+4096, // 12-bit PWM, 17KHz frequency.
+pwm_callback, // pwm callback
+{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
 		{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
 		{ PWM_OUTPUT_DISABLED, NULL }, { PWM_OUTPUT_DISABLED, NULL } }, 0,
 #if STM32_PWM_USE_ADVANCED
 		72, /* XXX 1uS deadtime insertion   */
 #endif
 		0 };
-
-/*
- * ADC conversion group.
- * Mode:        Circular buffer, 8 samples of 1 channel.
- * Channels:    IN10.
- */
-static const ADCConversionGroup adcgrpcfg = {
-TRUE,
-1, current_callback,
-NULL, 0, 0, /* CR1, CR2 */
-0, ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), /* SMPR2 */
-ADC_SQR1_NUM_CH(1), 0, /* SQR2 */
-ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) };
 
 static calibration_pub_node_conf defaultPubConf = { "motor_calibration_node",
 		"bits" };
@@ -155,8 +172,14 @@ msg_t motor_calibration_node(void * arg) {
 	chThdSleepMilliseconds(500);
 	pwmStart(&PWM_DRIVER, &pwmcfg);
 
+	// Start the ADC driver and conversion
+	adcStart(&ADC_DRIVER, NULL);
+
+	// wait some time
+	chThdSleepMilliseconds(500);
+
 	// start pwm
-	float voltage = 24.0;
+	float voltage = -0.0;
 
 	const float pwm_res = 4096.0f/24.0f;
 	int pwm = static_cast<int>(voltage*pwm_res);
@@ -171,13 +194,6 @@ msg_t motor_calibration_node(void * arg) {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
 	}
-
-	// wait some time
-	chThdSleepMilliseconds(500);
-
-	// Start the ADC driver and conversion
-	adcStart(&ADC_DRIVER, NULL);
-	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, 128);
 
 	// Start publishing current measures
 	for (;;) {

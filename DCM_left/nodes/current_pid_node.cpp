@@ -7,8 +7,6 @@
 
 #include <r2p/node/pid.hpp>
 
-#include "config.h"
-
 static Thread *tp = NULL;
 
 namespace r2p {
@@ -17,7 +15,8 @@ namespace r2p {
 /* Motor parameters.                                                         */
 /*===========================================================================*/
 #define ADC_NUM_CHANNELS   1
-#define ADC_BUF_DEPTH      128
+//#define ADC_BUF_DEPTH      128
+#define ADC_BUF_DEPTH      16
 
 #define _Ts                (252.0/72.0e6*(float)ADC_BUF_DEPTH/2.0)
 #define _pwmTicks          4096.0f
@@ -66,13 +65,39 @@ void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
  * Mode:        Circular buffer, 8 samples of 1 channel.
  * Channels:    IN10.
  */
-static const ADCConversionGroup adcgrpcfg = {
-TRUE,
-ADC_NUM_CHANNELS, current_callback,
-NULL, 0, 0, /* CR1, CR2 */
-0, ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), /* SMPR2 */
-ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), 0, /* SQR2 */
-ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) };
+static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
+		ADC_NUM_CHANNELS, // num channels
+		current_callback, // end callback
+		NULL, // error callback
+		0, // CR1
+		0, // CR2
+		0, // SMPR1
+		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), // SMPR2
+		ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
+		0, // SQR2
+		ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) // SQR3
+		};
+
+
+void pwm_callback(PWMDriver *pwmp)
+{
+	(void) pwmp;
+
+	chSysLockFromIsr();
+	adcStartConversionI(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
+	chSysUnlockFromIsr();
+}
+
+static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
+4096, // 12-bit PWM, 17KHz frequency.
+pwm_callback, // pwm callback
+{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
+		{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
+		{ PWM_OUTPUT_DISABLED, NULL }, { PWM_OUTPUT_DISABLED, NULL } }, 0,
+#if STM32_PWM_USE_ADVANCED
+		72, /* XXX 1uS deadtime insertion   */
+#endif
+		0 };
 
 /*===========================================================================*/
 /* Motor control nodes.                                                      */
@@ -82,8 +107,8 @@ ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) };
  * PID node.
  */
 
-static current_pid_node_conf defaultConf = { "current_pid", "current_measure", 0,
-		0.110f, 2.5e-5f, 6000.0f, 24.0f };
+static current_pid_node_conf defaultConf = { "current_pid", "current_measure",
+		0, 0.110f, 2.5e-5f, 6000.0f, 24.0f };
 
 msg_t current_pid2_node(void * arg) {
 	//Configure current node
@@ -109,14 +134,13 @@ msg_t current_pid2_node(void * arg) {
 	Kpwm = _pwmTicks / conf->maxV;
 	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV, conf->maxV);
 
+	// Start the ADC driver and conversion
+	adcStart(&ADC_DRIVER, NULL);
+
 	// Init motor driver
 	palSetPad(DRIVER_GPIO, DRIVER_RESET);
 	chThdSleepMilliseconds(500);
 	pwmStart(&PWM_DRIVER, &pwmcfg);
-
-	// Start the ADC driver and conversion
-	adcStart(&ADC_DRIVER, NULL);
-	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
 	node.subscribe(current_sub, "current2");
 	node.advertise(current_pub, conf->topic);
@@ -159,7 +183,7 @@ msg_t current_pid2_node(void * arg) {
 			palTogglePad(LED3_GPIO, LED3);
 
 		} else if (Time::now() - last_setpoint > Time::ms(100)) {
-			current_pid.set(2.5);
+			current_pid.set(1.0);
 			palTogglePad(LED4_GPIO, LED4);
 		}
 

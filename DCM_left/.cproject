@@ -36,6 +36,10 @@
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/ports/GCC/ARMCMx"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/platforms/STM32"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv2"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv1"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/TIMv1"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/uROSnode/include"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.643664247" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MODULE_NAME=&quot;&quot;"/>
@@ -43,6 +47,22 @@
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.170905984" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.698326869" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+								<option id="gnu.c.compiler.option.include.paths.1963386166" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/kernel/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/Middleware/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/include"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/modules/DCM_module"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/packages"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32F30x"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/ports/GCC/ARMCMx"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/RTCAN/platforms/STM32"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv2"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/GPIOv1"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/platforms/STM32/TIMv1"/>
+									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/uROSnode/include"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.179665124" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.188014545" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>

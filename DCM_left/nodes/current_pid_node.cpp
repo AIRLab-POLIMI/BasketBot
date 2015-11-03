@@ -18,7 +18,7 @@ namespace r2p {
 //#define ADC_BUF_DEPTH      128
 #define ADC_BUF_DEPTH      16
 
-#define _Ts                (252.0/72.0e6*(float)ADC_BUF_DEPTH/2.0)
+#define _Ts                (1.0f/17.5e3)
 #define _pwmTicks          4096.0f
 
 static PID current_pid;
@@ -29,8 +29,8 @@ static float meanLevel = 0.0f;
 /* Current sensor parameters.                                                */
 /*===========================================================================*/
 
-#define _Kcs               -0.0074f
-#define _Qcs               +15.1295f
+#define _Kcs               -0.007586228852626f
+#define _Qcs               +15.129518506666665f
 
 /*===========================================================================*/
 /* Current sense related.                                                    */

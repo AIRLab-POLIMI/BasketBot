@@ -30,7 +30,7 @@
 	#define _L                 1.17e-3f
 #endif
 
-#define CALIBRATION
+//#define CALIBRATION
 
 
 #define R2T ((1 / (2 * _PI)) * (_TICKS * _RATIO))
@@ -71,7 +71,7 @@ int main(void) {
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::motor_calibration_node, NULL);
 #else
 	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 1500.0f, 24.0f};
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 1, r2p::current_pid2_node, &pid_conf);
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 3, r2p::current_pid2_node, &pid_conf);
 #endif
 
 	for (;;) {

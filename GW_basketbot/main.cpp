@@ -51,7 +51,6 @@ static r2p::RTCANTransport rtcantra(RTCAND1);
 
 RTCANConfig rtcan_config = { 1000000, 100, 60 };
 
-int activity = 0;
 
 /*===========================================================================*/
 /* Application threads.                                                      */
@@ -112,9 +111,5 @@ int main(void) {
 	 */
 	while (TRUE) {
 		r2p::Thread::sleep(r2p::Time::s(20));
-		if (activity == 0) {
-			NVIC_SystemReset();
-		}
-		activity = 0;
 	}
 }

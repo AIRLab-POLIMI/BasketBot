@@ -4,7 +4,7 @@ MODULE_NAME = GW_basketbot
 PACKAGES = led
 
 PRJ_CSRC = \
-	urosUser.c \
+	misc/urosUser.c \
 	misc/urosMsgTypes.c
 
 PRJ_CPPSRC = \

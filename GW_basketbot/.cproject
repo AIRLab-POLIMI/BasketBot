@@ -43,7 +43,7 @@
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1706826535" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.855638077" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
-								<option id="gnu.c.compiler.option.include.paths.1357311231" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.1357311231" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/hal/include"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/ChibiOS/os/kernel/include"/>
 									<listOptionValue builtIn="false" value="/home/dave/r2p-sdk/core/Middleware/include"/>

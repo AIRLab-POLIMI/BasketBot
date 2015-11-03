@@ -10,7 +10,6 @@
 /*===========================================================================*/
 
 #include "urosHandlers.h"
-
 #include <urosNode.h>
 #include <urosTcpRos.h>
 #include <urosUser.h>
@@ -31,8 +30,6 @@ r2p::Subscriber<r2p::FloatPackMsg, 5> current_sub;
 
 r2p::Node vel_node("uvelpub", false);
 r2p::Publisher<r2p::Twist2DMsg> vel_pub;
-
-extern int activity;
 
 /*===========================================================================*/
 /* PUBLISHED TOPIC FUNCTIONS                                                 */
@@ -60,7 +57,7 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 	static bool first_time = true;
 
 	if (first_time) {
-		current_node.subscribe(current_sub, "tilt");
+		current_node.subscribe(current_sub, "bits_packed");
 		first_time = false;
 	}
 
@@ -150,8 +147,6 @@ uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
 		}
 
 		vel_pub.publish(*msgp);
-
-		activity = 1;
 
 		/* Dispose the contents of the message.*/
 		clean_msg__geometry_msgs__Twist(&msg);

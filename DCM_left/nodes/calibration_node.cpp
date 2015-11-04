@@ -35,8 +35,8 @@ msg_t calibration_node(void* arg) {
 	Subscriber<FloatMsg, 5> calibration_sub;
 	FloatMsg * msgp_in;
 
-	Publisher<FloatPackMsg> calibration_pub;
-	FloatPackMsg * msgp_out;
+	Publisher<FloatMsg> calibration_pub;
+	FloatMsg * msgp_out;
 
 	chRegSetThreadName(conf->name);
 
@@ -56,13 +56,16 @@ msg_t calibration_node(void* arg) {
 				calibration_sub.release(*msgp_in);
 			}
 
-			// publish data in batches
+			// publish mean data
 			if (count == 20) {
 				if (calibration_pub.alloc(msgp_out)) {
 
+					int value = 0;
 					for (int i = 0; i < 20; i++) {
-						msgp_out->value[i] = buffer[i];
+						value += buffer[i];
 					}
+
+					msgp_out->value = static_cast<float>(value) / 20.0;
 
 					calibration_pub.publish(*msgp_out);
 				}
@@ -167,21 +170,21 @@ msg_t motor_calibration_node(void * arg) {
 
 	node.advertise(current_pub, conf->topic);
 
+	// Start the ADC driver and conversion
+	adcStart(&ADC_DRIVER, NULL);
+
 	// Init motor driver
 	palSetPad(DRIVER_GPIO, DRIVER_RESET);
 	chThdSleepMilliseconds(500);
 	pwmStart(&PWM_DRIVER, &pwmcfg);
 
-	// Start the ADC driver and conversion
-	adcStart(&ADC_DRIVER, NULL);
-
 	// wait some time
 	chThdSleepMilliseconds(500);
 
 	// start pwm
-	float voltage = -0.0;
+	float voltage = 12.0;
 
-	const float pwm_res = 4096.0f/24.0f;
+	const float pwm_res = 4095.0f/24.0f;
 	int pwm = static_cast<int>(voltage*pwm_res);
 
 	if(pwm > 0)

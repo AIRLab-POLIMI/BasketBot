@@ -26,7 +26,7 @@
 /* GLOBAL VARIABLES                                                          */
 /*===========================================================================*/
 r2p::Node current_node("ucurrentsub", false);
-r2p::Subscriber<r2p::FloatPackMsg, 5> current_sub;
+r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
 
 r2p::Node vel_node("uvelpub", false);
 r2p::Publisher<r2p::Twist2DMsg> vel_pub;
@@ -53,7 +53,7 @@ r2p::Publisher<r2p::Twist2DMsg> vel_pub;
  */
 uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 
-	r2p::FloatPackMsg *msgp;
+	r2p::FloatMsg *msgp;
 	static bool first_time = true;
 
 	if (first_time) {
@@ -70,19 +70,15 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 	while (!urosTcpRosStatusCheckExit(tcpstp)) {
 		if (current_node.spin(r2p::Time::ms(1))) { //TODO FIX TIME
 			while (current_sub.fetch(msgp)) {
+				msg.data = msgp->value;
+				current_sub.release(*msgp);
 
-				for(int i = 0; i < 20; i++)
-				{
-					msg.data = msgp->value[i];
-					current_sub.release(*msgp);
+				/* Send the message.*/
+				UROS_MSG_SEND_LENGTH(&msg, msg__std_msgs__Float32);
+				UROS_MSG_SEND_BODY(&msg, msg__std_msgs__Float32);
 
-					/* Send the message.*/
-					UROS_MSG_SEND_LENGTH(&msg, msg__std_msgs__Float32);
-					UROS_MSG_SEND_BODY(&msg, msg__std_msgs__Float32);
-
-					/* Dispose the contents of the message.*/
-					clean_msg__std_msgs__Float32(&msg);
-				}
+				/* Dispose the contents of the message.*/
+				clean_msg__std_msgs__Float32(&msg);
 			}
 		}
 

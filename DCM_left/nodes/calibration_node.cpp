@@ -83,8 +83,10 @@ msg_t calibration_node(void* arg) {
 /* Motor calibration.                                                        */
 /*===========================================================================*/
 
+static int pwm = 0;
+
 #define ADC_NUM_CHANNELS  1
-#define ADC_BUF_DEPTH     16
+#define ADC_BUF_DEPTH     1
 
 static float meanLevel = 0.0f;
 
@@ -93,17 +95,17 @@ static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	(void) adcp;
-
-	//Compute current
-	int levels = 0;
-	for (unsigned int i = 0; i < n; i++) {
-		levels += buffer[i];
-	}
-
-	meanLevel = (float) levels / (float) n;
+	(void) n;
 
 	chSysLockFromIsr()
-	;
+		;
+
+	palTogglePad(LED1_GPIO, LED1);
+
+	meanLevel = buffer[0]*pwm/4095.0f;
+
+
+	//Compute current
 	if (tp_motor != NULL) {
 		chSchReadyI(tp_motor);
 		tp_motor = NULL;
@@ -122,7 +124,7 @@ static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
 		current_callback, // end callback
 		NULL, // error callback
 		0, // CR1
-		0, // CR2
+		ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_1 | ADC_CR2_CONT, // CR2
 		0, // SMPR1
 		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), // SMPR2
 		ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
@@ -130,22 +132,19 @@ static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
 		ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) // SQR3
 		};
 
-
 static void pwm_callback(PWMDriver *pwmp)
 {
 	(void) pwmp;
-
-	chSysLockFromIsr();
-	adcStartConversionI(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
-	chSysUnlockFromIsr();
+	//Just to activate event
 }
 
 static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
 4096, // 12-bit PWM, 17KHz frequency.
-pwm_callback, // pwm callback
+NULL, // pwm callback
 { { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
 		{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
-		{ PWM_OUTPUT_DISABLED, NULL }, { PWM_OUTPUT_DISABLED, NULL } }, 0,
+		{ PWM_OUTPUT_ACTIVE_HIGH, NULL },
+		{ PWM_OUTPUT_DISABLED, pwm_callback } }, 0,
 #if STM32_PWM_USE_ADVANCED
 		72, /* XXX 1uS deadtime insertion   */
 #endif
@@ -172,6 +171,8 @@ msg_t motor_calibration_node(void * arg) {
 
 	// Start the ADC driver and conversion
 	adcStart(&ADC_DRIVER, NULL);
+	chThdSleepMilliseconds(10);
+	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
 	// Init motor driver
 	palSetPad(DRIVER_GPIO, DRIVER_RESET);
@@ -182,20 +183,24 @@ msg_t motor_calibration_node(void * arg) {
 	chThdSleepMilliseconds(500);
 
 	// start pwm
-	float voltage = 12.0;
+	float voltage = -12.0;
 
 	const float pwm_res = 4095.0f/24.0f;
-	int pwm = static_cast<int>(voltage*pwm_res);
+	pwm = static_cast<int>(voltage*pwm_res);
 
 	if(pwm > 0)
 	{
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
+
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm/2);
 	}
 	else
 	{
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
+
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm/2);
 	}
 
 	// Start publishing current measures

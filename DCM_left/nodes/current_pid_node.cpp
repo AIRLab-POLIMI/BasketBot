@@ -19,7 +19,7 @@ namespace r2p {
 #define ADC_BUF_DEPTH      16
 
 #define _Ts                (1.0f/17.5e3)
-#define _pwmTicks          4096.0f
+#define _pwmTicks          4095.0f
 
 static PID current_pid;
 static float Kpwm = 0.0f;

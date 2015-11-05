@@ -86,6 +86,11 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 	tcpstp->err = UROS_OK;
 
 	_finally:
+	/* Fetch pending messages and disable r2p node. */
+	current_node.set_enabled(false);
+	while (current_sub.fetch(msgp)) {
+		current_sub.release(*msgp);
+	}
 	/* Message deinitialization and deallocation.*/
 	UROS_TPC_UNINIT_S(msg__std_msgs__Float32);
 	return tcpstp->err;

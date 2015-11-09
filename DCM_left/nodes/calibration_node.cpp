@@ -92,59 +92,65 @@ static float meanLevel = 0.0f;
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
-static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
-
-	(void) adcp;
-	(void) n;
-
-	chSysLockFromIsr()
-		;
-
-	palTogglePad(LED1_GPIO, LED1);
-
-	meanLevel = buffer[0]*pwm/4095.0f;
-
-
-	//Compute current
-	if (tp_motor != NULL) {
-		chSchReadyI(tp_motor);
-		tp_motor = NULL;
-	}
-	chSysUnlockFromIsr();
-
-}
+static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 
 /*
  * ADC conversion group.
  * Mode:        Circular buffer, 8 samples of 1 channel.
  * Channels:    IN10.
  */
-static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
+static const ADCConversionGroup adcgrpcfg = { TRUE, // circular
 		ADC_NUM_CHANNELS, // num channels
 		current_callback, // end callback
 		NULL, // error callback
 		0, // CR1
-		ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_1 | ADC_CR2_CONT, // CR2
+		ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_1, // CR2
 		0, // SMPR1
-		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), // SMPR2
+		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_1P5)/*ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5)*/, // SMPR2
 		ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
 		0, // SQR2
 		ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) // SQR3
 		};
 
-static void pwm_callback(PWMDriver *pwmp)
-{
+static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
+
+	(void) adcp;
+	(void) n;
+
+	palTogglePad(LED1_GPIO, LED1);
+
+	chSysLockFromIsr()
+	;
+
+	meanLevel = buffer[0] * pwm / 4095.0f;
+
+	//Compute current
+	if (tp_motor != NULL) {
+		chSchReadyI(tp_motor);
+		tp_motor = NULL;
+	}
+
+	chSysUnlockFromIsr();
+
+}
+
+static void pwm_callback(PWMDriver *pwmp) {
 	(void) pwmp;
-	//Just to activate event
+
+	chSysLockFromIsr();
+	palTogglePad(LED1_GPIO, LED1);
+	chSysUnlockFromIsr();
 }
 
 static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
-4096, // 12-bit PWM, 17KHz frequency.
-NULL, // pwm callback
-{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
-		{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
-		{ PWM_OUTPUT_ACTIVE_HIGH, NULL },
-		{ PWM_OUTPUT_DISABLED, pwm_callback } }, 0,
+		4096, // 12-bit PWM, 17KHz frequency.
+		NULL, // pwm callback
+		{
+				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
+				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
+				{ PWM_OUTPUT_ACTIVE_LOW, NULL }, //
+				{ PWM_OUTPUT_DISABLED, NULL } }, //
+				0, //
 #if STM32_PWM_USE_ADVANCED
 		72, /* XXX 1uS deadtime insertion   */
 #endif
@@ -183,24 +189,21 @@ msg_t motor_calibration_node(void * arg) {
 	chThdSleepMilliseconds(500);
 
 	// start pwm
-	float voltage = -12.0;
+	float voltage = 13.0;
 
-	const float pwm_res = 4095.0f/24.0f;
-	pwm = static_cast<int>(voltage*pwm_res);
+	const float pwm_res = 4095.0f / 24.0f;
+	pwm = static_cast<int>(voltage * pwm_res);
 
-	if(pwm > 0)
-	{
+	if (pwm > 0) {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm/2);
-	}
-	else
-	{
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm/3);
+	} else {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm/2);
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm/3);
 	}
 
 	// Start publishing current measures

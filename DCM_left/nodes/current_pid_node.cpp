@@ -23,17 +23,18 @@ namespace r2p {
 
 static PID current_pid;
 static float Kpwm = 0.0f;
-static float meanLevel = 0.0f;
+static float current = 0.0f;
+static int pwm = 0;
 
 /*===========================================================================*/
 /* Current sensor parameters.                                                */
 /*===========================================================================*/
 
-#define _Kcs               -0.007586228852626f
-#define _Qcs               +15.129518506666665f
+#define _Kcs               -0.007771336616934f
+#define _Qcs               15.847698196081865f
 
 /*===========================================================================*/
-/* Current sense related.                                                    */
+/* Config adc and pwm                                                        */
 /*===========================================================================*/
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
@@ -41,14 +42,10 @@ static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	(void) adcp;
+	(void) n;
 
 	//Compute current
-	int levels = 0;
-	for (unsigned int i = 0; i < n; i++) {
-		levels += buffer[i];
-	}
-
-	meanLevel = (float) levels / (float) n;
+	current = (_Kcs * buffer[0] + _Qcs) * pwm / _pwmTicks;
 
 	chSysLockFromIsr()
 	;
@@ -62,38 +59,32 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 /*
  * ADC conversion group.
- * Mode:        Circular buffer, 8 samples of 1 channel.
+ * Mode:        Circular buffer, 1 sample of 1 channel, triggered by pwm channel 3
  * Channels:    IN10.
  */
-static const ADCConversionGroup adcgrpcfg = { FALSE, // circular
+static const ADCConversionGroup adcgrpcfg = { TRUE, // circular
 		ADC_NUM_CHANNELS, // num channels
 		current_callback, // end callback
 		NULL, // error callback
 		0, // CR1
-		0, // CR2
+		ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_1, // CR2
 		0, // SMPR1
-		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_239P5), // SMPR2
+		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_1P5), // SMPR2
 		ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
 		0, // SQR2
 		ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) // SQR3
 		};
 
-
-static void pwm_callback(PWMDriver *pwmp)
-{
-	(void) pwmp;
-
-	chSysLockFromIsr();
-	adcStartConversionI(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
-	chSysUnlockFromIsr();
-}
-
 static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
-4096, // 12-bit PWM, 17KHz frequency.
-pwm_callback, // pwm callback
-{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
-		{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL },
-		{ PWM_OUTPUT_DISABLED, NULL }, { PWM_OUTPUT_DISABLED, NULL } }, 0,
+		4096, // 12-bit PWM, 17KHz frequency.
+		NULL, // pwm callback
+		{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH,
+		NULL }, //
+				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH,
+				NULL }, //
+				{ PWM_OUTPUT_ACTIVE_LOW, NULL }, //
+				{ PWM_OUTPUT_DISABLED, NULL } }, //
+		0, //
 #if STM32_PWM_USE_ADVANCED
 		72, /* XXX 1uS deadtime insertion   */
 #endif
@@ -136,6 +127,7 @@ msg_t current_pid2_node(void * arg) {
 
 	// Start the ADC driver and conversion
 	adcStart(&ADC_DRIVER, NULL);
+	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
 	// Init motor driver
 	palSetPad(DRIVER_GPIO, DRIVER_RESET);
@@ -149,30 +141,34 @@ msg_t current_pid2_node(void * arg) {
 
 	for (;;) {
 		// Wait for interrupt
-		chSysLock()
-		;
-		tp = chThdSelf();
-		chSchGoSleepS(THD_STATE_SUSPENDED);
-		chSysUnlock();
-
-		//compute current
-		float current = meanLevel * _Kcs + _Qcs;
+		if(pwm > 10)
+		{
+			chSysLock()
+			;
+			tp = chThdSelf();
+			chSchGoSleepS(THD_STATE_SUSPENDED);
+			chSysUnlock();
+		}
 
 		//compute control signal
 		float voltage = current_pid.update(current);
 
 		//Compute pwm signal and apply
-		int pwm = Kpwm * voltage;
+		pwm = Kpwm * voltage;
 
 		if (pwm > 0) {
 			pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
 			pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
+
+			pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm / 2);
 		} else {
 			pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
 			pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
+
+			pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm / 2);
 		}
 
-		palTogglePad(LED2_GPIO, LED2);
+		palTogglePad(LED1_GPIO, LED1);
 
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {

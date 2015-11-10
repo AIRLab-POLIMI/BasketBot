@@ -96,7 +96,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 
 /*
  * ADC conversion group.
- * Mode:        Circular buffer, 8 samples of 1 channel.
+ * Mode:        Circular buffer, 1 sample of 1 channel, triggered by pwm channel 3
  * Channels:    IN10.
  */
 static const ADCConversionGroup adcgrpcfg = { TRUE, // circular
@@ -122,7 +122,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	chSysLockFromIsr()
 	;
 
-	meanLevel = buffer[0] * pwm / 4095.0f;
+	meanLevel = buffer[0];
 
 	//Compute current
 	if (tp_motor != NULL) {
@@ -134,13 +134,6 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 }
 
-static void pwm_callback(PWMDriver *pwmp) {
-	(void) pwmp;
-
-	chSysLockFromIsr();
-	palTogglePad(LED1_GPIO, LED1);
-	chSysUnlockFromIsr();
-}
 
 static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
 		4096, // 12-bit PWM, 17KHz frequency.
@@ -177,7 +170,6 @@ msg_t motor_calibration_node(void * arg) {
 
 	// Start the ADC driver and conversion
 	adcStart(&ADC_DRIVER, NULL);
-	chThdSleepMilliseconds(10);
 	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
 	// Init motor driver
@@ -189,7 +181,7 @@ msg_t motor_calibration_node(void * arg) {
 	chThdSleepMilliseconds(500);
 
 	// start pwm
-	float voltage = 13.0;
+	float voltage = -12.0;
 
 	const float pwm_res = 4095.0f / 24.0f;
 	pwm = static_cast<int>(voltage * pwm_res);
@@ -198,12 +190,12 @@ msg_t motor_calibration_node(void * arg) {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm/3);
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm/2);
 	} else {
 		pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
 		pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm/3);
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm/2);
 	}
 
 	// Start publishing current measures

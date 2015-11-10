@@ -10,21 +10,13 @@
 
 #include "ExtraMsgs.h"
 
-namespace r2p
-{
-
-struct calibration_node_conf {
-	const char * name;
-	const char * topicIn;
-	const char * topicOut;
-};
+namespace r2p {
 
 struct calibration_pub_node_conf {
 	const char * name;
 	const char * topic;
 };
 
-msg_t calibration_node(void * arg);
 msg_t motor_calibration_node(void * arg);
 
 }

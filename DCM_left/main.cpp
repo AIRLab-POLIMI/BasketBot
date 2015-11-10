@@ -14,6 +14,7 @@
 
 #include "nodes/current_pid_node.hpp"
 #include "nodes/encoder_node.hpp"
+#include "nodes/broadcaster_node.hpp"
 #include "nodes/calibration_node.hpp"
 
 #define _TICKS 48.0f
@@ -67,9 +68,11 @@ int main(void) {
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, encoder_node, &encoder_conf);
 
 #ifdef CALIBRATION
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::calibration_node, NULL);
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::broadcaster_node, NULL);
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::motor_calibration_node, NULL);
 #else
+	r2p::broadcaster_node_conf calibration_conf = { "calibration_node", "current_measure1", "bits_packed" };
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), LOWPRIO, r2p::broadcaster_node, &calibration_conf);
 	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 1500.0f, 24.0f};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 3, r2p::current_pid2_node, &pid_conf);
 #endif

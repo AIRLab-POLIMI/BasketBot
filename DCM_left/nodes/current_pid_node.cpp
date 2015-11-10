@@ -19,7 +19,7 @@ namespace r2p {
 
 #define _Ts                (1.0f/17.5e3)
 #define _pwmTicks          4095.0f
-#define _pwmMin            100
+#define _pwmMin            200
 
 static PID current_pid;
 static float current = 0.0f;
@@ -154,7 +154,7 @@ msg_t current_pid2_node(void * arg) {
 		else
 		{
 			current = 0;
-			chThdSleepMicroseconds(50);
+			chThdSleepMicroseconds(40);
 		}
 
 		//compute control signal
@@ -186,13 +186,13 @@ msg_t current_pid2_node(void * arg) {
 			palTogglePad(LED3_GPIO, LED3);
 
 		} else if (Time::now() - last_setpoint > Time::ms(100)) {
-			current_pid.set(3.0*_pwmTicks);
+			current_pid.set(0.0);
 			palTogglePad(LED4_GPIO, LED4);
 		}
 
 		// publish current
 		if (current_pub.alloc(msgp_out)) {
-			msgp_out->value = current;
+			msgp_out->value = current/_pwmTicks;
 			current_pub.publish(*msgp_out);
 		}
 

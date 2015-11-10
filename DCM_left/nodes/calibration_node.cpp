@@ -17,69 +17,6 @@ static Thread *tp_motor = NULL;
 namespace r2p {
 
 /*===========================================================================*/
-/* Bufferizing node.                                                         */
-/*===========================================================================*/
-
-static calibration_node_conf defaultConf = { "calibration_node", "bits",
-		"bits_packed" };
-
-msg_t calibration_node(void* arg) {
-	calibration_node_conf* conf;
-	if (arg != NULL)
-		conf = (calibration_node_conf *) arg;
-	else
-		conf = &defaultConf;
-
-	Node node(conf->name);
-
-	Subscriber<FloatMsg, 5> calibration_sub;
-	FloatMsg * msgp_in;
-
-	Publisher<FloatMsg> calibration_pub;
-	FloatMsg * msgp_out;
-
-	chRegSetThreadName(conf->name);
-
-	node.subscribe(calibration_sub, conf->topicIn);
-	node.advertise(calibration_pub, conf->topicOut);
-
-	int count = 0;
-	int buffer[20];
-
-	for (;;) {
-
-		if (node.spin(r2p::Time::ms(1000))) {
-
-			// fetch data
-			if (calibration_sub.fetch(msgp_in)) {
-				buffer[count++] = msgp_in->value;
-				calibration_sub.release(*msgp_in);
-			}
-
-			// publish mean data
-			if (count == 20) {
-				if (calibration_pub.alloc(msgp_out)) {
-
-					int value = 0;
-					for (int i = 0; i < 20; i++) {
-						value += buffer[i];
-					}
-
-					msgp_out->value = static_cast<float>(value) / 20.0;
-
-					calibration_pub.publish(*msgp_out);
-				}
-
-				count = 0;
-			}
-		}
-
-	}
-
-	return CH_SUCCESS;
-}
-
-/*===========================================================================*/
 /* Motor calibration.                                                        */
 /*===========================================================================*/
 

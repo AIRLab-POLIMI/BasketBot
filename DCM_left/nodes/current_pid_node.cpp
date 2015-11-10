@@ -22,7 +22,6 @@ namespace r2p {
 #define _pwmMin            100
 
 static PID current_pid;
-static float Kpwm = 0.0f;
 static float current = 0.0f;
 static int pwm = 0;
 
@@ -47,7 +46,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	palTogglePad(LED2_GPIO, LED2);
 
 	//Compute current
-	current = (_Kcs * buffer[0] + _Qcs) * pwm / _pwmTicks;
+	current = (_Kcs * buffer[0] + _Qcs) * pwm;
 
 	chSysLockFromIsr()
 	;
@@ -123,10 +122,10 @@ msg_t current_pid2_node(void * arg) {
 	chRegSetThreadName(conf->name);
 
 	int index = conf->index;
-	float Kp = conf->omegaC * conf->L;
-	float Ti = conf->L / conf->R;
-	Kpwm = _pwmTicks / conf->maxV;
-	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV, conf->maxV);
+	const float Kp = conf->omegaC * conf->L;
+	const float Ti = conf->L / conf->R;
+	const int Kpwm = conf->maxV;
+	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV*_pwmTicks, conf->maxV*_pwmTicks);
 
 	// Start the ADC driver and conversion
 	adcStart(&ADC_DRIVER, NULL);
@@ -162,7 +161,7 @@ msg_t current_pid2_node(void * arg) {
 		float voltage = current_pid.update(current);
 
 		//Compute pwm signal and apply
-		pwm = Kpwm * voltage;
+		pwm = voltage / Kpwm;
 
 		if (pwm > 0) {
 			pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
@@ -180,14 +179,14 @@ msg_t current_pid2_node(void * arg) {
 
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {
-			current_pid.set(msgp_in->value[index]);
+			current_pid.set(msgp_in->value[index]*_pwmTicks);
 			last_setpoint = Time::now();
 			current_sub.release(*msgp_in);
 
 			palTogglePad(LED3_GPIO, LED3);
 
 		} else if (Time::now() - last_setpoint > Time::ms(100)) {
-			current_pid.set(1.0);
+			current_pid.set(3.0*_pwmTicks);
 			palTogglePad(LED4_GPIO, LED4);
 		}
 

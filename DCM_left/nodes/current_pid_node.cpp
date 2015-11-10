@@ -15,11 +15,11 @@ namespace r2p {
 /* Motor parameters.                                                         */
 /*===========================================================================*/
 #define ADC_NUM_CHANNELS   1
-//#define ADC_BUF_DEPTH      128
-#define ADC_BUF_DEPTH      16
+#define ADC_BUF_DEPTH      1
 
 #define _Ts                (1.0f/17.5e3)
 #define _pwmTicks          4095.0f
+#define _pwmMin            100
 
 static PID current_pid;
 static float Kpwm = 0.0f;
@@ -44,6 +44,8 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	(void) adcp;
 	(void) n;
 
+	palTogglePad(LED2_GPIO, LED2);
+
 	//Compute current
 	current = (_Kcs * buffer[0] + _Qcs) * pwm / _pwmTicks;
 
@@ -53,6 +55,9 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 		chSchReadyI(tp);
 		tp = NULL;
 	}
+
+	palTogglePad(LED2_GPIO, LED2);
+
 	chSysUnlockFromIsr();
 
 }
@@ -78,10 +83,8 @@ static const ADCConversionGroup adcgrpcfg = { TRUE, // circular
 static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
 		4096, // 12-bit PWM, 17KHz frequency.
 		NULL, // pwm callback
-		{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH,
-		NULL }, //
-				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH,
-				NULL }, //
+		{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
+		  { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
 				{ PWM_OUTPUT_ACTIVE_LOW, NULL }, //
 				{ PWM_OUTPUT_DISABLED, NULL } }, //
 		0, //
@@ -141,13 +144,18 @@ msg_t current_pid2_node(void * arg) {
 
 	for (;;) {
 		// Wait for interrupt
-		if(pwm > 10)
+		if(pwm > _pwmMin)
 		{
 			chSysLock()
 			;
 			tp = chThdSelf();
 			chSchGoSleepS(THD_STATE_SUSPENDED);
 			chSysUnlock();
+		}
+		else
+		{
+			current = 0;
+			chThdSleepMicroseconds(50);
 		}
 
 		//compute control signal
@@ -188,6 +196,8 @@ msg_t current_pid2_node(void * arg) {
 			msgp_out->value = current;
 			current_pub.publish(*msgp_out);
 		}
+
+		palTogglePad(LED1_GPIO, LED1);
 
 	}
 

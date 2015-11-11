@@ -30,11 +30,11 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp);
 /* SUBSCRIBED TOPIC PROTOTYPES                                               */
 /*===========================================================================*/
 
-/*~~~ SUBSCRIBED TOPIC: /tiltone/velocity ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~ SUBSCRIBED TOPIC: /tiltone/setpoint ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp);
+uros_err_t sub_tpc__tiltone__setpoint(UrosTcpRosStatus *tcpstp);
 
-void sub_cb__tiltone__velocity(struct msg__geometry_msgs__Twist *msg);
+void sub_cb__tiltone__setpoint(struct msg__std_msgs__Float32 *msg);
 
 /*===========================================================================*/
 /* PUBLISHED SERVICE PROTOTYPES                                              */

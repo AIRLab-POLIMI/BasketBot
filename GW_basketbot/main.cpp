@@ -57,11 +57,12 @@ RTCANConfig rtcan_config = { 1000000, 100, 60 };
  * Nodes
  */
 
-r2p::Node vel_node("current2", false);
-r2p::Publisher<r2p::Current2Msg> vel_pub;
+//r2p::Node current_node("ucurrentsub", false);
+//r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
 
-r2p::Node current_node("ucurrentsub", false);
-r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
+
+r2p::Node vel_node("uvelpub", false);
+r2p::Publisher<r2p::Current2Msg> vel_pub;
 
 
 /*===========================================================================*/
@@ -115,11 +116,10 @@ int main(void) {
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(256), NORMALPRIO, r2p::ledsub_node, &ledsub_conf);
 
 	//Setup subscribers
-	vel_node.advertise(vel_pub, "velocity", r2p::Time::INFINITE);
+	//current_node.subscribe(current_sub, "bits_packed");
+	//current_node.set_enabled(true);
+	vel_node.advertise(vel_pub, "current2", r2p::Time::INFINITE);
 	vel_node.set_enabled(true);
-
-	current_node.subscribe(current_sub, "bits_packed");
-	current_node.set_enabled(true);
 
 
 	urosInit();

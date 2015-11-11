@@ -25,29 +25,6 @@ extern "C" {
 /** @addtogroup tcpros_msg_types */
 /** @{ */
 
-/*~~~ MESSAGE: geometry_msgs/Vector3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/**
- * @brief   TCPROS <tt>geometry_msgs/Vector3</tt> message descriptor.
- * @details MD5 sum: <tt>4a842b65f413084dc2b10fb484ea7f17</tt>.
- */
-struct msg__geometry_msgs__Vector3 {
-  double    x;
-  double    y;
-  double    z;
-};
-
-/*~~~ MESSAGE: geometry_msgs/Twist ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/**
- * @brief   TCPROS <tt>geometry_msgs/Twist</tt> message descriptor.
- * @details MD5 sum: <tt>9f195f881246fdfa2798d1d3eebca84a</tt>.
- */
-struct msg__geometry_msgs__Twist {
-  struct msg__geometry_msgs__Vector3    linear;
-  struct msg__geometry_msgs__Vector3    angular;
-};
-
 /*~~~ MESSAGE: std_msgs/Float32 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /**
@@ -96,46 +73,6 @@ struct msg__std_msgs__Float32 {
 /*===========================================================================*/
 /* MESSAGE PROTOTYPES                                                        */
 /*===========================================================================*/
-
-/*~~~ MESSAGE: geometry_msgs/Vector3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-size_t length_msg__geometry_msgs__Vector3(
-  struct msg__geometry_msgs__Vector3 *objp
-);
-void init_msg__geometry_msgs__Vector3(
-  struct msg__geometry_msgs__Vector3 *objp
-);
-void clean_msg__geometry_msgs__Vector3(
-  struct msg__geometry_msgs__Vector3 *objp
-);
-uros_err_t recv_msg__geometry_msgs__Vector3(
-  UrosTcpRosStatus *tcpstp,
-  struct msg__geometry_msgs__Vector3 *objp
-);
-uros_err_t send_msg__geometry_msgs__Vector3(
-  UrosTcpRosStatus *tcpstp,
-  struct msg__geometry_msgs__Vector3 *objp
-);
-
-/*~~~ MESSAGE: geometry_msgs/Twist ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-size_t length_msg__geometry_msgs__Twist(
-  struct msg__geometry_msgs__Twist *objp
-);
-void init_msg__geometry_msgs__Twist(
-  struct msg__geometry_msgs__Twist *objp
-);
-void clean_msg__geometry_msgs__Twist(
-  struct msg__geometry_msgs__Twist *objp
-);
-uros_err_t recv_msg__geometry_msgs__Twist(
-  UrosTcpRosStatus *tcpstp,
-  struct msg__geometry_msgs__Twist *objp
-);
-uros_err_t send_msg__geometry_msgs__Twist(
-  UrosTcpRosStatus *tcpstp,
-  struct msg__geometry_msgs__Twist *objp
-);
 
 /*~~~ MESSAGE: std_msgs/Float32 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

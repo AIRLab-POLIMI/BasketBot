@@ -34,6 +34,8 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp);
 
 uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp);
 
+void sub_cb__tiltone__velocity(struct msg__geometry_msgs__Twist *msg);
+
 /*===========================================================================*/
 /* PUBLISHED SERVICE PROTOTYPES                                              */
 /*===========================================================================*/

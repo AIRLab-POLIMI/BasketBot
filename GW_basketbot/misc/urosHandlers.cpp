@@ -10,6 +10,7 @@
 /*===========================================================================*/
 
 #include "urosHandlers.h"
+
 #include <urosNode.h>
 #include <urosTcpRos.h>
 #include <urosUser.h>
@@ -22,14 +23,8 @@
 
 #include "ExtraMsgs.h"
 
-/*===========================================================================*/
-/* GLOBAL VARIABLES                                                          */
-/*===========================================================================*/
-r2p::Node current_node("ucurrentsub", false);
-r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
-
-r2p::Node vel_node("uvelpub", false);
-r2p::Publisher<r2p::Twist2DMsg> vel_pub;
+extern r2p::Node current_node;
+extern r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
 
 /*===========================================================================*/
 /* PUBLISHED TOPIC FUNCTIONS                                                 */
@@ -53,18 +48,10 @@ r2p::Publisher<r2p::Twist2DMsg> vel_pub;
  */
 uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 
-	r2p::FloatMsg *msgp;
-	static bool first_time = true;
-
-	if (first_time) {
-		current_node.subscribe(current_sub, "bits_packed");
-		first_time = false;
-	}
-
-	current_node.set_enabled(true);
-
 	/* Message allocation and initialization.*/
 	UROS_TPC_INIT_S(msg__std_msgs__Float32);
+
+	r2p::FloatMsg *msgp;
 
 	/* Published messages loop.*/
 	while (!urosTcpRosStatusCheckExit(tcpstp)) {
@@ -81,7 +68,6 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 				clean_msg__std_msgs__Float32(&msg);
 			}
 		}
-
 	}
 	tcpstp->err = UROS_OK;
 
@@ -122,16 +108,6 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
  */
 uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
 
-	r2p::Twist2DMsg *msgp;
-	static bool first_time = true;
-
-	if (first_time) {
-		vel_node.advertise(vel_pub, "velocity", r2p::Time::INFINITE);
-		first_time = false;
-	}
-
-	vel_node.set_enabled(true);
-
 	/* Message allocation and initialization.*/
 	UROS_TPC_INIT_S(msg__geometry_msgs__Twist);
 
@@ -142,12 +118,8 @@ uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
 		;
 		UROS_MSG_RECV_BODY(&msg, msg__geometry_msgs__Twist);
 
-		if (vel_pub.alloc(msgp)) {
-			msgp->angular = msg.angular.z;
-			msgp->linear = msg.linear.x;
-		}
-
-		vel_pub.publish(*msgp);
+		/* Call callback function.*/
+		sub_cb__tiltone__velocity(&msg);
 
 		/* Dispose the contents of the message.*/
 		clean_msg__geometry_msgs__Twist(&msg);

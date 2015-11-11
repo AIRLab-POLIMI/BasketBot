@@ -9,9 +9,10 @@ PRJ_CSRC = \
 
 PRJ_CPPSRC = \
     misc/urosHandlers.cpp \
+    callbacks.cpp \
 	main.cpp
 	
-PRJ_INC = misc
+UINCDIR = misc
 
 include $(R2P_ROOT)/core/r2p.mk
 

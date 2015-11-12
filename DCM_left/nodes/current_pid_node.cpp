@@ -7,8 +7,6 @@
 
 #include <r2p/node/pid.hpp>
 
-static Thread *tp = NULL;
-
 namespace r2p {
 
 /*===========================================================================*/
@@ -20,10 +18,14 @@ namespace r2p {
 #define _Ts                (1.0f/17.5e3)
 #define _pwmTicks          4095.0f
 #define _pwmMin            200
+#define _controlCycles     1
 
 static PID current_pid;
+static int Kpwm;
 static float current = 0.0f;
+static float currentPeak = 0.0f;
 static int pwm = 0;
+static int controlCounter = 0;
 
 /*===========================================================================*/
 /* Current sensor parameters.                                                */
@@ -45,22 +47,58 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	palTogglePad(LED2_GPIO, LED2);
 
-
-	int dutyCicle = pwm > 0 ? pwm : -pwm;
 	//Compute current
-	current = (_Kcs * buffer[0] + _Qcs) * dutyCicle;
-
 	chSysLockFromIsr()
-	;
-	if (tp != NULL) {
-		chSchReadyI(tp);
-		tp = NULL;
-	}
+	currentPeak = (_Kcs * buffer[0] + _Qcs);
+	chSysUnlockFromIsr();
 
 	palTogglePad(LED2_GPIO, LED2);
 
+}
+
+static void control_callback(PWMDriver *pwmp) {
+
+	(void) pwmp;
+
+	chSysLockFromIsr()
+	current += currentPeak;
 	chSysUnlockFromIsr();
 
+	//compute control if control cycle
+	if (controlCounter == _controlCycles) {
+
+		// Compute mean current
+		int dutyCicle = pwm > 0 ? pwm : -pwm;
+		current *= dutyCicle / _controlCycles;
+
+		// Compute control
+		chSysLockFromIsr()
+		float voltage = current_pid.update(current);
+		chSysUnlockFromIsr();
+
+		//Compute pwm signal
+		pwm = voltage / Kpwm;
+
+		//Set pwm to 0 if not in controllable region
+		if (dutyCicle <= _pwmMin) {
+			currentPeak = 0;
+			pwm = 0;
+		}
+
+		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCicle);
+		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
+
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCicle / 2);
+
+		palTogglePad(LED1_GPIO, LED1);
+
+
+		// reset variables
+		current = 0;
+		controlCounter = 0;
+	}
+
+	controlCounter++;
 }
 
 /*
@@ -83,9 +121,11 @@ static const ADCConversionGroup adcgrpcfg = { TRUE, // circular
 
 static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
 		4096, // 12-bit PWM, 17KHz frequency.
-		NULL, // pwm callback
-		{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
-		  { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
+		control_callback, // pwm callback
+		{ { PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH,
+		NULL }, //
+				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH,
+				NULL }, //
 				{ PWM_OUTPUT_ACTIVE_LOW, NULL }, //
 				{ PWM_OUTPUT_DISABLED, NULL } }, //
 		0, //
@@ -126,8 +166,16 @@ msg_t current_pid2_node(void * arg) {
 	int index = conf->index;
 	const float Kp = conf->omegaC * conf->L;
 	const float Ti = conf->L / conf->R;
-	const int Kpwm = conf->maxV;
-	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV*_pwmTicks, conf->maxV*_pwmTicks);
+	Kpwm = conf->maxV;
+	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV * _pwmTicks,
+			conf->maxV * _pwmTicks);
+
+	// Subscribe and publish topics
+	node.subscribe(current_sub, "current2");
+	node.advertise(current_pub, conf->topic);
+
+	//set pid setpoint
+	current_pid.set(0.0);
 
 	// Start the ADC driver and conversion
 	adcStart(&ADC_DRIVER, NULL);
@@ -138,67 +186,32 @@ msg_t current_pid2_node(void * arg) {
 	chThdSleepMilliseconds(500);
 	pwmStart(&PWM_DRIVER, &pwmcfg);
 
-	node.subscribe(current_sub, "current2");
-	node.advertise(current_pub, conf->topic);
-
-	current_pid.set(0.0);
-
+	// comunication cycle
 	for (;;) {
-		// Wait for interrupt
-		if(pwm > _pwmMin || pwm < -_pwmMin)
-		{
-			chSysLock()
-			;
-			tp = chThdSelf();
-			chSchGoSleepS(THD_STATE_SUSPENDED);
-			chSysUnlock();
-		}
-		else
-		{
-			current = 0;
-			chThdSleepMicroseconds(25);
-		}
-
-		//compute control signal
-		float voltage = current_pid.update(current);
-
-		//Compute pwm signal and apply
-		pwm = voltage / Kpwm;
-
-		if (pwm > 0) {
-			pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
-			pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
-
-			pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm / 2);
-		} else {
-			pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
-			pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
-
-			pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm / 2);
-		}
-
-		palTogglePad(LED1_GPIO, LED1);
-
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {
-			current_pid.set(msgp_in->value[index]*_pwmTicks);
+			chSysLock()
+			current_pid.set(msgp_in->value[index] * _pwmTicks);
+			chSysUnlock();
 			last_setpoint = Time::now();
 			current_sub.release(*msgp_in);
 
 			palTogglePad(LED3_GPIO, LED3);
 
 		} else if (Time::now() - last_setpoint > Time::ms(100)) {
+			chSysLock()
 			current_pid.set(0.0);
+			chSysUnlock();
 			palTogglePad(LED4_GPIO, LED4);
 		}
 
 		// publish current
 		if (current_pub.alloc(msgp_out)) {
-			msgp_out->value = current/_pwmTicks;
+			msgp_out->value = current / _pwmTicks;
 			current_pub.publish(*msgp_out);
 		}
 
-		palTogglePad(LED1_GPIO, LED1);
+		chThdSleepMicroseconds(57);
 
 	}
 

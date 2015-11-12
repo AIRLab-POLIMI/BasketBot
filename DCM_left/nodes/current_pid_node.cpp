@@ -45,8 +45,10 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	palTogglePad(LED2_GPIO, LED2);
 
+
+	int dutyCicle = pwm > 0 ? pwm : -pwm;
 	//Compute current
-	current = (_Kcs * buffer[0] + _Qcs) * pwm;
+	current = (_Kcs * buffer[0] + _Qcs) * dutyCicle;
 
 	chSysLockFromIsr()
 	;
@@ -143,7 +145,7 @@ msg_t current_pid2_node(void * arg) {
 
 	for (;;) {
 		// Wait for interrupt
-		if(pwm > _pwmMin)
+		if(pwm > _pwmMin || pwm < -_pwmMin)
 		{
 			chSysLock()
 			;
@@ -154,7 +156,7 @@ msg_t current_pid2_node(void * arg) {
 		else
 		{
 			current = 0;
-			chThdSleepMicroseconds(40);
+			chThdSleepMicroseconds(25);
 		}
 
 		//compute control signal

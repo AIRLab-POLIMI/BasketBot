@@ -13,7 +13,7 @@ namespace r2p {
 /* Macro definitions.                                                        */
 /*===========================================================================*/
 
-#define ABS(x) (x) >= 0 ? (x) : -(x)
+#define ABS(x) ((x) >= 0) ? (x) : -(x)
 
 /*===========================================================================*/
 /* Motor parameters.                                                         */
@@ -104,7 +104,7 @@ static void control_callback(PWMDriver *pwmp) {
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCycle);
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2);
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2 - 70);
 
 		palTogglePad(LED1_GPIO, LED1);
 

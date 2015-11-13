@@ -10,6 +10,12 @@
 namespace r2p {
 
 /*===========================================================================*/
+/* Macro definitions.                                                        */
+/*===========================================================================*/
+
+#define ABS(x) (x) >= 0 ? (x) : -(x)
+
+/*===========================================================================*/
 /* Motor parameters.                                                         */
 /*===========================================================================*/
 #define ADC_NUM_CHANNELS   1
@@ -21,9 +27,11 @@ namespace r2p {
 #define _controlCycles     1
 
 static PID current_pid;
-static int Kpwm;
-static float current = 0.0f;
 static float currentPeak = 0.0f;
+static float current = 0.0f;
+static float measure = 0.0f;
+
+static int Kpwm;
 static int pwm = 0;
 static int controlCounter = 0;
 
@@ -57,48 +65,58 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 }
 
 static void control_callback(PWMDriver *pwmp) {
-
 	(void) pwmp;
 
-	chSysLockFromIsr()
+	palTogglePad(LED1_GPIO, LED1);
+
+	//Add new current peak
 	current += currentPeak;
-	chSysUnlockFromIsr();
+
+	//Count cycle
+	controlCounter++;
 
 	//compute control if control cycle
 	if (controlCounter == _controlCycles) {
 
 		// Compute mean current
-		int dutyCicle = pwm > 0 ? pwm : -pwm;
-		current *= dutyCicle / _controlCycles;
+		current *= ABS(pwm) / _controlCycles;
+
+		chSysLockFromIsr()
 
 		// Compute control
-		chSysLockFromIsr()
 		float voltage = current_pid.update(current);
-		chSysUnlockFromIsr();
 
 		//Compute pwm signal
 		pwm = voltage / Kpwm;
 
 		//Set pwm to 0 if not in controllable region
-		if (dutyCicle <= _pwmMin) {
+		int dutyCycle = ABS(pwm);
+		if (dutyCycle <= _pwmMin) {
 			currentPeak = 0;
 			pwm = 0;
+			dutyCycle = 0;
 		}
 
-		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCicle);
-		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
-
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCicle / 2);
+		chSysUnlockFromIsr();
 
 		palTogglePad(LED1_GPIO, LED1);
 
+		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCycle);
+		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
+
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2);
+
+		palTogglePad(LED1_GPIO, LED1);
+
+		//set measure
+		measure = current;
 
 		// reset variables
 		current = 0;
 		controlCounter = 0;
 	}
 
-	controlCounter++;
+	palSetPad(LED1_GPIO, LED1);
 }
 
 /*
@@ -188,6 +206,10 @@ msg_t current_pid2_node(void * arg) {
 
 	// comunication cycle
 	for (;;) {
+
+		//get time
+		systime_t time = chTimeNow();
+
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {
 			chSysLock()
@@ -207,11 +229,14 @@ msg_t current_pid2_node(void * arg) {
 
 		// publish current
 		if (current_pub.alloc(msgp_out)) {
-			msgp_out->value = current / _pwmTicks;
+			chSysLock()
+			msgp_out->value = measure / _pwmTicks;
+			chSysUnlock();
 			current_pub.publish(*msgp_out);
 		}
 
-		chThdSleepMicroseconds(57);
+		time += US2ST(57);
+		chThdSleepUntil(time);
 
 	}
 

@@ -21,14 +21,14 @@
 #define _RATIO 19.0f
 #define _PI 3.14159265359f
 
-//#define MOTOR
+#define MOTOR
 
 #ifdef MOTOR
 	#define _R                 0.117f
 	#define _L                 2.5e-5f
 #else
 	#define _R                 8.2f
-	#define _L                 1.17e-3f
+	#define _L                 1.64e-5f
 #endif
 
 //#define CALIBRATION

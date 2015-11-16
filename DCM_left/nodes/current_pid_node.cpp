@@ -25,6 +25,7 @@ namespace r2p {
 #define _pwmTicks          4095.0f
 #define _pwmMin            200
 #define _controlCycles     1
+#define _tickBias          0
 
 static PID current_pid;
 static float currentPeak = 0.0f;
@@ -39,8 +40,8 @@ static int controlCounter = 0;
 /* Current sensor parameters.                                                */
 /*===========================================================================*/
 
-#define _Kcs               -0.007771336616934f
-#define _Qcs               15.847698196081865f
+#define _Kcs               -0.007179470922790f
+#define _Qcs               14.637146343837731f
 
 /*===========================================================================*/
 /* Config adc and pwm                                                        */
@@ -104,7 +105,7 @@ static void control_callback(PWMDriver *pwmp) {
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCycle);
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2 - 70);
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2 - _tickBias);
 
 		palTogglePad(LED1_GPIO, LED1);
 
@@ -222,7 +223,7 @@ msg_t current_pid2_node(void * arg) {
 
 		} else if (Time::now() - last_setpoint > Time::ms(100)) {
 			chSysLock()
-			current_pid.set(0.0);
+			current_pid.reset();
 			chSysUnlock();
 			palTogglePad(LED4_GPIO, LED4);
 		}

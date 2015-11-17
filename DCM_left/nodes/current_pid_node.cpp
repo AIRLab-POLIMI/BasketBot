@@ -23,16 +23,15 @@ namespace r2p {
 
 #define _Ts                (1.0f/17.5e3)
 #define _pwmTicks          4095.0f
-#define _pwmMin            200
+#define _pwmMin            16
 #define _controlCycles     1
-#define _tickBias          0
 
 static PID current_pid;
 static float currentPeak = 0.0f;
 static float current = 0.0f;
 static float measure = 0.0f;
 
-static int Kpwm;
+static float Kpwm;
 static int pwm = 0;
 static int controlCounter = 0;
 
@@ -80,7 +79,7 @@ static void control_callback(PWMDriver *pwmp) {
 	if (controlCounter == _controlCycles) {
 
 		// Compute mean current
-		current *= ABS(pwm) / _controlCycles;
+		current /= _controlCycles;
 
 		chSysLockFromIsr()
 
@@ -88,13 +87,13 @@ static void control_callback(PWMDriver *pwmp) {
 		float voltage = current_pid.update(current);
 
 		//Compute pwm signal
-		pwm = voltage / Kpwm;
+		pwm = Kpwm*voltage;
 
-		//Set pwm to 0 if not in controllable region
+		//Set pwm to 0 if not in controllable region (also current peak that will not be updated)
 		int dutyCycle = ABS(pwm);
 		if (dutyCycle <= _pwmMin) {
-			currentPeak = 0;
 			pwm = 0;
+			currentPeak = 0;
 			dutyCycle = 0;
 		}
 
@@ -105,7 +104,7 @@ static void control_callback(PWMDriver *pwmp) {
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCycle);
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
 
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2 - _tickBias);
+		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2);
 
 		palTogglePad(LED1_GPIO, LED1);
 
@@ -162,7 +161,7 @@ static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
  */
 
 static current_pid_node_conf defaultConf = { "current_pid", "current_measure",
-		0, 0.110f, 2.5e-5f, 6000.0f, 24.0f };
+		0, 0.115f, 2.4e-5f, 6000.0f, 24.0f };
 
 msg_t current_pid2_node(void * arg) {
 	//Configure current node
@@ -185,9 +184,9 @@ msg_t current_pid2_node(void * arg) {
 	int index = conf->index;
 	const float Kp = conf->omegaC * conf->L;
 	const float Ti = conf->L / conf->R;
-	Kpwm = conf->maxV;
-	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV * _pwmTicks,
-			conf->maxV * _pwmTicks);
+	Kpwm = _pwmTicks/conf->maxV;
+	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV,
+			conf->maxV);
 
 	// Subscribe and publish topics
 	node.subscribe(current_sub, "current2");
@@ -214,7 +213,7 @@ msg_t current_pid2_node(void * arg) {
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {
 			chSysLock()
-			current_pid.set(msgp_in->value[index] * _pwmTicks);
+			current_pid.set(msgp_in->value[index]);
 			chSysUnlock();
 			last_setpoint = Time::now();
 			current_sub.release(*msgp_in);
@@ -231,7 +230,7 @@ msg_t current_pid2_node(void * arg) {
 		// publish current
 		if (current_pub.alloc(msgp_out)) {
 			chSysLock()
-			msgp_out->value = measure / _pwmTicks;
+			msgp_out->value = measure;
 			chSysUnlock();
 			current_pub.publish(*msgp_out);
 		}

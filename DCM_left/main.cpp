@@ -24,8 +24,8 @@
 #define MOTOR
 
 #ifdef MOTOR
-	#define _R                 0.117f
-	#define _L                 2.5e-5f
+	#define _R                 0.115f
+	#define _L                 2.4e-5f
 #else
 	#define _R                 8.2f
 	#define _L                 1.64e-5f

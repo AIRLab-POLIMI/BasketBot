@@ -240,7 +240,6 @@ msg_t current_pid2_node(void * arg) {
 		if (current_pub.alloc(msgp_out)) {
 			chSysLock()
 			msgp_out->value = measure;
-			//msgp_out->value = sin(2.0 * 10.0 * M_PI * time / CH_FREQUENCY);
 			chSysUnlock();
 			current_pub.publish(*msgp_out);
 		}

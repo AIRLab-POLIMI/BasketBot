@@ -71,7 +71,7 @@ int main(void) {
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::broadcaster_node, NULL);
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::motor_calibration_node, NULL);
 #else
-	r2p::broadcaster_node_conf calibration_conf = { "calibration_node", "current_measure1", "bits_packed", 50 };
+	r2p::broadcaster_node_conf calibration_conf = { "calibration_node", "current_measure1", "bits_packed", 20 };
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO, r2p::broadcaster_node, &calibration_conf);
 	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 6000.0f, 24.0f};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 3, r2p::current_pid2_node, &pid_conf);

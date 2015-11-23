@@ -7,6 +7,8 @@
 
 #include <r2p/node/pid.hpp>
 
+#include <math.h>
+
 static Thread *tp_motor = NULL;
 
 namespace r2p {
@@ -219,6 +221,9 @@ msg_t current_pid2_node(void * arg) {
 		chSchGoSleepS(THD_STATE_SUSPENDED);
 		chSysUnlock();
 
+		systime_t time = chTimeNow();
+		float value = sin(2.0 * 21.0 * M_PI * time / CH_FREQUENCY);
+
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {
 			chSysLock()
@@ -231,7 +236,8 @@ msg_t current_pid2_node(void * arg) {
 
 		} else if (Time::now() - last_setpoint > Time::ms(100)) {
 			chSysLock()
-			current_pid.reset();
+			//current_pid.reset();
+            current_pid.set(value);
 			chSysUnlock();
 			palTogglePad(LED4_GPIO, LED4);
 		}
@@ -240,7 +246,7 @@ msg_t current_pid2_node(void * arg) {
 		if (current_pub.alloc(msgp_out)) {
 			chSysLock()
 			msgp_out->value = measure;
-			//msgp_out->value = sin(2.0 * 10.0 * M_PI * time / CH_FREQUENCY);
+			//msgp_out->value = value;
 			chSysUnlock();
 			current_pub.publish(*msgp_out);
 		}

@@ -7,6 +7,8 @@
 
 #include <r2p/node/pid.hpp>
 
+static Thread *tp_motor = NULL;
+
 namespace r2p {
 
 /*===========================================================================*/
@@ -22,7 +24,7 @@ namespace r2p {
 #define ADC_BUF_DEPTH      1
 
 #define _Ts                (1.0f/17.5e3)
-#define _pwmTicks          4095.0f
+#define _pwmTicks          4096.0f
 #define _pwmMin            16
 #define _controlCycles     1
 
@@ -69,6 +71,8 @@ static void control_callback(PWMDriver *pwmp) {
 
 	palTogglePad(LED1_GPIO, LED1);
 
+	chSysLockFromIsr()
+
 	//Add new current peak
 	current += currentPeak;
 
@@ -81,13 +85,11 @@ static void control_callback(PWMDriver *pwmp) {
 		// Compute mean current
 		current /= _controlCycles;
 
-		chSysLockFromIsr()
-
 		// Compute control
 		float voltage = current_pid.update(current);
 
 		//Compute pwm signal
-		pwm = Kpwm*voltage;
+		pwm = Kpwm * voltage;
 
 		//Set pwm to 0 if not in controllable region (also current peak that will not be updated)
 		int dutyCycle = ABS(pwm);
@@ -96,8 +98,6 @@ static void control_callback(PWMDriver *pwmp) {
 			currentPeak = 0;
 			dutyCycle = 0;
 		}
-
-		chSysUnlockFromIsr();
 
 		palTogglePad(LED1_GPIO, LED1);
 
@@ -115,6 +115,13 @@ static void control_callback(PWMDriver *pwmp) {
 		current = 0;
 		controlCounter = 0;
 	}
+
+	//Wake up thread
+	if (tp_motor != NULL) {
+		chSchReadyI(tp_motor);
+		tp_motor = NULL;
+	}
+	chSysUnlockFromIsr();
 
 	palSetPad(LED1_GPIO, LED1);
 }
@@ -184,9 +191,8 @@ msg_t current_pid2_node(void * arg) {
 	int index = conf->index;
 	const float Kp = conf->omegaC * conf->L;
 	const float Ti = conf->L / conf->R;
-	Kpwm = _pwmTicks/conf->maxV;
-	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV,
-			conf->maxV);
+	Kpwm = _pwmTicks / conf->maxV;
+	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV, conf->maxV);
 
 	// Subscribe and publish topics
 	node.subscribe(current_sub, "current2");
@@ -207,8 +213,11 @@ msg_t current_pid2_node(void * arg) {
 	// comunication cycle
 	for (;;) {
 
-		//get time
-		systime_t time = chTimeNow();
+		// Wait for interrupt
+		chSysLock()
+		tp_motor = chThdSelf();
+		chSchGoSleepS(THD_STATE_SUSPENDED);
+		chSysUnlock();
 
 		// update setpoint
 		if (current_sub.fetch(msgp_in)) {
@@ -231,12 +240,12 @@ msg_t current_pid2_node(void * arg) {
 		if (current_pub.alloc(msgp_out)) {
 			chSysLock()
 			msgp_out->value = measure;
+			//msgp_out->value = sin(2.0 * 10.0 * M_PI * time / CH_FREQUENCY);
 			chSysUnlock();
 			current_pub.publish(*msgp_out);
 		}
 
-		time += US2ST(57);
-		chThdSleepUntil(time);
+
 
 	}
 

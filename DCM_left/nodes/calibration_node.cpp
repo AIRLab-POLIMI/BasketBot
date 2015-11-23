@@ -61,7 +61,6 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	meanLevel = buffer[0];
 
-	//Compute current
 	if (tp_motor != NULL) {
 		chSchReadyI(tp_motor);
 		tp_motor = NULL;
@@ -118,9 +117,9 @@ msg_t motor_calibration_node(void * arg) {
 	chThdSleepMilliseconds(500);
 
 	// start pwm
-	float voltage = -24.0;
+	float voltage = 24.0;
 
-	const float pwm_res = 4095.0f / 24.0f;
+	const float pwm_res = 4096.0f / 24.0f;
 	pwm = static_cast<int>(voltage * pwm_res);
 
 	if (pwm > 0) {

@@ -16,6 +16,7 @@ struct broadcaster_node_conf {
 	const char * name;
 	const char * topicIn;
 	const char * topicOut;
+	int factor;
 };
 
 msg_t broadcaster_node(void * arg);

@@ -19,7 +19,7 @@ namespace r2p {
 /*===========================================================================*/
 
 static broadcaster_node_conf defaultConf = { "calibration_node", "bits",
-		"bits_packed" };
+		"bits_packed", 50 };
 
 msg_t broadcaster_node(void* arg) {
 	broadcaster_node_conf* conf;
@@ -42,33 +42,26 @@ msg_t broadcaster_node(void* arg) {
 	node.advertise(calibration_pub, conf->topicOut);
 
 	int count = 0;
-	float buffer[20];
 
 	for (;;) {
 
-		if (node.spin(r2p::Time::ms(1000))) {
+		if (node.spin()) {
 
 			// fetch data
-			if (calibration_sub.fetch(msgp_in)) {
-				buffer[count++] = msgp_in->value;
+			while (calibration_sub.fetch(msgp_in) && count <  conf->factor) {
+				count++;
+				float value = msgp_in->value;
 				calibration_sub.release(*msgp_in);
-			}
 
-			// publish mean data
-			if (count == 20) {
-				if (calibration_pub.alloc(msgp_out)) {
-
-					float value = 0;
-					for (int i = 0; i < 20; i++) {
-						value += buffer[i];
+				//publish data at less rate
+				if (count == conf->factor) {
+					if (calibration_pub.alloc(msgp_out)) {
+						msgp_out->value = value;
+						calibration_pub.publish(*msgp_out);
 					}
 
-					msgp_out->value = static_cast<float>(value) / 20.0;
-
-					calibration_pub.publish(*msgp_out);
+					count = 0;
 				}
-
-				count = 0;
 			}
 		}
 

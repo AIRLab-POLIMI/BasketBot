@@ -5,7 +5,7 @@
 
 #include "current_pid_node.hpp"
 
-#include <r2p/node/pid.hpp>
+#include "pid_ie.hpp"
 
 #include <math.h>
 
@@ -30,7 +30,7 @@ namespace r2p {
 #define _pwmMin            16
 #define _controlCycles     1
 
-static PID current_pid;
+static PID_IE current_pid;
 static float currentPeak = 0.0f;
 static float current = 0.0f;
 static float measure = 0.0f;
@@ -194,7 +194,7 @@ msg_t current_pid2_node(void * arg) {
 	const float Kp = conf->omegaC * conf->L;
 	const float Ti = conf->L / conf->R;
 	Kpwm = _pwmTicks / conf->maxV;
-	current_pid.config(Kp, Ti, 0.0, _Ts, -conf->maxV, conf->maxV);
+	current_pid.config(Kp, Ti, 0.0, _Ts, 0.0, -conf->maxV, conf->maxV);
 
 	// Subscribe and publish topics
 	node.subscribe(current_sub, "current2");

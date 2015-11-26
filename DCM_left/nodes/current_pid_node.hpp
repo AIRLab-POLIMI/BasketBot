@@ -15,7 +15,6 @@ namespace r2p
 
 struct current_pid_node_conf {
 	const char * name;
-	const char * topic;
 	int index;
 	float R;
 	float L;
@@ -23,7 +22,13 @@ struct current_pid_node_conf {
 	float maxV;
 };
 
+struct current_publisher_node_conf {
+	const char * name;
+	const char * topic;
+};
+
 msg_t current_pid2_node(void * arg);
+msg_t current_publisher_node(void * arg);
 
 }
 

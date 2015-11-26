@@ -73,7 +73,7 @@ static void control_callback(PWMDriver *pwmp) {
 
 	chSysLockFromIsr()
 
-	//Add new current peak
+		//Add new current peak
 	current += currentPeak;
 
 	//Count cycle
@@ -167,8 +167,8 @@ static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
  * PID node.
  */
 
-static current_pid_node_conf defaultConf = { "current_pid", "current_measure",
-		0, 0.115f, 2.4e-5f, 6000.0f, 24.0f };
+static current_pid_node_conf defaultConf = { "current_pid", 0, 0.115f, 2.4e-5f,
+		6000.0f, 24.0f };
 
 msg_t current_pid2_node(void * arg) {
 	//Configure current node
@@ -179,10 +179,8 @@ msg_t current_pid2_node(void * arg) {
 		conf = &defaultConf;
 
 	Node node(conf->name);
-	Publisher<CurrentMsg> current_pub;
 	Subscriber<Current2Msg, 5> current_sub;
 	Current2Msg * msgp_in;
-	CurrentMsg * msgp_out;
 
 	Time last_setpoint(0);
 
@@ -196,7 +194,6 @@ msg_t current_pid2_node(void * arg) {
 
 	// Subscribe and publish topics
 	node.subscribe(current_sub, "current2");
-	node.advertise(current_pub, conf->topic);
 
 	//set pid setpoint
 	current_pid.set(0.0);
@@ -210,17 +207,10 @@ msg_t current_pid2_node(void * arg) {
 	chThdSleepMilliseconds(500);
 	pwmStart(&PWM_DRIVER, &pwmcfg);
 
-	// comunication cycle
+	// read setpoint
 	for (;;) {
 
-		// Wait for interrupt
-		chSysLock()
-		tp_motor = chThdSelf();
-		chSchGoSleepS(THD_STATE_SUSPENDED);
-		chSysUnlock();
-
-		// update setpoint
-		if (current_sub.fetch(msgp_in)) {
+		if (node.spin(r2p::Time::ms(100)) && current_sub.fetch(msgp_in)) {
 			chSysLock()
 			current_pid.set(msgp_in->value[index]);
 			chSysUnlock();
@@ -233,8 +223,41 @@ msg_t current_pid2_node(void * arg) {
 			chSysLock()
 			current_pid.reset();
 			chSysUnlock();
+
 			palTogglePad(LED4_GPIO, LED4);
 		}
+
+	}
+
+	return CH_SUCCESS;
+}
+
+static current_publisher_node_conf defaultPubConf = { "current_publisher",
+		"current_measure" };
+
+msg_t current_publisher_node(void * arg) {
+	//Configure current node
+	current_publisher_node_conf* conf;
+	if (arg != NULL)
+		conf = (current_publisher_node_conf *) arg;
+	else
+		conf = &defaultPubConf;
+
+	Node node(conf->name);
+	Publisher<CurrentMsg> current_pub;
+
+	CurrentMsg * msgp_out;
+
+	chRegSetThreadName(conf->name);
+
+	node.advertise(current_pub, conf->topic);
+
+	for (;;) {
+		// Wait for interrupt
+		chSysLock()
+		tp_motor = chThdSelf();
+		chSchGoSleepS(THD_STATE_SUSPENDED);
+		chSysUnlock();
 
 		// publish current
 		if (current_pub.alloc(msgp_out)) {
@@ -243,8 +266,6 @@ msg_t current_pid2_node(void * arg) {
 			chSysUnlock();
 			current_pub.publish(*msgp_out);
 		}
-
-
 
 	}
 

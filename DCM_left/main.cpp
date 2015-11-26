@@ -21,17 +21,12 @@
 #define _RATIO 19.0f
 #define _PI 3.14159265359f
 
-#define MOTOR
 
-#ifdef MOTOR
-	#define _R                 0.115f
-	#define _L                 2.4e-5f
-#else
-	#define _R                 8.2f
-	#define _L                 1.17e-3f
-#endif
+#define _R                 0.115f
+#define _L                 2.4e-5f
 
 //#define CALIBRATION
+#define CURRENT
 
 
 #define R2T ((1 / (2 * _PI)) * (_TICKS * _RATIO))
@@ -67,13 +62,17 @@ int main(void) {
 	encoder_node_conf encoder_conf = {"encoder_node", "encoder0", R2T};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, encoder_node, &encoder_conf);
 
+#ifdef CURRENT
+	r2p::broadcaster_node_conf broadcaster_conf = { "broadcaster_node", "current_measure", "bits_packed", 50 };
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO, r2p::broadcaster_node, &broadcaster_conf);
+	r2p::current_publisher_node_conf publisher_conf = { "current_publisher", "current_measure" };
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO, r2p::current_publisher_node, &publisher_conf);
+#endif
+
 #ifdef CALIBRATION
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::broadcaster_node, NULL);
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 2, r2p::motor_calibration_node, NULL);
 #else
-	r2p::broadcaster_node_conf calibration_conf = { "calibration_node", "current_measure1", "bits_packed", 50 };
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO, r2p::broadcaster_node, &calibration_conf);
-	r2p::current_pid_node_conf pid_conf = { "current_pid1",  "current_measure1", 0, _R, _L, 6000.0f, 24.0f};
+	r2p::current_pid_node_conf pid_conf = { "current_pid1", 0, _R, _L, 6000.0f, 24.0f};
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(1024), NORMALPRIO + 3, r2p::current_pid2_node, &pid_conf);
 #endif
 

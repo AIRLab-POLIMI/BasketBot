@@ -18,7 +18,7 @@ namespace r2p {
 /* Bufferizing node.                                                         */
 /*===========================================================================*/
 
-static broadcaster_node_conf defaultConf = { "calibration_node", "bits",
+static broadcaster_node_conf defaultConf = { "broadcaster_node", "bits",
 		"bits_packed", 50 };
 
 msg_t broadcaster_node(void* arg) {

@@ -17,6 +17,7 @@ private:
 	float _max;
 
 	bool _auto;
+	bool _saturation;
 	float _control;
 
 public:
@@ -30,6 +31,8 @@ public:
 
 	void setAuto(bool autoMode);
 	void setControl(float control);
+
+	void setSaturation(bool saturation);
 };
 
 PID_IE::PID_IE(void) {
@@ -45,6 +48,7 @@ PID_IE::PID_IE(void) {
 	_max = FLT_MAX;
 
 	_auto = true;
+	_saturation = false;
 	_control = 0;
 
 }
@@ -73,11 +77,11 @@ void PID_IE::reset(void) {
 	_setpoint = 0;
 
 	_auto = true;
+	_saturation = false;
 	_control = 0;
 }
 
 float PID_IE::get_setpoint(void) {
-
 	return _setpoint;
 }
 
@@ -104,10 +108,9 @@ float PID_IE::update(float measure) {
 	/* saturation filter */
 	if (output > _max) {
 		output = _max;
-
 	} else if (output < _min) {
 		output = _min;
-	} else if (_auto) {
+	} else if (_auto && !_saturation) {
 		/* integral term - auto */
 		_ui = _ui + _a * error;
 	} else {
@@ -127,5 +130,10 @@ void PID_IE::setAuto(bool autoMode) {
 void PID_IE::setControl(float control) {
 	_control = control;
 }
+
+void PID_IE::setSaturation(bool saturation) {
+	_saturation = saturation;
+}
+
 
 #endif /* _PID_EI_EI_HPP_ */

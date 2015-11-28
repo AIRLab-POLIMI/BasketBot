@@ -110,12 +110,14 @@ float PID_IE::update(float measure) {
 		output = _max;
 	} else if (output < _min) {
 		output = _min;
-	} else if (_auto && !_saturation) {
-		/* integral term - auto */
-		_ui = _ui + _a * error;
-	} else {
-		/* integral term - manual */
-		_ui = output - up - _ud;
+	} else if (!_saturation) {
+		if (_auto) {
+			/* integral term - auto */
+			_ui = _ui + _a * error;
+		} else {
+			/* integral term - manual */
+			_ui = output - up - _ud;
+		}
 	}
 
 	_errorOld = error;
@@ -134,6 +136,5 @@ void PID_IE::setControl(float control) {
 void PID_IE::setSaturation(bool saturation) {
 	_saturation = saturation;
 }
-
 
 #endif /* _PID_EI_EI_HPP_ */

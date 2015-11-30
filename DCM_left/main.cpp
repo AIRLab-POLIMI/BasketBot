@@ -22,8 +22,8 @@
 #define _PI 3.14159265359f
 
 
-#define _R                 0.115f
-#define _L                 2.4e-5f
+#define _R                 0.299f
+#define _L                 8.2e-5f
 
 //#define CALIBRATION
 #define CURRENT

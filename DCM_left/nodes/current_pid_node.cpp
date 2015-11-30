@@ -167,7 +167,7 @@ static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
  * PID node.
  */
 
-static current_pid_node_conf defaultConf = { "current_pid", 0, 0.115f, 2.4e-5f,
+static current_pid_node_conf defaultConf = { "current_pid", 0, 0.299f, 8.2e-5f,
 		6000.0f, 24.0f };
 
 msg_t current_pid2_node(void * arg) {

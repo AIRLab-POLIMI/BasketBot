@@ -10,6 +10,7 @@
 /*===========================================================================*/
 
 #include "urosHandlers.h"
+
 #include <urosNode.h>
 #include <urosTcpRos.h>
 #include <urosUser.h>
@@ -28,8 +29,6 @@
 r2p::Node current_node("ucurrentsub", false);
 r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
 
-r2p::Node vel_node("uvelpub", false);
-r2p::Publisher<r2p::Twist2DMsg> vel_pub;
 
 /*===========================================================================*/
 /* PUBLISHED TOPIC FUNCTIONS                                                 */
@@ -52,6 +51,7 @@ r2p::Publisher<r2p::Twist2DMsg> vel_pub;
  *          Error code.
  */
 uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
+
 
 	r2p::FloatMsg *msgp;
 	static bool first_time = true;
@@ -81,7 +81,6 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 				clean_msg__std_msgs__Float32(&msg);
 			}
 		}
-
 	}
 	tcpstp->err = UROS_OK;
 
@@ -107,57 +106,42 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 /** @addtogroup tcpros_subtopic_funcs */
 /** @{ */
 
-/*~~~ SUBSCRIBED TOPIC: /tiltone/velocity ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~ SUBSCRIBED TOPIC: /tiltone/setpoint ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/** @name Topic <tt>/tiltone/velocity</tt> subscriber */
+/** @name Topic <tt>/tiltone/setpoint</tt> subscriber */
 /** @{ */
 
 /**
- * @brief   TCPROS <tt>/tiltone/velocity</tt> subscribed topic handler.
+ * @brief   TCPROS <tt>/tiltone/setpoint</tt> subscribed topic handler.
  *
  * @param[in,out] tcpstp
  *          Pointer to a working @p UrosTcpRosStatus object.
  * @return
  *          Error code.
  */
-uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
+uros_err_t sub_tpc__tiltone__setpoint(UrosTcpRosStatus *tcpstp) {
 
-	r2p::Twist2DMsg *msgp;
-	static bool first_time = true;
+  /* Message allocation and initialization.*/
+  UROS_TPC_INIT_S(msg__std_msgs__Float32);
 
-	if (first_time) {
-		vel_node.advertise(vel_pub, "velocity", r2p::Time::INFINITE);
-		first_time = false;
-	}
+  /* Subscribed messages loop.*/
+  while (!urosTcpRosStatusCheckExit(tcpstp)) {
+    /* Receive the next message.*/
+    UROS_MSG_RECV_LENGTH();
+    UROS_MSG_RECV_BODY(&msg, msg__std_msgs__Float32);
 
-	vel_node.set_enabled(true);
+    /* Call callback function.*/
+    sub_cb__tiltone__setpoint(&msg);
 
-	/* Message allocation and initialization.*/
-	UROS_TPC_INIT_S(msg__geometry_msgs__Twist);
+    /* Dispose the contents of the message.*/
+    clean_msg__std_msgs__Float32(&msg);
+  }
+  tcpstp->err = UROS_OK;
 
-	/* Subscribed messages loop.*/
-	while (!urosTcpRosStatusCheckExit(tcpstp)) {
-		/* Receive the next message.*/
-		UROS_MSG_RECV_LENGTH()
-		;
-		UROS_MSG_RECV_BODY(&msg, msg__geometry_msgs__Twist);
-
-		if (vel_pub.alloc(msgp)) {
-			msgp->angular = msg.angular.z;
-			msgp->linear = msg.linear.x;
-		}
-
-		vel_pub.publish(*msgp);
-
-		/* Dispose the contents of the message.*/
-		clean_msg__geometry_msgs__Twist(&msg);
-	}
-	tcpstp->err = UROS_OK;
-
-	_finally:
-	/* Message deinitialization and deallocation.*/
-	UROS_TPC_UNINIT_S(msg__geometry_msgs__Twist);
-	return tcpstp->err;
+_finally:
+  /* Message deinitialization and deallocation.*/
+  UROS_TPC_UNINIT_S(msg__std_msgs__Float32);
+  return tcpstp->err;
 }
 
 /** @} */
@@ -199,9 +183,13 @@ uros_err_t sub_tpc__tiltone__velocity(UrosTcpRosStatus *tcpstp) {
  */
 void urosHandlersPublishTopics(void) {
 
-	/* /tiltone/current */
-	urosNodePublishTopicSZ("/tiltone/current", "std_msgs/Float32",
-			(uros_proc_f) pub_tpc__tiltone__current, uros_nulltopicflags);
+  /* /tiltone/current */
+  urosNodePublishTopicSZ(
+    "/tiltone/current",
+    "std_msgs/Float32",
+    (uros_proc_f)pub_tpc__tiltone__current,
+    uros_nulltopicflags
+  );
 }
 
 /**
@@ -210,8 +198,10 @@ void urosHandlersPublishTopics(void) {
  */
 void urosHandlersUnpublishTopics(void) {
 
-	/* /tiltone/current */
-	urosNodeUnpublishTopicSZ("/tiltone/current");
+  /* /tiltone/current */
+  urosNodeUnpublishTopicSZ(
+    "/tiltone/current"
+  );
 }
 
 /**
@@ -220,9 +210,13 @@ void urosHandlersUnpublishTopics(void) {
  */
 void urosHandlersSubscribeTopics(void) {
 
-	/* /tiltone/velocity */
-	urosNodeSubscribeTopicSZ("/tiltone/velocity", "geometry_msgs/Twist",
-			(uros_proc_f) sub_tpc__tiltone__velocity, uros_nulltopicflags);
+  /* /tiltone/setpoint */
+  urosNodeSubscribeTopicSZ(
+    "/tiltone/setpoint",
+    "std_msgs/Float32",
+    (uros_proc_f)sub_tpc__tiltone__setpoint,
+    uros_nulltopicflags
+  );
 }
 
 /**
@@ -231,8 +225,10 @@ void urosHandlersSubscribeTopics(void) {
  */
 void urosHandlersUnsubscribeTopics(void) {
 
-	/* /tiltone/velocity */
-	urosNodeUnsubscribeTopicSZ("/tiltone/velocity");
+  /* /tiltone/setpoint */
+  urosNodeUnsubscribeTopicSZ(
+    "/tiltone/setpoint"
+  );
 }
 
 /**
@@ -241,7 +237,7 @@ void urosHandlersUnsubscribeTopics(void) {
  */
 void urosHandlersPublishServices(void) {
 
-	/* No services to publish.*/
+  /* No services to publish.*/
 }
 
 /**
@@ -250,7 +246,7 @@ void urosHandlersPublishServices(void) {
  */
 void urosHandlersUnpublishServices(void) {
 
-	/* No services to unpublish.*/
+  /* No services to unpublish.*/
 }
 
 /** @} */

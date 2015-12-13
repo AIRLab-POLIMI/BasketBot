@@ -288,9 +288,9 @@ int main(void) {
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 3, madgwick_node, NULL);
 	r2p::Thread::sleep(r2p::Time::ms(2000));
 
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, balance_node, NULL);
-	r2p::Thread::sleep(r2p::Time::ms(500));
-	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 1, velocity_node, NULL);
+	//r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, balance_node, NULL);
+	//r2p::Thread::sleep(r2p::Time::ms(500));
+	//r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 1, velocity_node, NULL);
 
 	for (;;) {
 		r2p::Thread::sleep(r2p::Time::ms(500));

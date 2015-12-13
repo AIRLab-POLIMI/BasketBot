@@ -21,14 +21,13 @@
 #include <r2p/Publisher.hpp>
 #include <r2p/Subscriber.hpp>
 
-#include "ExtraMsgs.h"
+#include <r2p/msg/imu.hpp>
 
 /*===========================================================================*/
 /* GLOBAL VARIABLES                                                          */
 /*===========================================================================*/
-r2p::Node current_node("ucurrentsub", false);
-r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
-
+r2p::Node imuraw_node("uimurawsub", false);
+r2p::Subscriber<r2p::IMURaw9, 5> imuraw_sub;
 
 /*===========================================================================*/
 /* PUBLISHED TOPIC FUNCTIONS                                                 */
@@ -37,48 +36,63 @@ r2p::Subscriber<r2p::FloatMsg, 5> current_sub;
 /** @addtogroup tcpros_pubtopic_funcs */
 /** @{ */
 
-/*~~~ PUBLISHED TOPIC: /tiltone/current ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~ PUBLISHED TOPIC: /tiltone/imu_raw ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/** @name Topic <tt>/tiltone/current</tt> publisher */
+/** @name Topic <tt>/tiltone/imu_raw</tt> publisher */
 /** @{ */
 
 /**
- * @brief   TCPROS <tt>/tiltone/current</tt> published topic handler.
+ * @brief   TCPROS <tt>/tiltone/imu_raw</tt> published topic handler.
  *
  * @param[in,out] tcpstp
  *          Pointer to a working @p UrosTcpRosStatus object.
  * @return
  *          Error code.
  */
-uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
+uros_err_t pub_tpc__tiltone__imu_raw(UrosTcpRosStatus *tcpstp) {
 
-
-	r2p::FloatMsg *msgp;
+	r2p::IMURaw9 *msgp;
 	static bool first_time = true;
 
 	if (first_time) {
-		current_node.subscribe(current_sub, "bits_packed");
+		imuraw_node.subscribe(imuraw_sub, "imu_raw");
 		first_time = false;
 	}
 
-	current_node.set_enabled(true);
+	imuraw_node.set_enabled(true);
 
 	/* Message allocation and initialization.*/
-	UROS_TPC_INIT_S(msg__std_msgs__Float32);
+	UROS_TPC_INIT_S(msg__hardware_tools_msgs__ImuRaw);
 
 	/* Published messages loop.*/
 	while (!urosTcpRosStatusCheckExit(tcpstp)) {
-		if (current_node.spin(r2p::Time::ms(1))) { //TODO FIX TIME
-			while (current_sub.fetch(msgp)) {
-				msg.data = msgp->value;
-				current_sub.release(*msgp);
+		if (imuraw_node.spin(r2p::Time::ms(1))) { //TODO FIX TIME
+			while (imuraw_sub.fetch(msgp)) {
+				//accelerometer
+				msg.data[0] = msgp->acc_x;
+				msg.data[1] = msgp->acc_y;
+				msg.data[2] = msgp->acc_z;
+
+				//gyroscope
+				msg.data[3] = msgp->gyro_x;
+				msg.data[4] = msgp->gyro_y;
+				msg.data[5] = msgp->gyro_z;
+
+				//magnetormeter
+				msg.data[6] = msgp->mag_x;
+				msg.data[7] = msgp->mag_y;
+				msg.data[8] = msgp->mag_z;
+
+				//TODO timestamp
+
+				imuraw_sub.release(*msgp);
 
 				/* Send the message.*/
-				UROS_MSG_SEND_LENGTH(&msg, msg__std_msgs__Float32);
-				UROS_MSG_SEND_BODY(&msg, msg__std_msgs__Float32);
+				UROS_MSG_SEND_LENGTH(&msg, msg__hardware_tools_msgs__ImuRaw);
+				UROS_MSG_SEND_BODY(&msg, msg__hardware_tools_msgs__ImuRaw);
 
 				/* Dispose the contents of the message.*/
-				clean_msg__std_msgs__Float32(&msg);
+				clean_msg__hardware_tools_msgs__ImuRaw(&msg);
 			}
 		}
 	}
@@ -86,12 +100,12 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
 
 	_finally:
 	/* Fetch pending messages and disable r2p node. */
-	current_node.set_enabled(false);
-	while (current_sub.fetch(msgp)) {
-		current_sub.release(*msgp);
+	imuraw_node.set_enabled(false);
+	while (imuraw_sub.fetch(msgp)) {
+		imuraw_sub.release(*msgp);
 	}
 	/* Message deinitialization and deallocation.*/
-	UROS_TPC_UNINIT_S(msg__std_msgs__Float32);
+	UROS_TPC_UNINIT_S(msg__hardware_tools_msgs__ImuRaw);
 	return tcpstp->err;
 }
 
@@ -121,27 +135,27 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp) {
  */
 uros_err_t sub_tpc__tiltone__setpoint(UrosTcpRosStatus *tcpstp) {
 
-  /* Message allocation and initialization.*/
-  UROS_TPC_INIT_S(msg__std_msgs__Float32);
+	/* Message allocation and initialization.*/
+	UROS_TPC_INIT_S(msg__std_msgs__Float32);
 
-  /* Subscribed messages loop.*/
-  while (!urosTcpRosStatusCheckExit(tcpstp)) {
-    /* Receive the next message.*/
-    UROS_MSG_RECV_LENGTH();
-    UROS_MSG_RECV_BODY(&msg, msg__std_msgs__Float32);
+	/* Subscribed messages loop.*/
+	while (!urosTcpRosStatusCheckExit(tcpstp)) {
+		/* Receive the next message.*/
+		UROS_MSG_RECV_LENGTH()
+		;
+		UROS_MSG_RECV_BODY(&msg, msg__std_msgs__Float32);
 
-    /* Call callback function.*/
-    sub_cb__tiltone__setpoint(&msg);
+		/* TODO: Process the received message.*/
 
-    /* Dispose the contents of the message.*/
-    clean_msg__std_msgs__Float32(&msg);
-  }
-  tcpstp->err = UROS_OK;
+		/* Dispose the contents of the message.*/
+		clean_msg__std_msgs__Float32(&msg);
+	}
+	tcpstp->err = UROS_OK;
 
-_finally:
-  /* Message deinitialization and deallocation.*/
-  UROS_TPC_UNINIT_S(msg__std_msgs__Float32);
-  return tcpstp->err;
+	_finally:
+	/* Message deinitialization and deallocation.*/
+	UROS_TPC_UNINIT_S(msg__std_msgs__Float32);
+	return tcpstp->err;
 }
 
 /** @} */
@@ -183,13 +197,9 @@ _finally:
  */
 void urosHandlersPublishTopics(void) {
 
-  /* /tiltone/current */
-  urosNodePublishTopicSZ(
-    "/tiltone/current",
-    "std_msgs/Float32",
-    (uros_proc_f)pub_tpc__tiltone__current,
-    uros_nulltopicflags
-  );
+	/* /tiltone/imu_raw */
+	urosNodePublishTopicSZ("/tiltone/imu_raw", "hardware_tools_msgs/ImuRaw",
+			(uros_proc_f) pub_tpc__tiltone__imu_raw, uros_nulltopicflags);
 }
 
 /**
@@ -198,10 +208,8 @@ void urosHandlersPublishTopics(void) {
  */
 void urosHandlersUnpublishTopics(void) {
 
-  /* /tiltone/current */
-  urosNodeUnpublishTopicSZ(
-    "/tiltone/current"
-  );
+	/* /tiltone/imu_raw */
+	urosNodeUnpublishTopicSZ("/tiltone/imu_raw");
 }
 
 /**
@@ -210,13 +218,9 @@ void urosHandlersUnpublishTopics(void) {
  */
 void urosHandlersSubscribeTopics(void) {
 
-  /* /tiltone/setpoint */
-  urosNodeSubscribeTopicSZ(
-    "/tiltone/setpoint",
-    "std_msgs/Float32",
-    (uros_proc_f)sub_tpc__tiltone__setpoint,
-    uros_nulltopicflags
-  );
+	/* /tiltone/setpoint */
+	urosNodeSubscribeTopicSZ("/tiltone/setpoint", "std_msgs/Float32",
+			(uros_proc_f) sub_tpc__tiltone__setpoint, uros_nulltopicflags);
 }
 
 /**
@@ -225,10 +229,8 @@ void urosHandlersSubscribeTopics(void) {
  */
 void urosHandlersUnsubscribeTopics(void) {
 
-  /* /tiltone/setpoint */
-  urosNodeUnsubscribeTopicSZ(
-    "/tiltone/setpoint"
-  );
+	/* /tiltone/setpoint */
+	urosNodeUnsubscribeTopicSZ("/tiltone/setpoint");
 }
 
 /**
@@ -237,7 +239,7 @@ void urosHandlersUnsubscribeTopics(void) {
  */
 void urosHandlersPublishServices(void) {
 
-  /* No services to publish.*/
+	/* No services to publish.*/
 }
 
 /**
@@ -246,7 +248,7 @@ void urosHandlersPublishServices(void) {
  */
 void urosHandlersUnpublishServices(void) {
 
-  /* No services to unpublish.*/
+	/* No services to unpublish.*/
 }
 
 /** @} */

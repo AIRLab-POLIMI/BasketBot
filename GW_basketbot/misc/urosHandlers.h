@@ -22,9 +22,9 @@ extern "C" {
 /* PUBLISHED TOPIC PROTOTYPES                                                */
 /*===========================================================================*/
 
-/*~~~ PUBLISHED TOPIC: /tiltone/current ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~ PUBLISHED TOPIC: /tiltone/imu_raw ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp);
+uros_err_t pub_tpc__tiltone__imu_raw(UrosTcpRosStatus *tcpstp);
 
 /*===========================================================================*/
 /* SUBSCRIBED TOPIC PROTOTYPES                                               */
@@ -33,8 +33,6 @@ uros_err_t pub_tpc__tiltone__current(UrosTcpRosStatus *tcpstp);
 /*~~~ SUBSCRIBED TOPIC: /tiltone/setpoint ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 uros_err_t sub_tpc__tiltone__setpoint(UrosTcpRosStatus *tcpstp);
-
-void sub_cb__tiltone__setpoint(struct msg__std_msgs__Float32 *msg);
 
 /*===========================================================================*/
 /* PUBLISHED SERVICE PROTOTYPES                                              */

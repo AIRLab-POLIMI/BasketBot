@@ -61,7 +61,7 @@ int main(void) {
 
 	r2p::Middleware::instance.start();
 
-	r2p::ledsub_conf ledsub_conf = { "leds" };
+	r2p::ledsub_conf ledsub_conf = { "led" };
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(256), NORMALPRIO, r2p::ledsub_node, &ledsub_conf);
 
 	encoder_node_conf encoder_conf = {"encoder_node", "encoder" STR(INDEX), R2T};

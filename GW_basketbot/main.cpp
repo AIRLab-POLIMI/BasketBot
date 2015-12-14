@@ -112,7 +112,7 @@ int main(void) {
 
 	chThdSleepMilliseconds(100);
 
-	r2p::ledsub_conf ledsub_conf = { "leds" };
+	r2p::ledsub_conf ledsub_conf = { "led" };
 	r2p::Thread::create_heap(NULL, THD_WA_SIZE(256), NORMALPRIO, r2p::ledsub_node, &ledsub_conf);
 
 	//Setup subscribers

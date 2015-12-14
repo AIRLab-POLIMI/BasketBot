@@ -11,6 +11,8 @@
 #include "madgwick.h"
 #include "pid.hpp"
 
+#include "ExtraMsgs.h"
+
 #ifndef R2P_MODULE_NAME
 #define R2P_MODULE_NAME "IMU"
 #endif
@@ -266,6 +268,34 @@ msg_t madgwick_node(void *arg) {
 	return CH_SUCCESS;
 }
 
+msg_t test_speed_node(void *arg) {
+	(void) arg;
+
+	r2p::Node vel_node("uvelpub", false);
+	r2p::Publisher<r2p::Current2Msg> vel_pub;
+
+	vel_node.advertise(vel_pub, "current2", r2p::Time::INFINITE);
+    vel_node.set_enabled(true);
+
+	r2p::Current2Msg* msgp;
+
+	systime_t time;
+	while(true)
+	{
+		time = chTimeNow();
+
+		if (vel_pub.alloc(msgp)) {
+			msgp->value[0] = 0.0;
+			msgp->value[1] = 0.0;
+		}
+
+		time += MS2ST(50);
+		chThdSleepUntil(time);
+	}
+
+	return CH_SUCCESS;
+}
+
 /*
  * Application entry point.
  */
@@ -291,6 +321,7 @@ int main(void) {
 	//r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 2, balance_node, NULL);
 	//r2p::Thread::sleep(r2p::Time::ms(500));
 	//r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 1, velocity_node, NULL);
+	r2p::Thread::create_heap(NULL, THD_WA_SIZE(2048), NORMALPRIO + 1, test_speed_node, NULL);
 
 	for (;;) {
 		r2p::Thread::sleep(r2p::Time::ms(500));

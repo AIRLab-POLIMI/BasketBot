@@ -205,7 +205,9 @@ void PID_IE::setFreezeLow(bool fLow) {
 }
 
 bool PID_IE::flagsChanged() {
-	return _flagsChanged;
+	bool flagsChanged = _flagsChanged;
+	_flagsChanged = false;
+	return flagsChanged;
 }
 
 bool PID_IE::isSaturatedHigh() {

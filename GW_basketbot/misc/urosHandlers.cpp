@@ -145,7 +145,8 @@ uros_err_t sub_tpc__tiltone__setpoint(UrosTcpRosStatus *tcpstp) {
 		;
 		UROS_MSG_RECV_BODY(&msg, msg__std_msgs__Float32);
 
-		/* TODO: Process the received message.*/
+	    /* Call callback function.*/
+	    sub_cb__tiltone__setpoint(&msg);
 
 		/* Dispose the contents of the message.*/
 		clean_msg__std_msgs__Float32(&msg);

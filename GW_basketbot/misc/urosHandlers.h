@@ -34,6 +34,8 @@ uros_err_t pub_tpc__tiltone__imu_raw(UrosTcpRosStatus *tcpstp);
 
 uros_err_t sub_tpc__tiltone__setpoint(UrosTcpRosStatus *tcpstp);
 
+void sub_cb__tiltone__setpoint(struct msg__std_msgs__Float32 *msg);
+
 /*===========================================================================*/
 /* PUBLISHED SERVICE PROTOTYPES                                              */
 /*===========================================================================*/

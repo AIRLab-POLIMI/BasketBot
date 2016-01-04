@@ -54,7 +54,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	(void) adcp;
 	(void) n;
 
-	palTogglePad(LED1_GPIO, LED1);
+	palTogglePad(LED2_GPIO, LED2);
 
 	chSysLockFromIsr()
 	;

@@ -42,8 +42,8 @@
 #define LED3					8
 #define LED4_GPIO				GPIOB
 #define LED4					9
-#define LED_GPIO                GPIOB
-#define LED_PIN                 LED4
+#define LED_GPIO                LED1_GPIO
+#define LED_PIN                 LED1
 
 #define SERIAL_DRIVER           SD1
 

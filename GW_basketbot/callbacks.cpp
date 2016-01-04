@@ -20,7 +20,7 @@
 
 extern r2p::Publisher<r2p::Current2Msg> vel_pub;
 /*void sub_cb__tiltone__velocity(struct msg__geometry_msgs__Twist *msg) {
- palClearPad(LED1_GPIO, LED1);
+ palClearPad(LED2_GPIO, LED2);
 
 
  }*/
@@ -32,7 +32,7 @@ void sub_cb__tiltone__setpoint(struct msg__std_msgs__Float32 *msg) {
 		msgp->value[0] = msg->data;
 		msgp->value[1] = msg->data;
 
-		palClearPad(LED1_GPIO, LED1);
+		palClearPad(LED2_GPIO, LED2);
 	}
 
 	vel_pub.publish(*msgp);

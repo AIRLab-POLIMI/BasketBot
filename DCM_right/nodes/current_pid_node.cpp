@@ -69,7 +69,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 static void control_callback(PWMDriver *pwmp) {
 	(void) pwmp;
 
-	palTogglePad(LED1_GPIO, LED1);
+	palTogglePad(LED2_GPIO, LED2);
 
 	chSysLockFromIsr()
 
@@ -99,14 +99,14 @@ static void control_callback(PWMDriver *pwmp) {
 			dutyCycle = 0;
 		}
 
-		palTogglePad(LED1_GPIO, LED1);
+		palTogglePad(LED2_GPIO, LED2);
 
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 1 : 0, dutyCycle);
 		pwm_lld_enable_channel(&PWM_DRIVER, pwm > 0 ? 0 : 1, 0);
 
 		pwm_lld_enable_channel(&PWM_DRIVER, 2, dutyCycle / 2);
 
-		palTogglePad(LED1_GPIO, LED1);
+		palTogglePad(LED2_GPIO, LED2);
 
 		//set measure
 		measure = current;
@@ -123,7 +123,7 @@ static void control_callback(PWMDriver *pwmp) {
 	}
 	chSysUnlockFromIsr();
 
-	palSetPad(LED1_GPIO, LED1);
+	palSetPad(LED2_GPIO, LED2);
 }
 
 /*

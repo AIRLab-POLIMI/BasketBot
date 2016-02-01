@@ -27,7 +27,7 @@
 /* GLOBAL VARIABLES                                                          */
 /*===========================================================================*/
 r2p::Node imuraw_node("uimurawsub", false);
-r2p::Subscriber<r2p::IMURaw9, 5> imuraw_sub;
+r2p::Subscriber<r2p::tIMURaw9, 5> imuraw_sub;
 
 /*===========================================================================*/
 /* PUBLISHED TOPIC FUNCTIONS                                                 */
@@ -51,7 +51,7 @@ r2p::Subscriber<r2p::IMURaw9, 5> imuraw_sub;
  */
 uros_err_t pub_tpc__tiltone__imu_raw(UrosTcpRosStatus *tcpstp) {
 
-	r2p::IMURaw9 *msgp;
+	r2p::tIMURaw9 *msgp;
 	static bool first_time = true;
 
 	if (first_time) {
@@ -83,7 +83,9 @@ uros_err_t pub_tpc__tiltone__imu_raw(UrosTcpRosStatus *tcpstp) {
 				msg.data[7] = msgp->mag_y;
 				msg.data[8] = msgp->mag_z;
 
-				//TODO timestamp
+				//Timestamp
+				msg.header.stamp.sec = msgp->timestamp.sec;
+				msg.header.stamp.nsec = msgp->timestamp.nsec;
 
 				imuraw_sub.release(*msgp);
 

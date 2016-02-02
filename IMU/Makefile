@@ -7,7 +7,9 @@ PACKAGES = led
 
 PRJ_CSRC = 
 
-PRJ_CPPSRC = main.cpp
+PRJ_CPPSRC =  \
+	nodes/madgwick_node.cpp \
+	main.cpp
 
 ULIBS += -lm
 

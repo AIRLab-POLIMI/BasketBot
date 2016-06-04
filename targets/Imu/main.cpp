@@ -31,6 +31,29 @@ led::Publisher led_publisher("led_publisher", Core::MW::Thread::PriorityEnum::LO
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
 madgwick::Madgwick   madgwick_filter("madgwick");
 
+/*===========================================================================*/
+/* Kinematics.                                                               */
+/*===========================================================================*/
+/*
+ *               y
+ *               ^
+ *               |
+ *               |
+ *   2           @---->x     1
+ *  ||                       ||  |
+ *  ||_______________________||  | R
+ *  ||                       ||
+ *  ||                       ||
+ *               L
+ *   <----------------------->
+ *
+ */
+
+// Robot parameters
+#define basketbot_L        0.220f     // Wheel distance [m]
+#define basketbot_R        (0.155f / 2) // Wheel radius [m]
+
+
 // MAIN
 extern "C" {
 	int

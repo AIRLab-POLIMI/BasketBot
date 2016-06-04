@@ -1,0 +1,6 @@
+{
+  "name": "extra_msgs",
+  "description": "Extra messages for current control", 
+  "namespace": "@", 
+  "sources": []
+} 

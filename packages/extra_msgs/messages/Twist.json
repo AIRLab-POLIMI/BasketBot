@@ -1,0 +1,19 @@
+ {
+  "name": "Twist", 
+  "description": "Twist setpoint for a 6DoF robot", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "angular", 
+      "description": "angular setpoint in radians per seconds", 
+      "type": "FLOAT32", 
+      "size": 3 
+    },
+    {
+      "name": "linear", 
+      "description": "linear setpoint in meters per seconds", 
+      "type": "FLOAT32", 
+      "size": 3
+    }
+  ]
+}  

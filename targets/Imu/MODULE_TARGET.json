@@ -1,0 +1,10 @@
+{
+  "name": "Imu",
+  "description": "Imu",
+  "module": "imu",
+  "required_packages": [],
+  "sources": [
+    "main.cpp"
+  ],
+  "includes": []
+}

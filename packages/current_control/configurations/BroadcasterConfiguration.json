@@ -1,0 +1,25 @@
+{
+  "name": "BroadcasterConfiguration", 
+  "description": "Broadcaster node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "topicOut", 
+      "description": "Name of the topic to publish to", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+      "name": "topicIn", 
+      "description": "Name of the topic to read from", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+      "name": "factor", 
+      "description": "TODO change this", 
+      "type": "UINT32", 
+      "size": 1 
+    }
+  ]
+} 

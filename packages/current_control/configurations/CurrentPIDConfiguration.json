@@ -1,0 +1,38 @@
+{
+  "name": "CurrentPIDConfiguration", 
+  "description": "Current PID node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "index", 
+      "description": "Number of the motor", 
+      "type": "UINT32", 
+      "size": 1 
+    },
+    {
+      "name": "R", 
+      "description": "Motor resistance", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
+      "name": "L", 
+      "description": "Motor Inductance", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
+      "name": "omegaC", 
+      "description": "Desidered critic pulse of the controller", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
+      "name": "maxV", 
+      "description": "Motor maximum voltage", 
+      "type": "FLOAT32", 
+      "size": 1 
+    }
+  ]
+}  
+

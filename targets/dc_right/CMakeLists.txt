@@ -2,7 +2,7 @@
 # Remove a "#" from the line below to stop generating this file every time you call CoreWorkspace generate
 ## TARGET MODULE dc
 
-PROJECT( dc_left )
+PROJECT( dc_right )
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 FIND_PACKAGE( CORE_BUILD CONFIG REQUIRED )
@@ -17,8 +17,4 @@ SET( PROJECT_SOURCES
 
 core_target_module(
   MODULE dc
-  PACKAGES
-    current_control
-    pid_ie
-    extra_msgs
 )

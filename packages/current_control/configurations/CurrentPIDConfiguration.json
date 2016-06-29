@@ -4,10 +4,10 @@
   "namespace": "@", 
   "fields": [ 
     {
-      "name": "index", 
-      "description": "Number of the motor", 
-      "type": "UINT32", 
-      "size": 1 
+      "name": "topic", 
+      "description": "Name of the topic to read from", 
+      "type": "CHAR", 
+      "size": 16 
     },
     {
       "name": "R", 
@@ -31,6 +31,12 @@
       "name": "maxV", 
       "description": "Motor maximum voltage", 
       "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
+      "name" : "controlCycles",
+      "description": "Number of pwm cycles for each control cycle", 
+      "type": "UINT32", 
       "size": 1 
     }
   ]

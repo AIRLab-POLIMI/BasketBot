@@ -13,20 +13,19 @@
 // --- BOARD IMPL -------------------------------------------------------------
 #include <QEI_driver/QEI.hpp>
 #include <A4957_driver/A4957.hpp>
-#include <current_control/CurrentPID.hpp>
 
 // *** DO NOT MOVE ***
 Module module;
 
 // --- TYPES ------------------------------------------------------------------
-using QEI_Publisher = sensor_publisher::Publisher<Configuration::QEI_DELTA_DATATYPE>;
-using CurrentPID = current_control::CurrentPID;
+using QEI_Publisher  = sensor_publisher::Publisher<Configuration::QEI_DELTA_DATATYPE>;
+//using PWM_Subscriber = actuator_subscriber::Subscriber<float, actuator_msgs::Setpoint_f32>;
 
 // --- NODES ------------------------------------------------------------------
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
 
 QEI_Publisher  encoder("encoder", module.qei, Core::MW::Thread::PriorityEnum::NORMAL);
-CurrentPID currentPid("current_pid", module.hbridge_pwm, Core::MW::Thread::PriorityEnum::NORMAL);
+//PWM_Subscriber motor("actuator_sub", module.pwm, Core::MW::Thread::PriorityEnum::NORMAL);
 
 // --- MAIN -------------------------------------------------------------------
 extern "C" {
@@ -42,15 +41,20 @@ extern "C" {
       // Nodes configuration
       led_subscriber.configuration["topic"] = "led";
       encoder.configuration["topic"]        = "encoder";
+      //motor.configuration["topic"]          = "pwm";
 
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
-      //module.add(encoder);
-      module.add(currentPid);
+      module.add(encoder);
+      //module.add(motor);
 
       // ... and let's play!
       module.setup();
       module.run();
+
+      module.hbridge_pwm.start();
+      float value = 0.5;
+      module.hbridge_pwm.set(value);
 
       // Is everything going well?
       for (;;) {

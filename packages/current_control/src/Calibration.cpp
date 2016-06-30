@@ -1,157 +1,128 @@
-/*
- * calibration_node.cpp
- *
- *  Created on: 02/nov/2015
- *      Author: dave
- */
+#include <current_control/CurrentPID.hpp>
 
-/*#include "ch.h"
+#include "ch.h"
 #include "hal.h"
 
-#include "r2p/Middleware.hpp"
+namespace current_control
+{
 
-#include "calibration_node.hpp"
-
-static Thread *tp_motor = NULL;
-
-namespace r2p {*/
 
 /*===========================================================================*/
-/* Motor calibration.                                                        */
+/* Config adc					                                             */
 /*===========================================================================*/
 
-/*static int pwm = 0;
+#define ADC_NUM_CHANNELS   1
+#define ADC_BUF_DEPTH      1
 
-#define ADC_NUM_CHANNELS  1
-#define ADC_BUF_DEPTH     1
-
-static float meanLevel = 0.0f;
+static bool onCycle = true;
+static unsigned int currentPeakHigh = 0.0f;
+static unsigned int currentPeakLow = 0.0f;
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
-static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n);*/
-
-/*
- * ADC conversion group.
- * Mode:        Circular buffer, 1 sample of 1 channel, triggered by pwm channel 3
- * Channels:    IN10.
- */
-/*static const ADCConversionGroup adcgrpcfg = { TRUE, // circular
-		ADC_NUM_CHANNELS, // num channels
-		current_callback, // end callback
-		NULL, // error callback
-		0, // CR1
-		ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_1, // CR2
-		0, // SMPR1
-		ADC_SMPR2_SMP_AN3(ADC_SAMPLE_1P5), // SMPR2
-		ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
-		0, // SQR2
-		ADC_SQR3_SQ1_N(ADC_CHANNEL_IN3) // SQR3
-		};
+std::function<void()> adcCallback;
 
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	(void) adcp;
 	(void) n;
 
-	palTogglePad(LED2_GPIO, LED2);
-
-	chSysLockFromIsr()
-	;
-
-	meanLevel = buffer[0];
-
-	if (tp_motor != NULL) {
-		chSchReadyI(tp_motor);
-		tp_motor = NULL;
+	//Compute current
+	chSysLockFromISR();
+	if(onCycle)
+	{
+		currentPeakHigh = buffer[0];
+		if(adcCallback)
+			adcCallback();
 	}
-
-	chSysUnlockFromIsr();
-
-}
-
-
-static PWMConfig pwmcfg = { STM32_SYSCLK, // 72MHz PWM clock frequency.
-		4096, // 12-bit PWM, 17KHz frequency.
-		NULL, // pwm callback
-		{
-				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
-				{ PWM_OUTPUT_ACTIVE_HIGH | PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL }, //
-				{ PWM_OUTPUT_ACTIVE_LOW, NULL }, //
-				{ PWM_OUTPUT_DISABLED, NULL } }, //
-				0, //
-#if STM32_PWM_USE_ADVANCED
-		72, // XXX 1uS deadtime insertion 
-#endif
-		0 };
-
-static calibration_pub_node_conf defaultPubConf = { "motor_calibration_node",
-		"bits" };
-
-msg_t motor_calibration_node(void * arg) {
-	//Configure current node
-	calibration_pub_node_conf* conf;
-	if (arg != NULL)
-		conf = (calibration_pub_node_conf *) arg;
 	else
-		conf = &defaultPubConf;
+		currentPeakLow = buffer[0];
 
-	Node node(conf->name);
-	Publisher<FloatMsg> current_pub;
-	FloatMsg * msgp;
+	onCycle = !onCycle;
 
-	chRegSetThreadName(conf->name);
+	chSysUnlockFromISR();
 
-	node.advertise(current_pub, conf->topic);
-
-	// Start the ADC driver and conversion
-	adcStart(&ADC_DRIVER, NULL);
-	adcStartConversion(&ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
-
-	// Init motor driver
-	palSetPad(DRIVER_GPIO, DRIVER_RESET);
-	chThdSleepMilliseconds(500);
-	pwmStart(&PWM_DRIVER, &pwmcfg);
-
-	// wait some time
-	chThdSleepMilliseconds(500);
-
-	// start pwm
-	float voltage = 24.0;
-
-	const float pwm_res = 4096.0f / 24.0f;
-	pwm = static_cast<int>(voltage * pwm_res);
-
-	if (pwm > 0) {
-		pwm_lld_enable_channel(&PWM_DRIVER, 1, pwm);
-		pwm_lld_enable_channel(&PWM_DRIVER, 0, 0);
-
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, pwm/2);
-	} else {
-		pwm_lld_enable_channel(&PWM_DRIVER, 1, 0);
-		pwm_lld_enable_channel(&PWM_DRIVER, 0, -pwm);
-
-		pwm_lld_enable_channel(&PWM_DRIVER, 2, -pwm/2);
-	}
-
-	// Start publishing current measures
-	for (;;) {
-		// Wait for interrupt
-		chSysLock()
-		;
-		tp_motor = chThdSelf();
-		chSchGoSleepS(THD_STATE_SUSPENDED);
-		chSysUnlock();
-
-		// publish current
-		if (current_pub.alloc(msgp)) {
-			msgp->value = meanLevel;
-			current_pub.publish(*msgp);
-		}
-
-	}
-
-	return CH_SUCCESS;
 }
 
-}*/
+static const ADCConversionGroup adcgrpcfg = {
+  TRUE, // circular
+  ADC_NUM_CHANNELS, // num channels
+  current_callback, // end callback
+  NULL, // error callback
+  ADC_CFGR_EXTEN_RISING | ADC_CFGR_EXTSEL_SRC(9), // CFGR
+  ADC_TR(0, 4095),                                // TR1
+  ADC_CCR_DUAL(1),                                // CCR
+  {                                               // SMPR[2]
+  	ADC_SMPR1_SMP_AN1(ADC_SMPR_SMP_1P5),
+  	0
+  },
+  {                                              // SQR[4]
+	  ADC_SQR1_SQ1_N(ADC_CHANNEL_IN1),
+      0,
+      0,
+      0
+  }
+};
+
+
+/*===========================================================================*/
+/* Motor control nodes.                                                      */
+/*===========================================================================*/
+
+Calibration::Calibration(const char* name,
+					   Core::MW::CoreActuator<float>& pwm,
+					   Core::MW::Thread::PriorityEnum priority) :
+      CoreNode::CoreNode(name, priority), _pwm(pwm)
+   {
+	  _current = 0.0f;
+      _workingAreaSize = 512;
+   }
+
+Calibration::~Calibration()
+{
+    teardown();
+}
+
+void Calibration::calibrationCallback()
+{
+	chSysLockFromISR();
+
+	//Add new current peak
+	_current += currentPeakHigh;
+
+	chSysUnlockFromISR();
+
+}
+
+
+bool
+Calibration::onPrepareHW()
+{
+    // Start the ADC driver and conversion
+	ADCDriver* ADC_DRIVER = &ADCD3;
+
+	adcStart(ADC_DRIVER, NULL);
+	adcStartConversion(ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
+
+	adcCallback = std::bind(&CurrentPID::controlCallback, this);
+
+	palSetPadMode(GPIOA, GPIOA_ENCODER1_A, PAL_MODE_OUTPUT_PUSHPULL);
+
+	//Start pwm
+	_pwm.start();
+	float value = 1.0;
+	_pwm.set(value);
+
+    return true;
+}
+
+
+bool
+Calibration::onLoop()
+{
+	this->spin(Core::MW::Time::s(100));
+
+    return true;
+}
+
+} /* namespace current_control */

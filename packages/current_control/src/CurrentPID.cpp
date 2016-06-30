@@ -26,6 +26,8 @@ static float currentPeakLow = 0.0f;
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
+std::function<void()> adcCallback;
+
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 	(void) adcp;
@@ -34,7 +36,11 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	//Compute current
 	chSysLockFromISR();
 	if(onCycle)
+	{
 		currentPeakHigh = (_Kcs * buffer[0] + _Qcs);
+		if(adcCallback)
+			adcCallback();
+	}
 	else
 		currentPeakLow = (_Kcs * buffer[0] + _Qcs);
 
@@ -88,8 +94,6 @@ CurrentPID::~CurrentPID()
 
 void CurrentPID::controlCallback()
 {
-	palTogglePad(GPIOA, GPIOA_ENCODER1_A); //TODO Levami!!!
-
 	chSysLockFromISR();
 
 	//Add new current peak
@@ -150,6 +154,8 @@ CurrentPID::onPrepareHW()
 
 	adcStart(ADC_DRIVER, NULL);
 	adcStartConversion(ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
+
+	adcCallback = std::bind(&CurrentPID::controlCallback, this);
 
 	palSetPadMode(GPIOA, GPIOA_ENCODER1_A, PAL_MODE_OUTPUT_PUSHPULL);
 

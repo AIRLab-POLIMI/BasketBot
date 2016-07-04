@@ -16,18 +16,20 @@ public:
 	   Calibration(
          const char*                    name,
 		 Core::MW::CoreActuator<float>& pwm,
+		 bool positive,
          Core::MW::Thread::PriorityEnum priority = Core::MW::Thread::PriorityEnum::NORMAL
       );
 
       virtual
       ~Calibration();
 
-      void calibrationCallback();
+      void calibrationCallback(uint16_t current);
 
 private:
       Core::MW::CoreActuator<float>& _pwm;
+      const bool _positive;
 
-      float _current;
+      uint16_t _current;
 
 
 private:

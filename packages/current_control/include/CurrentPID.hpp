@@ -22,7 +22,7 @@ public:
       virtual
       ~CurrentPID();
 
-      void controlCallback();
+      void controlCallback(float currentPeak);
 
 public:
       CurrentPIDConfiguration configuration;

@@ -1,7 +1,11 @@
-#include <current_control/CurrentPID.hpp>
+#include <current_control/Calibration.hpp>
 
 #include "ch.h"
 #include "hal.h"
+
+#include "chprintf.h"
+
+using namespace std::placeholders;
 
 namespace current_control
 {
@@ -20,7 +24,7 @@ static unsigned int currentPeakLow = 0.0f;
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
-std::function<void()> adcCallback;
+static std::function<void(uint16_t)> adcCallback;
 
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
@@ -33,7 +37,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	{
 		currentPeakHigh = buffer[0];
 		if(adcCallback)
-			adcCallback();
+			adcCallback(currentPeakHigh);
 	}
 	else
 		currentPeakLow = buffer[0];
@@ -64,15 +68,26 @@ static const ADCConversionGroup adcgrpcfg = {
   }
 };
 
+/*===========================================================================*/
+/* UART config                                                               */
+/*===========================================================================*/
+
+#define SERIAL_OUT_BITRATE 115200
+
+SerialConfig sd2Config = {
+		SERIAL_OUT_BITRATE,
+		0, USART_CR2_STOP1_BITS | USART_CR2_LINEN, 0
+};
 
 /*===========================================================================*/
-/* Motor control nodes.                                                      */
+/* Motor calibration node                                                    */
 /*===========================================================================*/
 
 Calibration::Calibration(const char* name,
 					   Core::MW::CoreActuator<float>& pwm,
+					   bool positive,
 					   Core::MW::Thread::PriorityEnum priority) :
-      CoreNode::CoreNode(name, priority), _pwm(pwm)
+      CoreNode::CoreNode(name, priority), _pwm(pwm), _positive(positive)
    {
 	  _current = 0.0f;
       _workingAreaSize = 512;
@@ -83,34 +98,32 @@ Calibration::~Calibration()
     teardown();
 }
 
-void Calibration::calibrationCallback()
+void Calibration::calibrationCallback(uint16_t current)
 {
-	chSysLockFromISR();
-
 	//Add new current peak
-	_current += currentPeakHigh;
-
-	chSysUnlockFromISR();
-
+	_current = current;
 }
 
 
 bool
 Calibration::onPrepareHW()
 {
+	//start Serial
+	palSetPadMode(GPIOA, GPIOA_ENCODER1_I, PAL_MODE_ALTERNATE(7));
+	palSetPadMode(GPIOA, GPIOA_ENCODER1_ANALOG, PAL_MODE_ALTERNATE(7));
+	sdStart(&SD2, &sd2Config);
+
+	adcCallback = std::bind(&Calibration::calibrationCallback, this, _1);
+
     // Start the ADC driver and conversion
 	ADCDriver* ADC_DRIVER = &ADCD3;
 
 	adcStart(ADC_DRIVER, NULL);
 	adcStartConversion(ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
-	adcCallback = std::bind(&CurrentPID::controlCallback, this);
-
-	palSetPadMode(GPIOA, GPIOA_ENCODER1_A, PAL_MODE_OUTPUT_PUSHPULL);
-
 	//Start pwm
 	_pwm.start();
-	float value = 1.0;
+	float value = _positive ? 1.0 : -1.0;
 	_pwm.set(value);
 
     return true;
@@ -120,7 +133,8 @@ Calibration::onPrepareHW()
 bool
 Calibration::onLoop()
 {
-	this->spin(Core::MW::Time::s(100));
+	this->spin(Core::MW::Time::ms(1));
+	chprintf((BaseSequentialStream *)&SD2, "%d\n", _current);
 
     return true;
 }

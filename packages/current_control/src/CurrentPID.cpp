@@ -3,6 +3,8 @@
 #include "ch.h"
 #include "hal.h"
 
+using namespace std::placeholders;
+
 namespace current_control
 {
 
@@ -10,8 +12,8 @@ namespace current_control
 /* Current sensor parameters.                                                */
 /*===========================================================================*/
 
-#define _Kcs               -0.007179470922790f
-#define _Qcs               14.637146343837731f
+#define _Kcs               0.007432946790511f
+#define _Qcs               -15.207809133385506f
 
 /*===========================================================================*/
 /* Config adc					                                             */
@@ -26,7 +28,7 @@ static float currentPeakLow = 0.0f;
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
-std::function<void()> adcCallback;
+static std::function<void(float)> adcCallback;
 
 static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
@@ -39,7 +41,7 @@ static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 	{
 		currentPeakHigh = (_Kcs * buffer[0] + _Qcs);
 		if(adcCallback)
-			adcCallback();
+			adcCallback(currentPeakHigh);
 	}
 	else
 		currentPeakLow = (_Kcs * buffer[0] + _Qcs);
@@ -92,12 +94,10 @@ CurrentPID::~CurrentPID()
     teardown();
 }
 
-void CurrentPID::controlCallback()
+void CurrentPID::controlCallback(float currentPeak)
 {
-	chSysLockFromISR();
-
 	//Add new current peak
-	_current += currentPeakHigh;
+	_current += currentPeak;
 
 	//Count cycle
 	_controlCounter++;
@@ -119,8 +119,6 @@ void CurrentPID::controlCallback()
 		_current = 0;
 		_controlCounter = 0;
 	}
-
-	chSysUnlockFromISR();
 
 }
 
@@ -155,12 +153,13 @@ CurrentPID::onPrepareHW()
 	adcStart(ADC_DRIVER, NULL);
 	adcStartConversion(ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
-	adcCallback = std::bind(&CurrentPID::controlCallback, this);
-
-	palSetPadMode(GPIOA, GPIOA_ENCODER1_A, PAL_MODE_OUTPUT_PUSHPULL);
+	adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
 
 	//Start pwm
 	_pwm.start();
+
+	float value = 0.0f;
+	_pwm.set(value);
 
     return true;
 }

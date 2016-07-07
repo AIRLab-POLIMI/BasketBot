@@ -19,4 +19,5 @@ core_target_module(
   MODULE imu
   PACKAGES
     extra_msgs
+    mahony
 )

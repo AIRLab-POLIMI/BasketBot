@@ -1,0 +1,6 @@
+{
+  "name": "mahony",
+  "description": "Mahony filter", 
+  "namespace": "@", 
+  "sources": ["Mahony.cpp"]
+} 

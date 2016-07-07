@@ -10,7 +10,7 @@
 #include <sensor_publisher/Publisher.hpp>
 #include <led/Publisher.hpp>
 #include <led/Subscriber.hpp>
-#include <madgwick/Madgwick.hpp>
+#include <mahony/Mahony.hpp>
 
 // BOARD IMPL
 #include <L3GD20H_driver/L3GD20H.hpp>
@@ -29,7 +29,8 @@ Vector3_i16_Publisher mag_publisher("mag_publisher", module.mag, Core::MW::Threa
 
 led::Publisher led_publisher("led_publisher", Core::MW::Thread::PriorityEnum::LOWEST);
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
-madgwick::Madgwick   madgwick_filter("madgwick");
+//madgwick::Madgwick   madgwick_filter("madgwick");
+mahony::Mahony   mahony_filter("madgwick");
 
 /*===========================================================================*/
 /* Kinematics.                                                               */
@@ -74,12 +75,12 @@ extern "C" {
 		module.add(mag_publisher);
 
 		// Madgwick filter node
-		madgwick_filter.configuration.topicGyro = gyro_publisher.configuration.topic;
-		madgwick_filter.configuration.topicAcc  = acc_publisher.configuration.topic;
-		madgwick_filter.configuration.topicMag  = mag_publisher.configuration.topic;
-		madgwick_filter.configuration.topic     = "imu";
-		madgwick_filter.configuration.frequency = 50.0f;
-		module.add(madgwick_filter);
+		mahony_filter.configuration.topicGyro = gyro_publisher.configuration.topic;
+		mahony_filter.configuration.topicAcc  = acc_publisher.configuration.topic;
+		mahony_filter.configuration.topicMag  = mag_publisher.configuration.topic;
+		mahony_filter.configuration.topic     = "imu";
+		mahony_filter.configuration.frequency = 50.0f;
+		module.add(mahony_filter);
 
 		// Setup and run
 		module.setup();

@@ -26,7 +26,7 @@ using Calibration = current_control::Calibration;
 
 // --- NODES ------------------------------------------------------------------
 
-//#define CALIBRATION
+#define CALIBRATION
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
 
 #ifdef CALIBRATION

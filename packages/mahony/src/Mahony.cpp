@@ -1,6 +1,6 @@
 #include <Module.hpp>
 
-#include <madgwick/Mahony.hpp>
+#include <mahony/Mahony.hpp>
 #include <Core/Utils/Math/Constants.hpp>
 #include <Core/Utils/Math/Conversions.hpp>
 #include <sensor_msgs/RPY_f32.hpp>

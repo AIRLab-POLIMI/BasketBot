@@ -9,7 +9,7 @@
 #include <Configuration.hpp>
 
 #include <sensor_msgs/RPY_f32.hpp>
-#include <madgwick/MahonyConfiguration.hpp>
+#include <mahony/MahonyConfiguration.hpp>
 
 namespace mahony {
    class Mahony:

@@ -8,8 +8,10 @@
 
 #include <Configuration.hpp>
 
-#include <sensor_msgs/RPY_f32.hpp>
+#include <sensor_msgs/Imu_f32.hpp>
 #include <mahony/MahonyConfiguration.hpp>
+#include <mahony/Measurement.hpp>
+#include <mahony/MahonyFilter.hpp>
 
 namespace mahony {
    class Mahony:
@@ -31,7 +33,13 @@ private:
       Configuration::LSM303D_ACC_DATATYPE  _accData;
       Configuration::LSM303D_MAG_DATATYPE  _magData;
 
+      measurement measure;
+      MahonyFilter filter;
+
 private:
+      bool
+      onConfigure();
+
       bool
       onPrepareMW();
 
@@ -56,11 +64,18 @@ private:
          Core::MW::Node*                            node
       );
 
+private:
+      void
+	  adjustMeasurements();
+
+
 
 private:
       Core::MW::Subscriber<Configuration::L3GD20H_GYRO_DATATYPE, 2> _subscriberGyro;
       Core::MW::Subscriber<Configuration::LSM303D_ACC_DATATYPE, 2>  _subscriberAcc;
       Core::MW::Subscriber<Configuration::LSM303D_MAG_DATATYPE, 2>  _subscriberMag;
-      Core::MW::Publisher<sensor_msgs::RPY_f32> _publisher;
+      Core::MW::Publisher<sensor_msgs::Imu_f32> _publisher;
+
+      Core::MW::Time stamp;
    };
 } 

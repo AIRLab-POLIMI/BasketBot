@@ -2,5 +2,5 @@
   "name": "mahony",
   "description": "Mahony filter", 
   "namespace": "@", 
-  "sources": ["Mahony.cpp"]
+  "sources": ["Mahony.cpp", "MahonyFilter.cpp"]
 } 

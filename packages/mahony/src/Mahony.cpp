@@ -3,7 +3,6 @@
 #include <mahony/Mahony.hpp>
 #include <Core/Utils/Math/Constants.hpp>
 #include <Core/Utils/Math/Conversions.hpp>
-#include <sensor_msgs/RPY_f32.hpp>
 #include <L3GD20H_driver/L3GD20H.hpp>
 #include <LSM303D_driver/LSM303D.hpp>
 
@@ -21,6 +20,14 @@ namespace mahony {
    Mahony::~Mahony()
    {
       teardown();
+   }
+
+   bool
+   Mahony::onConfigure()
+   {
+	   auto& c = configuration;
+	   filter.config(c.Kp,c.Ki, c.Kacc, c.Kmag, 1.0f/c.frequency);
+	   return true;
    }
 
    bool
@@ -42,7 +49,15 @@ namespace mahony {
    bool
    Mahony::onLoop()
    {
-      return true;
+	   //adjustMeasurements();
+	   //filter(measure);
+	   sensor_msgs::Imu_f32 msg;
+	   _publisher.publish(msg);
+	   Core::MW::Thread::sleep(Core::MW::Time::ms(10));
+
+
+
+       return true;
    } // Mahony::onLoop
 
    bool
@@ -83,5 +98,30 @@ namespace mahony {
 
       return true;
    }
+
+   void Mahony::adjustMeasurements()
+   {
+	   auto& acc_a = configuration.acc_a;
+	   auto& acc_b = configuration.acc_a;
+
+	   measure.acc[0] = acc_a[0]*_accData.x + acc_b[0];
+	   measure.acc[1] = acc_a[1]*_accData.y + acc_b[1];
+	   measure.acc[2] = acc_a[2]*_accData.z + acc_b[2];
+
+	   auto& gyr_a = configuration.gyr_a;
+	   auto& gyr_b = configuration.gyr_a;
+
+	   measure.gyr[0] = gyr_a[0]*_gyroData.y    + gyr_b[0];
+	   measure.gyr[1] = gyr_a[1]*(-_gyroData.x) + gyr_b[1];
+	   measure.gyr[2] = gyr_a[2]*_gyroData.z    + gyr_b[2];
+
+	   auto& mag_a = configuration.mag_a;
+	   auto& mag_b = configuration.mag_a;
+
+	   measure.mag[0] = mag_a[0]*_magData.x + mag_b[0];
+	   measure.mag[1] = mag_a[1]*_magData.y + mag_b[1];
+	   measure.mag[2] = mag_a[2]*_magData.z + mag_b[2];
+   }
+
 }
  

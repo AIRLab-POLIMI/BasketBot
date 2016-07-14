@@ -76,6 +76,7 @@ private:
       Core::MW::Subscriber<Configuration::LSM303D_MAG_DATATYPE, 2>  _subscriberMag;
       Core::MW::Publisher<sensor_msgs::Imu_f32> _publisher;
 
-      Core::MW::Time stamp;
+      Core::MW::Time _deltaT;
+      Core::MW::Time _stamp;
    };
 } 

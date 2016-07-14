@@ -11,6 +11,7 @@ namespace mahony
 	   void config(float Kp, float Ki, float Kacc, float Kmag, float deltaT);
 	   void operator()(const measurement& measure);
 	   void reset();
+
    private:
 		void normalizeAccMeasure();
 		void normalizeMagMeasure();
@@ -25,6 +26,9 @@ namespace mahony
 		void normalizeQuaternion();
 		void computeAttMatrix(float attitude_matrix[3][3]);
 
+   public:
+		sensor_msgs::Imu_f32 attitude;
+
    private:
 		float _Kp;
 		float _Ki;
@@ -34,7 +38,7 @@ namespace mahony
 
 		float bias_p, bias_q, bias_r;
 		measurement _measure;
-		sensor_msgs::Imu_f32 _attitude;
+
    };
 
 }

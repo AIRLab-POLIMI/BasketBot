@@ -16,6 +16,7 @@
 
 #include <ros.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/String.h>
 
 /*
  * ROS rosserial publisher thread.
@@ -23,7 +24,6 @@
 
 ros::NodeHandle nh;
 
-float yaw = 0;
 sensor_msgs::Imu_f32 imu_msg;
 
 bool imu_cb(const sensor_msgs::Imu_f32 &msg, Core::MW::Node* node) {
@@ -40,13 +40,17 @@ void rosserial_pub_thread(void * arg) {
 	sensor_msgs::Imu ros_imu_msg;
 	ros::Publisher imu_pub("imu", &ros_imu_msg);
 
+	std_msgs::String ros_string_msg;
+	ros::Publisher test_pub("test", &ros_string_msg);
+
 	(void) arg;
 	chRegSetThreadName("rosserial_pub");
 
 	node.subscribe(imu_sub, "imu");
 
 	nh.initNode();
-	nh.advertise(imu_pub);
+	//nh.advertise(imu_pub);
+	nh.advertise(test_pub);
 
 	nh.spinOnce();
 
@@ -61,11 +65,15 @@ void rosserial_pub_thread(void * arg) {
 
 			//TODO angular
 
+			ros_string_msg.data = std::string(200, '#').c_str();
+			test_pub.publish(&ros_string_msg);
 
-			imu_pub.publish(&ros_imu_msg);
+			//imu_pub.publish(&ros_imu_msg);
 
 			nh.spinOnce();
 		}
+
+		Core::MW::Thread::sleep(Core::MW::Time::ms(10));
 	}
 }
 

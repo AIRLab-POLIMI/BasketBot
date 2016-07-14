@@ -27,6 +27,9 @@ namespace mahony {
    {
 	   auto& c = configuration;
 	   filter.config(c.Kp,c.Ki, c.Kacc, c.Kmag, 1.0f/c.frequency);
+	   _deltaT = Core::MW::Time::ms(1000.0f/c.frequency);
+	   _stamp = Core::MW::Time::now();
+
 	   return true;
    }
 
@@ -49,13 +52,11 @@ namespace mahony {
    bool
    Mahony::onLoop()
    {
-	   //adjustMeasurements();
-	   //filter(measure);
-	   sensor_msgs::Imu_f32 msg;
-	   _publisher.publish(msg);
-	   Core::MW::Thread::sleep(Core::MW::Time::ms(10));
-
-
+	   Core::MW::Thread::sleep_until(_stamp+_deltaT);
+	   adjustMeasurements();
+	   filter(measure);
+	   _publisher.publish(filter.attitude);
+	   _stamp = Core::MW::Time::now();
 
        return true;
    } // Mahony::onLoop

@@ -79,7 +79,11 @@ extern "C" {
 		mahony_filter.configuration.topicAcc  = acc_publisher.configuration.topic;
 		mahony_filter.configuration.topicMag  = mag_publisher.configuration.topic;
 		mahony_filter.configuration.topic     = "imu";
-		mahony_filter.configuration.frequency = 50.0f;
+		mahony_filter.configuration.Kacc      = 4.0f;
+		mahony_filter.configuration.Kmag      = 0.1f;
+		mahony_filter.configuration.Kp        = 0.09f;
+		mahony_filter.configuration.Ki        = 0.006f;
+		mahony_filter.configuration.frequency = 100.0f;
 		module.add(mahony_filter);
 
 		// Setup and run

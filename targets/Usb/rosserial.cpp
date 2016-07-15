@@ -55,7 +55,9 @@ void rosserial_pub_thread(void * arg) {
 	nh.spinOnce();
 
 	for (;;) {
-		if (node.spin(Core::MW::Time::ms(500))) {
+		//if (node.spin(Core::MW::Time::ms(500))) {
+			Core::MW::Thread::sleep(Core::MW::Time::ms(10));
+			Module::led.toggle();
 			ros_imu_msg.orientation.x = imu_msg.orientation[0];
 			ros_imu_msg.orientation.y = imu_msg.orientation[1];
 			ros_imu_msg.orientation.z = imu_msg.orientation[2];
@@ -65,18 +67,43 @@ void rosserial_pub_thread(void * arg) {
 
 			//TODO angular
 
-			ros_string_msg.data = std::string(200, '#').c_str();
+			ros_string_msg.data = std::string(100, '#').c_str();
 			test_pub.publish(&ros_string_msg);
 
 			//imu_pub.publish(&ros_imu_msg);
 
 			nh.spinOnce();
-		}
+		//}
 
-		Core::MW::Thread::sleep(Core::MW::Time::ms(10));
+		//Core::MW::Thread::sleep(Core::MW::Time::ms(10));
 	}
 }
 
+void rosserial_test_thread(void * arg) {
+	Core::MW::Node node("rosserial_pub");
+	sensor_msgs::Imu ros_imu_msg;
+	ros::Publisher imu_pub("imu", &ros_imu_msg);
+
+	(void) arg;
+	chRegSetThreadName("rosserial_pub");
+
+	nh.initNode();
+	nh.advertise(imu_pub);
+
+	nh.spinOnce();
+
+	for (;;) {
+			Core::MW::Thread::sleep(Core::MW::Time::ms(10));
+
+			ros_imu_msg.orientation.x = 1;
+			ros_imu_msg.orientation.y = 2;
+			ros_imu_msg.orientation.z = 3;
+			ros_imu_msg.orientation.w = 4;
+			imu_pub.publish(&ros_imu_msg);
+
+			nh.spinOnce();
+	}
+}
 
 /*
  * ROS rosserial subscriber thread.

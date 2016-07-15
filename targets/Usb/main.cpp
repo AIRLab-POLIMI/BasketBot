@@ -40,8 +40,9 @@ extern "C" {
 		module.add(led_subscriber);
 		module.add(led_publisher);
 
-		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_pub_thread, nullptr);
-		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_sub_thread, nullptr);
+//		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_pub_thread, nullptr);
+//		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_sub_thread, nullptr);
+		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_test_thread, nullptr);
 
 		// ... and let's play!
 		module.setup();

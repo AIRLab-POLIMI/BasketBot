@@ -10,24 +10,6 @@
       "size": 16
     },
     {
-      "name": "topicGyro",
-      "description": "Name of the gyro topic to subscribe to",
-      "type": "CHAR",
-      "size": 16
-    },
-    {
-      "name": "topicAcc",
-      "description": "Name of the acc topic to subscribe to",
-      "type": "CHAR",
-      "size": 16
-    },
-    {
-      "name": "topicMag",
-      "description": "Name of the mag topic to subscribe to",
-      "type": "CHAR",
-      "size": 16
-    },
-    {
       "name": "frequency",
       "description": "Publish frequency [Hz]",
       "type": "FLOAT32",

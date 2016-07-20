@@ -30,7 +30,7 @@ Vector3_i16_Publisher mag_publisher("mag_publisher", module.mag, Core::MW::Threa
 led::Publisher led_publisher("led_publisher", Core::MW::Thread::PriorityEnum::LOWEST);
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
 //madgwick::Madgwick   madgwick_filter("madgwick");
-mahony::Mahony   mahony_filter("madgwick");
+mahony::Mahony   mahony_filter("mahony");
 
 /*===========================================================================*/
 /* Kinematics.                                                               */
@@ -66,6 +66,11 @@ extern "C" {
 		led_subscriber.configuration.topic = "led";
 		module.add(led_subscriber);
 
+		// Led publisher
+		led_publisher.configuration.topic = "led";
+		led_publisher.configuration.led = (uint32_t)1;
+		module.add(led_publisher);
+
 		// Sensor nodes
 		gyro_publisher.configuration.topic = "gyro";
 		acc_publisher.configuration.topic  = "acc";
@@ -74,16 +79,24 @@ extern "C" {
 		module.add(acc_publisher);
 		module.add(mag_publisher);
 
-		// Madgwick filter node
-		mahony_filter.configuration.topicGyro = gyro_publisher.configuration.topic;
-		mahony_filter.configuration.topicAcc  = acc_publisher.configuration.topic;
-		mahony_filter.configuration.topicMag  = mag_publisher.configuration.topic;
+		// Mahony filter node
 		mahony_filter.configuration.topic     = "imu";
+		mahony_filter.configuration.frequency = 100.0f;
+
+		// mahony filter parameters
 		mahony_filter.configuration.Kacc      = 4.0f;
 		mahony_filter.configuration.Kmag      = 0.1f;
 		mahony_filter.configuration.Kp        = 0.09f;
 		mahony_filter.configuration.Ki        = 0.006f;
-		mahony_filter.configuration.frequency = 100.0f;
+
+		//Imu calibration parameters
+		mahony_filter.configuration.acc_a = { 0.000982402074221, 0.000947431355433, 0.001007804098727};
+		mahony_filter.configuration.acc_b = {0.010529343232548, 0.044172464327909, -0.113292069793833};
+		mahony_filter.configuration.gyr_a = {0.311704244531320e-3, 0.314591558752256e-3, 0.3066036023887353e-3};
+		mahony_filter.configuration.gyr_b = {-0.148446667051465, -0.012753980951780, 0.025803887886194};
+		mahony_filter.configuration.mag_a = {0.002166223718555, 0.002341707054921, 0.002613937090468};
+		mahony_filter.configuration.mag_b = {-0.160726372652952, 0.093705049503890, 0.077222493617249};
+
 		module.add(mahony_filter);
 
 		// Setup and run

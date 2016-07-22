@@ -39,8 +39,8 @@ void MahonyFilter::operator()(const measurement& measure) {
 
 	bool valid_mag = true;
 
-	if ((_measure.mag[0] == 0.0f) || (_measure.mag[1] == 0.0f)
-			|| (_measure.mag[2] == 0.0f)) {
+	if ((_measure.mag[0] == 0.0f) && (_measure.mag[1] == 0.0f)
+			&& (_measure.mag[2] == 0.0f)) {
 		valid_mag = false;
 	}
 
@@ -70,13 +70,13 @@ void MahonyFilter::operator()(const measurement& measure) {
 
 	normalizeQuaternion();
 
-	attitude.linear_acceleration[0] = omega[0];
-	attitude.linear_acceleration[1] = omega[1];
-	attitude.linear_acceleration[2] = omega[2];
+	linear_acceleration[0] = omega[0];
+	linear_acceleration[1] = omega[1];
+	linear_acceleration[2] = omega[2];
 
-	attitude.angular_velocity[0] = omega[0];
-	attitude.angular_velocity[1] = omega[1];
-	attitude.angular_velocity[2] = omega[2];
+	angular_velocity[0] = omega[0];
+	angular_velocity[1] = omega[1];
+	angular_velocity[2] = omega[2];
 
 }
 
@@ -85,6 +85,11 @@ void MahonyFilter::reset()
 	bias_p = 0;
 	bias_q = 0;
 	bias_r = 0;
+
+	attitude[0] = 0;
+	attitude[1] = 0;
+	attitude[2] = 0;
+	attitude[3] = 1;
 }
 
 /*
@@ -206,9 +211,9 @@ void MahonyFilter::gyroDepolar(float omega[3], float omeMes[3]) {
 /*
  * Rate of change of onboard_attitude_quaternion_data from angular rate
  */
-void MahonyFilter::rateChangeQuaternionAngRate(float qdot[3],
+void MahonyFilter::rateChangeQuaternionAngRate(float qdot[4],
 		float omega[3]) {
-	auto q = attitude.orientation;
+	auto& q = attitude;
 	qdot[0] = 0.5 * (q[1] * omega[2] - q[2] * omega[1] + q[3] * omega[0]);
 	qdot[1] = 0.5 * (-q[0] * omega[2] + q[2] * omega[0] + q[3] * omega[1]);
 	qdot[2] = 0.5 * (q[0] * omega[1] - q[1] * omega[0] + q[3] * omega[2]);
@@ -218,19 +223,18 @@ void MahonyFilter::rateChangeQuaternionAngRate(float qdot[3],
 /*
  * Integrate rate of change of onboard_attitude_quaternion_data to yield onboard_attitude_quaternion_data
  */
-void MahonyFilter::integrateRateChangeQuaternion(float qdot[3]) {
-	auto q = attitude.orientation;
-	q[0] += qdot[0] * _deltaT;
-	q[1] += qdot[1] * _deltaT;
-	q[2] += qdot[2] * _deltaT;
-	q[3] += qdot[3] * _deltaT;
+void MahonyFilter::integrateRateChangeQuaternion(float qdot[4]) {
+	attitude[0] += qdot[0] * _deltaT;
+	attitude[1] += qdot[1] * _deltaT;
+	attitude[2] += qdot[2] * _deltaT;
+	attitude[3] += qdot[3] * _deltaT;
 }
 
 /*
  * onboard_attitude_quaternion_data normalization
  */
 void MahonyFilter::normalizeQuaternion() {
-	auto q = attitude.orientation;
+	auto& q = attitude;
 	float recipNorm = invSqrtFull(
 			q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
 	q[0] *= recipNorm;
@@ -243,7 +247,7 @@ void MahonyFilter::normalizeQuaternion() {
  * atitude matrix computation
  */
 void MahonyFilter::computeAttMatrix(float attitude_matrix[3][3]) {
-	auto q = attitude.orientation;
+	auto& q = attitude;
 	attitude_matrix[0][0] = q[0] * q[0] - q[1] * q[1] - q[2] * q[2]
 			+ q[3] * q[3];
 	attitude_matrix[0][1] = 2 * q[0] * q[1] + 2 * q[2] * q[3];
@@ -257,4 +261,5 @@ void MahonyFilter::computeAttMatrix(float attitude_matrix[3][3]) {
 	attitude_matrix[2][2] = -q[0] * q[0] - q[1] * q[1] + q[2] * q[2]
 			+ q[3] * q[3];
 }
+
 }

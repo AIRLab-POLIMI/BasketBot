@@ -1,0 +1,10 @@
+{
+  "name": "madgwick",
+  "description": "madgwick",
+  "module": "imu",
+  "required_packages": [],
+  "sources": [
+    "main.cpp"
+  ],
+  "includes": []
+}

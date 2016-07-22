@@ -51,10 +51,13 @@ namespace mahony {
 
 	   adjustMeasurements();
 	   filter(measure);
+
 	   sensor_msgs::Imu_f32* msgp;
 	   if(_publisher.alloc(msgp))
 	   {
-		   *msgp = filter.attitude;
+		   msgp->orientation = filter.attitude;
+		   msgp->linear_acceleration = filter.linear_acceleration;
+		   msgp->angular_velocity = filter.angular_velocity;
 		   _publisher.publish(msgp);
 	   }
 	   _stamp = Core::MW::Time::now();

@@ -27,7 +27,9 @@ namespace mahony
 		void computeAttMatrix(float attitude_matrix[3][3]);
 
    public:
-		sensor_msgs::Imu_f32 attitude;
+		Core::MW::Array<float, 4> attitude;
+		Core::MW::Array<float, 3> linear_acceleration;
+		Core::MW::Array<float, 3> angular_velocity;
 
    private:
 		float _Kp;

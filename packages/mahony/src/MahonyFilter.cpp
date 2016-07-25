@@ -53,7 +53,7 @@ void MahonyFilter::operator()(const measurement& measure) {
 
 	referenceDirectionEarthAcc(attitude_matrix, v_acc_hat);
 
-	if (valid_mag == 1) {
+	if (valid_mag) {
 		referenceDirectionEarthMag(attitude_matrix, h, v_mag_hat);
 		driftEstimationMag(omeMes, v_mag_hat, v_acc_hat);
 	} else {
@@ -70,9 +70,9 @@ void MahonyFilter::operator()(const measurement& measure) {
 
 	normalizeQuaternion();
 
-	linear_acceleration[0] = omega[0];
-	linear_acceleration[1] = omega[1];
-	linear_acceleration[2] = omega[2];
+	linear_acceleration[0] = v_acc_hat[0];
+	linear_acceleration[1] = v_acc_hat[1];
+	linear_acceleration[2] = v_acc_hat[2];
 
 	angular_velocity[0] = omega[0];
 	angular_velocity[1] = omega[1];
@@ -120,9 +120,9 @@ void MahonyFilter::normalizeMagMeasure() {
  */
 void MahonyFilter::referenceDirectionEarthAcc(float attitude_matrix[3][3],
 		float v_acc_hat[3]) {
-	v_acc_hat[0] = -attitude_matrix[0][2];
-	v_acc_hat[1] = -attitude_matrix[1][2];
-	v_acc_hat[2] = -attitude_matrix[2][2];
+	v_acc_hat[0] = attitude_matrix[0][2];
+	v_acc_hat[1] = attitude_matrix[1][2];
+	v_acc_hat[2] = attitude_matrix[2][2];
 }
 
 /*

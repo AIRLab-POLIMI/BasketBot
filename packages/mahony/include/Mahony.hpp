@@ -50,8 +50,6 @@ private:
       void
 	  adjustMeasurements();
 
-
-
 private:
       Core::MW::Publisher<sensor_msgs::Imu_f32> _publisher;
 

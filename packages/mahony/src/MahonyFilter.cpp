@@ -23,7 +23,11 @@ void MahonyFilter::config(float Kp, float Ki, float Kacc, float Kmag,
 	_Kmag = Kmag;
 	_deltaT = deltaT;
 
-	reset();
+	bias_p = 0;
+	bias_q = 0;
+	bias_r = 0;
+
+	needReset = true;
 }
 
 void MahonyFilter::operator()(const measurement& measure) {
@@ -49,6 +53,13 @@ void MahonyFilter::operator()(const measurement& measure) {
 	if (valid_mag) {
 		normalizeMagMeasure();
 	}
+
+	if (needReset) {
+		if (valid_mag)
+			reset();
+		return;
+	}
+
 	computeAttMatrix(attitude_matrix);
 
 	referenceDirectionEarthAcc(attitude_matrix, v_acc_hat);
@@ -80,16 +91,14 @@ void MahonyFilter::operator()(const measurement& measure) {
 
 }
 
-void MahonyFilter::reset()
-{
+void MahonyFilter::reset() {
 	bias_p = 0;
 	bias_q = 0;
 	bias_r = 0;
 
-	attitude[0] = 0;
-	attitude[1] = 0;
-	attitude[2] = 0;
-	attitude[3] = 1;
+	initPose();
+
+	needReset = false;
 }
 
 /*
@@ -155,64 +164,45 @@ void MahonyFilter::referenceDirectionEarthMag(float attitude_matrix[3][3],
  */
 void MahonyFilter::driftEstimationMag(float omeMes[3], float v_mag_hat[3],
 		float v_acc_hat[3]) {
-	omeMes[0] = -(_Kacc
-			* (_measure.acc[1] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[1]))
-			/ 2
-			- (_Kmag
-					* (_measure.mag[1] * v_mag_hat[2]
-							- _measure.mag[2] * v_mag_hat[1])) / 2;
-	omeMes[1] = +(_Kacc
-			* (_measure.acc[0] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[0]))
-			/ 2
-			+ (_Kmag
-					* (_measure.mag[0] * v_mag_hat[2]
-							- _measure.mag[2] * v_mag_hat[0])) / 2;
-	omeMes[2] = -(_Kacc
-			* (_measure.acc[0] * v_acc_hat[1] - _measure.acc[1] * v_acc_hat[0]))
-			/ 2
-			- (_Kmag
-					* (_measure.mag[0] * v_mag_hat[1]
-							- _measure.mag[1] * v_mag_hat[0])) / 2;
+	omeMes[0] = +(_Kacc	* (_measure.acc[1] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[1])) / 2
+			    +(_Kmag	* (_measure.mag[1] * v_mag_hat[2] - _measure.mag[2] * v_mag_hat[1])) / 2;
+	omeMes[1] = -(_Kacc	* (_measure.acc[0] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[0])) / 2
+			    -(_Kmag	* (_measure.mag[0] * v_mag_hat[2] - _measure.mag[2] * v_mag_hat[0])) / 2;
+	omeMes[2] = +(_Kacc	* (_measure.acc[0] * v_acc_hat[1] - _measure.acc[1] * v_acc_hat[0])) / 2
+			    +(_Kmag * (_measure.mag[0] * v_mag_hat[1] - _measure.mag[1] * v_mag_hat[0])) / 2;
 }
 
 /*
  * drift estimation , no magnetometer
  */
 void MahonyFilter::driftEstimation(float omeMes[3], float v_acc_hat[3]) {
-	omeMes[0] = -(_Kacc
-			* (_measure.acc[1] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[1]))
-			/ 2;
-	omeMes[1] = +(_Kacc
-			* (_measure.acc[0] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[0]))
-			/ 2;
-	omeMes[2] = -(_Kacc
-			* (_measure.acc[0] * v_acc_hat[1] - _measure.acc[1] * v_acc_hat[0]))
-			/ 2;
+	omeMes[0] = +(_Kacc	* (_measure.acc[1] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[1])) / 2;
+	omeMes[1] = -(_Kacc	* (_measure.acc[0] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[0])) / 2;
+	omeMes[2] = +(_Kacc	* (_measure.acc[0] * v_acc_hat[1] - _measure.acc[1] * v_acc_hat[0])) / 2;
 }
 
 /*
  * bias estimation
  */
 void MahonyFilter::biasEstimation(float omeMes[3]) {
-	bias_p += _Ki * omeMes[0] * _deltaT;
-	bias_q += _Ki * omeMes[1] * _deltaT;
-	bias_r += _Ki * omeMes[2] * _deltaT;
+	bias_p -= _Ki * omeMes[0] * _deltaT;
+	bias_q -= _Ki * omeMes[1] * _deltaT;
+	bias_r -= _Ki * omeMes[2] * _deltaT;
 }
 
 /*
  * gyro_yroscope depolarization
  */
 void MahonyFilter::gyroDepolar(float omega[3], float omeMes[3]) {
-	omega[0] = _measure.gyr[0] - (bias_p + _Kp * omeMes[0]);
-	omega[1] = _measure.gyr[1] - (bias_q + _Kp * omeMes[1]);
-	omega[2] = _measure.gyr[2] - (bias_r + _Kp * omeMes[2]);
+	omega[0] = _measure.gyr[0] - bias_p + _Kp * omeMes[0];
+	omega[1] = _measure.gyr[1] - bias_q + _Kp * omeMes[1];
+	omega[2] = _measure.gyr[2] - bias_r + _Kp * omeMes[2];
 }
 
 /*
  * Rate of change of onboard_attitude_quaternion_data from angular rate
  */
-void MahonyFilter::rateChangeQuaternionAngRate(float qdot[4],
-		float omega[3]) {
+void MahonyFilter::rateChangeQuaternionAngRate(float qdot[4], float omega[3]) {
 	auto& q = attitude;
 	qdot[0] = 0.5 * (q[1] * omega[2] - q[2] * omega[1] + q[3] * omega[0]);
 	qdot[1] = 0.5 * (-q[0] * omega[2] + q[2] * omega[0] + q[3] * omega[1]);
@@ -260,6 +250,37 @@ void MahonyFilter::computeAttMatrix(float attitude_matrix[3][3]) {
 	attitude_matrix[2][1] = 2 * q[1] * q[2] - 2 * q[0] * q[3];
 	attitude_matrix[2][2] = -q[0] * q[0] - q[1] * q[1] + q[2] * q[2]
 			+ q[3] * q[3];
+}
+
+void MahonyFilter::computeQuaternion(float x[3], float y[3], float z[3]) {
+	double w = sqrt(1.0 + x[0] + y[1] + z[2]) / 2.0;
+	double w4 = (4.0 * w);
+	attitude[0] = (z[1] - y[2]) / w4;
+	attitude[1] = (x[2] - z[0]) / w4;
+	attitude[2] = (y[0] - x[1]) / w4;
+	attitude[3] = w;
+}
+
+void MahonyFilter::crossProduct(const float a[3], const float b[3], float c[3])
+{
+	c[0] = a[1] * b[2] - a[2] * b[1];
+	c[1] = a[2] * b[0] - a[0] * b[2];
+	c[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+void MahonyFilter::initPose() {
+	float x[3];
+	float y[3];
+	float* z = _measure.acc;
+
+	//compute cross product to find y axis
+	crossProduct(z, _measure.mag, y);
+
+	//compute cross product to find x axis
+	crossProduct(z, y, x);
+
+	//compute quaternion from attitude
+	computeQuaternion(x, y, z);
 }
 
 }

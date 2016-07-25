@@ -25,6 +25,10 @@ namespace mahony
 		void integrateRateChangeQuaternion(float qdot[3]);
 		void normalizeQuaternion();
 		void computeAttMatrix(float attitude_matrix[3][3]);
+		void computeQuaternion(float x[3], float y[3], float z[3]);
+		void crossProduct(const float a[3], const float b[3], float c[3]);
+		void initPose();
+
 
    public:
 		Core::MW::Array<float, 4> attitude;
@@ -39,6 +43,9 @@ namespace mahony
 		float _deltaT;
 
 		float bias_p, bias_q, bias_r;
+
+		bool needReset;
+
 		measurement _measure;
 
    };

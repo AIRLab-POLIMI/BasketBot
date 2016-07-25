@@ -86,8 +86,8 @@ extern "C" {
 		// mahony filter parameters
 		mahony_filter.configuration.Kacc      = 4.0f;
 		mahony_filter.configuration.Kmag      = 0.1f;
-		mahony_filter.configuration.Kp        = 0.09f;
-		mahony_filter.configuration.Ki        = 0.006f;
+		mahony_filter.configuration.Kp        = 0.5f;
+		mahony_filter.configuration.Ki        = 0.1f;
 
 		//Imu calibration parameters
 		mahony_filter.configuration.acc_a = { 0.000982402074221, 0.000947431355433, 0.001007804098727};

@@ -2,7 +2,7 @@
   "name": "Imu",
   "description": "Imu",
   "module": "imu",
-  "required_packages": ["extra_msgs", "mahony"],
+  "required_packages": ["imu_filters"],
   "sources": [
     "main.cpp"
   ],

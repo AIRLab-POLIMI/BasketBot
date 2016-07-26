@@ -1,26 +1,15 @@
-#include <mahony/MahonyFilter.hpp>
+#include <imu_filters/MahonyFilter.hpp>
 
 using namespace std;
 
 #include <cmath>
 
-static float invSqrtFull(float x) {
-	float halfx = 0.5f * x;
-	float y = x;
-	long i = *(long*) &y;
-	i = 0x5f3759df - (i >> 1);
-	y = *(float*) &i;
-	y = y * (1.5f - (halfx * y * y));
-	return y;
-}
-
-namespace mahony {
-void MahonyFilter::config(float Kp, float Ki, float Kacc, float Kmag,
-		float deltaT) {
-	_Kp = Kp;
-	_Ki = Ki;
-	_Kacc = Kacc;
-	_Kmag = Kmag;
+namespace imu_filters {
+void MahonyFilter::config(float deltaT) {
+	_Kp = configuration.Kp;
+	_Ki = configuration.Ki;
+	_Kacc = configuration.Kacc;
+	_Kmag = configuration.Kmag;
 	_deltaT = deltaT;
 
 	bias_p = 0;
@@ -173,7 +162,7 @@ void MahonyFilter::driftEstimationMag(float omeMes[3], float v_mag_hat[3],
 }
 
 /*
- * drift estimation , no magnetometer
+ * drift estimation, no magnetometer
  */
 void MahonyFilter::driftEstimation(float omeMes[3], float v_acc_hat[3]) {
 	omeMes[0] = +(_Kacc	* (_measure.acc[1] * v_acc_hat[2] - _measure.acc[2] * v_acc_hat[1])) / 2;
@@ -220,67 +209,5 @@ void MahonyFilter::integrateRateChangeQuaternion(float qdot[4]) {
 	attitude[3] += qdot[3] * _deltaT;
 }
 
-/*
- * onboard_attitude_quaternion_data normalization
- */
-void MahonyFilter::normalizeQuaternion() {
-	auto& q = attitude;
-	float recipNorm = invSqrtFull(
-			q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
-	q[0] *= recipNorm;
-	q[1] *= recipNorm;
-	q[2] *= recipNorm;
-	q[3] *= recipNorm;
-}
-
-/*
- * atitude matrix computation
- */
-void MahonyFilter::computeAttMatrix(float attitude_matrix[3][3]) {
-	auto& q = attitude;
-	attitude_matrix[0][0] = q[0] * q[0] - q[1] * q[1] - q[2] * q[2]
-			+ q[3] * q[3];
-	attitude_matrix[0][1] = 2 * q[0] * q[1] + 2 * q[2] * q[3];
-	attitude_matrix[0][2] = 2 * q[0] * q[2] - 2 * q[1] * q[3];
-	attitude_matrix[1][0] = 2 * q[0] * q[1] - 2 * q[2] * q[3];
-	attitude_matrix[1][1] = -q[0] * q[0] + q[1] * q[1] - q[2] * q[2]
-			+ q[3] * q[3];
-	attitude_matrix[1][2] = 2 * q[0] * q[3] + 2 * q[1] * q[2];
-	attitude_matrix[2][0] = 2 * q[0] * q[2] + 2 * q[1] * q[3];
-	attitude_matrix[2][1] = 2 * q[1] * q[2] - 2 * q[0] * q[3];
-	attitude_matrix[2][2] = -q[0] * q[0] - q[1] * q[1] + q[2] * q[2]
-			+ q[3] * q[3];
-}
-
-void MahonyFilter::computeQuaternion(float x[3], float y[3], float z[3]) {
-	double w = sqrt(1.0 + x[0] + y[1] + z[2]) / 2.0;
-	double w4 = (4.0 * w);
-	attitude[0] = (z[1] - y[2]) / w4;
-	attitude[1] = (x[2] - z[0]) / w4;
-	attitude[2] = (y[0] - x[1]) / w4;
-	attitude[3] = w;
-}
-
-void MahonyFilter::crossProduct(const float a[3], const float b[3], float c[3])
-{
-	c[0] = a[1] * b[2] - a[2] * b[1];
-	c[1] = a[2] * b[0] - a[0] * b[2];
-	c[2] = a[0] * b[1] - a[1] * b[0];
-}
-
-void MahonyFilter::initPose() {
-	float x[3];
-	float y[3];
-	float* z = _measure.acc;
-
-	//compute cross product to find y axis
-	crossProduct(z, _measure.mag, y);
-
-	//compute cross product to find x axis
-	crossProduct(y, z, x);
-
-	//compute quaternion from attitude
-	computeQuaternion(x, y, z);
-}
 
 }

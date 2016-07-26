@@ -10,7 +10,8 @@
 #include <sensor_publisher/Publisher.hpp>
 #include <led/Publisher.hpp>
 #include <led/Subscriber.hpp>
-#include <mahony/Mahony.hpp>
+#include <imu_filters/ImuFilterNode.hpp>
+#include <imu_filters/MahonyFilter.hpp>
 
 // BOARD IMPL
 #include <L3GD20H_driver/L3GD20H.hpp>
@@ -29,8 +30,9 @@ Vector3_i16_Publisher mag_publisher("mag_publisher", module.mag, Core::MW::Threa
 
 led::Publisher led_publisher("led_publisher", Core::MW::Thread::PriorityEnum::LOWEST);
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
-//madgwick::Madgwick   madgwick_filter("madgwick");
-mahony::Mahony   mahony_filter("mahony");
+
+imu_filters::MahonyFilter mahony_filter;
+imu_filters::ImuFilterNode imu_filter("imu_filter", mahony_filter);
 
 /*===========================================================================*/
 /* Kinematics.                                                               */
@@ -80,24 +82,24 @@ extern "C" {
 		module.add(mag_publisher);
 
 		// Mahony filter node
-		mahony_filter.configuration.topic     = "imu";
-		mahony_filter.configuration.frequency = 100.0f;
-
-		// mahony filter parameters
-		mahony_filter.configuration.Kacc      = 4.0f;
-		mahony_filter.configuration.Kmag      = 0.1f;
-		mahony_filter.configuration.Kp        = 0.5f;
-		mahony_filter.configuration.Ki        = 0.1f;
+		imu_filter.configuration.topic     = "imu";
+		imu_filter.configuration.frequency = 100.0f;
 
 		//Imu calibration parameters
-		mahony_filter.configuration.acc_a = { 0.000982402074221, 0.000947431355433, 0.001007804098727};
-		mahony_filter.configuration.acc_b = {0.010529343232548, 0.044172464327909, -0.113292069793833};
-		mahony_filter.configuration.gyr_a = {0.311704244531320e-3, 0.314591558752256e-3, 0.3066036023887353e-3};
-		mahony_filter.configuration.gyr_b = {-0.148446667051465, -0.012753980951780, 0.025803887886194};
-		mahony_filter.configuration.mag_a = {0.002166223718555, 0.002341707054921, 0.002613937090468};
-		mahony_filter.configuration.mag_b = {-0.160726372652952, 0.093705049503890, 0.077222493617249};
+		imu_filter.configuration.acc_a = { 0.000982402074221, 0.000947431355433, 0.001007804098727};
+		imu_filter.configuration.acc_b = {0.010529343232548, 0.044172464327909, -0.113292069793833};
+		imu_filter.configuration.gyr_a = {0.311704244531320e-3, 0.314591558752256e-3, 0.3066036023887353e-3};
+		imu_filter.configuration.gyr_b = {-0.148446667051465, -0.012753980951780, 0.025803887886194};
+		imu_filter.configuration.mag_a = {0.002166223718555, 0.002341707054921, 0.002613937090468};
+		imu_filter.configuration.mag_b = {-0.160726372652952, 0.093705049503890, 0.077222493617249};
 
-		module.add(mahony_filter);
+		// mahony filter parameters
+		mahony_filter.configuration.Kacc = 4.0f;
+		mahony_filter.configuration.Kmag = 0.1f;
+		mahony_filter.configuration.Kp   = 0.5f;
+		mahony_filter.configuration.Ki   = 0.1f;
+
+		module.add(imu_filter);
 
 		// Setup and run
 		module.setup();

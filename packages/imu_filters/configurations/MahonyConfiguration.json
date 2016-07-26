@@ -1,0 +1,32 @@
+{
+  "name": "MahonyConfiguration", 
+  "description": "Mahony filter configuration", 
+  "namespace": "@", 
+   "fields": [
+    {
+      "name": "Kp",
+      "description": "Mahony Kp gain",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "Ki",
+      "description": "Mahony Ki gain",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "Kacc",
+      "description": "Mahony Kacc gain",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "Kmag",
+      "description": "Mahony Kmag gain",
+      "type": "FLOAT32",
+      "size": 1
+    }
+ ]
+}  
+

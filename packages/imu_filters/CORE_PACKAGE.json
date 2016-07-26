@@ -1,0 +1,6 @@
+{
+  "name": "imu_filters",
+  "description": "Package for imu filterig", 
+  "namespace": "@", 
+  "sources": ["ImuNode.cpp", "MahonyFilter.cpp"]
+} 

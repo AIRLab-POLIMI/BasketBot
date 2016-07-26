@@ -70,9 +70,9 @@ void MahonyFilter::operator()(const measurement& measure) {
 
 	normalizeQuaternion();
 
-	linear_acceleration[0] = v_acc_hat[0];
-	linear_acceleration[1] = v_acc_hat[1];
-	linear_acceleration[2] = v_acc_hat[2];
+	linear_acceleration[0] = -measure.acc[0]*9.81;
+	linear_acceleration[1] = -measure.acc[1]*9.81;
+	linear_acceleration[2] = -measure.acc[2]*9.81;
 
 	angular_velocity[0] = omega[0];
 	angular_velocity[1] = omega[1];

@@ -2,7 +2,7 @@
   "name": "dc_right",
   "description": "dc_right",
   "module": "dc",
-  "required_packages": [],
+  "required_packages": ["current_control", "pid_ie", "extra_msgs"],
   "sources": [
     "main.cpp"
   ],

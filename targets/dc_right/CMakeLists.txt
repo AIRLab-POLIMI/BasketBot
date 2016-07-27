@@ -17,4 +17,8 @@ SET( PROJECT_SOURCES
 
 core_target_module(
   MODULE dc
+  PACKAGES
+    current_control
+    pid_ie
+    extra_msgs
 )

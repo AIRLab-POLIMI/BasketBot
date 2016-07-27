@@ -13,19 +13,31 @@
 // --- BOARD IMPL -------------------------------------------------------------
 #include <QEI_driver/QEI.hpp>
 #include <A4957_driver/A4957.hpp>
+#include <current_control/CurrentPID.hpp>
+#include <current_control/Calibration.hpp>
 
 // *** DO NOT MOVE ***
 Module module;
 
 // --- TYPES ------------------------------------------------------------------
-using QEI_Publisher  = sensor_publisher::Publisher<Configuration::QEI_DELTA_DATATYPE>;
-//using PWM_Subscriber = actuator_subscriber::Subscriber<float, actuator_msgs::Setpoint_f32>;
+using QEI_Publisher = sensor_publisher::Publisher<Configuration::QEI_DELTA_DATATYPE>;
+using CurrentPID = current_control::CurrentPID;
+using Calibration = current_control::Calibration;
 
 // --- NODES ------------------------------------------------------------------
+
+#define CALIBRATION
 led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
 
+#ifdef CALIBRATION
+Calibration calibration("calibration", module.hbridge_pwm, Core::MW::Thread::PriorityEnum::NORMAL);
+#else
 QEI_Publisher  encoder("encoder", module.qei, Core::MW::Thread::PriorityEnum::NORMAL);
-//PWM_Subscriber motor("actuator_sub", module.pwm, Core::MW::Thread::PriorityEnum::NORMAL);
+CurrentPID currentPid("current_pid", module.hbridge_pwm, Core::MW::Thread::PriorityEnum::NORMAL);
+#endif
+
+
+
 
 // --- MAIN -------------------------------------------------------------------
 extern "C" {
@@ -36,25 +48,34 @@ extern "C" {
 
       // Module configuration
       module.qei.configuration["period"] = 50;
-      module.qei.configuration["ticks"]  = 1000;
+      module.qei.configuration["ticks"] = 1000;
 
       // Nodes configuration
       led_subscriber.configuration["topic"] = "led";
-      encoder.configuration["topic"]        = "encoder";
-      //motor.configuration["topic"]          = "pwm";
+
+#ifndef CALIBRATION
+      encoder.configuration["topic"] = "encoder";
+
+      currentPid.configuration.R = 0.299f;
+      currentPid.configuration.L = 8.2e-5f;
+      currentPid.configuration.controlCycles = 1;
+      currentPid.configuration.omegaC = 6000.0f;
+      currentPid.configuration.topic = "current_1";
+#endif
 
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
+
+#ifdef CALIBRATION
+      module.add(calibration);
+#else
       module.add(encoder);
-      //module.add(motor);
+      module.add(currentPid);
+#endif
 
       // ... and let's play!
       module.setup();
       module.run();
-
-      module.hbridge_pwm.start();
-      float value = 0.5;
-      module.hbridge_pwm.set(value);
 
       // Is everything going well?
       for (;;) {

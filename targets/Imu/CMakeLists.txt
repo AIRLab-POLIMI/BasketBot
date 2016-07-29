@@ -19,4 +19,7 @@ core_target_module(
   MODULE imu
   PACKAGES
     imu_filters
+    balancing_robot_control
+    actuator_msgs
+    pid_ie
 )

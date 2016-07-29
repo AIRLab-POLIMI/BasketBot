@@ -1,3 +1,7 @@
+//------------//
+// IMU module //
+//------------//
+
 #include <Configuration.hpp>
 #include <Module.hpp>
 
@@ -12,6 +16,7 @@
 #include <led/Subscriber.hpp>
 #include <imu_filters/ImuFilterNode.hpp>
 #include <imu_filters/MahonyFilter.hpp>
+#include <balancing_robot_control/ControlNode.hpp>
 
 // BOARD IMPL
 #include <L3GD20H_driver/L3GD20H.hpp>

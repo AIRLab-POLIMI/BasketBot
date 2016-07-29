@@ -1,0 +1,32 @@
+{
+  "name": "ControlNodeConfiguration", 
+  "description": "Current PID node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "motorTopic", 
+      "description": "Name of the topic of the motors", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+     "name": "imuTopic",
+     "description": "Name of the topic of the IMU",
+     "type": "CHAR",
+     "size": 16
+    },
+    {
+     "name": "R",
+     "description": "Wheel radius",
+     "type": "CHAR",
+     "size": 16
+    },
+    {
+     "name": "L",
+     "description": "Wheel distance",
+     "type": "CHAR",
+     "size": 16
+    }
+  ]
+}  
+

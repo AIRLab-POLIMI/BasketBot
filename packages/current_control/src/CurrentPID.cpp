@@ -86,7 +86,7 @@ CurrentPID::CurrentPID(const char* name,
 	  _current = 0.0f;
 	  _controlCounter = 0;
 	  _controlCycles = 0;
-      _workingAreaSize = 512;
+      _workingAreaSize = 256;
    }
 
 CurrentPID::~CurrentPID()

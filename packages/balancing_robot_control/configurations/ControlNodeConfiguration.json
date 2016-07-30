@@ -16,17 +16,72 @@
      "size": 16
     },
     {
-     "name": "R",
-     "description": "Wheel radius",
+     "name": "encoderTopic",
+     "description": "Name of the topic of the encoders",
      "type": "CHAR",
      "size": 16
     },
     {
+     "name": "frequency",
+     "description": "Frequency of the controller",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "R",
+     "description": "Wheel radius",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
      "name": "L",
      "description": "Wheel distance",
-     "type": "CHAR",
-     "size": 16
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "K_theta",
+     "description": "Stabilizing controller, gain relative to robot inclination",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "K_omega",
+     "description": "Stabilizing controller, gain relative to robot body angular velocity",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "K_omegaR",
+     "description": "Stabilizing controller, gain relative to robot wheels mean speed",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "K_linear",
+     "description": "Linear velocity, proportional gain",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "Ti_linear",
+     "description": "Linear velocity, integral time",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "Td_linear",
+     "description": "Linear velocity controller, derivative time",
+     "type": "FLOAT32",
+     "size": 1
+    },
+    {
+     "name": "K_angular",
+     "description": "Angular velocity controller, proportional gain",
+     "type": "FLOAT32",
+     "size": 1
     }
+    
   ]
 }  
 

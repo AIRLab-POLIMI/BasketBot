@@ -6,6 +6,7 @@
 
 #include <balancing_robot_control/ControlNodeConfiguration.hpp>
 #include <actuator_msgs/Setpoint_f32.hpp>
+#include <sensor_msgs/Delta_f32.hpp>
 #include <sensor_msgs/Imu_f32.hpp>
 
 #include <pid_ie/pid_ie.hpp>
@@ -46,9 +47,11 @@ private:
 	Core::MW::Subscriber<sensor_msgs::Imu_f32, 5> _imuSub;
 
 private:
-	pid_ie::PID_IE linearVelocityPID;
-	pid_ie::PID_IE angularVelocityPID;
-	float K_theta, K_omega, K_omegaR;
+	pid_ie::PID_IE _linearVelocityPID;
+	pid_ie::PID_IE _angularVelocityPID;
+
+	Core::MW::Time _Ts;
+	Core::MW::Time _stamp;
 
 };
 

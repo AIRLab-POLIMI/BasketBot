@@ -29,8 +29,9 @@ CurrentPID::~CurrentPID()
 
 void CurrentPID::controlCallback(float currentPeak)
 {
-	//Add new current peak
-	_current += currentPeak;
+	//Add new current peak, only if in a meaningful region
+	if(_currentPID.getLastOutput() > 0.01)
+		_current += currentPeak;
 
 	//Count cycle
 	_controlCounter++;
@@ -42,7 +43,7 @@ void CurrentPID::controlCallback(float currentPeak)
 		_current /= _controlCycles;
 
 		// Compute control
-		float voltage = _currentPID.update(-_current);
+		float voltage = _currentPID.update(_current);
 
 		//Compute pwm signal
 		float pwm = _Kpwm * voltage;
@@ -128,6 +129,7 @@ CurrentPID::onLoop()
 	{
 		chSysLock();
 		_currentPID.reset();
+		//_currentPID.set(0.5);
 		chSysUnlock();
 	}
 

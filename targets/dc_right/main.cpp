@@ -65,7 +65,7 @@ extern "C" {
       encoder.configuration["topic"] = "encoder_right";
 
       currentSensor.configuration.a = 0.007432946790511f;
-      currentSensor.configuration.b = -15.207809133385506f;
+      currentSensor.configuration.b = -15.107809133385506f;
 
       currentPid.configuration.maxV = 24;
       currentPid.configuration.R = 0.299f;

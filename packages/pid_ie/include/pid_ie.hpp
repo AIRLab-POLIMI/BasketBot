@@ -41,6 +41,7 @@ public:
 	void reset(void);
 	float get_setpoint(void);
 	float update(float measure);
+	float getLastOutput();
 
 	// methods to set extra inputs
 	void setAuto(bool autoMode);

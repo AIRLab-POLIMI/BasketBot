@@ -73,6 +73,10 @@ float PID_IE::get_setpoint(void) {
 	return _setpoint;
 }
 
+float PID_IE::getLastOutput() {
+	return _outputOld;
+}
+
 float PID_IE::update(float measure) {
 	float error;
 	float output;

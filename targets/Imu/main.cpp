@@ -39,6 +39,8 @@ led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum:
 imu_filters::MahonyFilter mahony_filter;
 imu_filters::ImuFilterNode imu_filter("imu_filter", mahony_filter);
 
+balancing_robot_control::ControlNode control_node("controller", Core::MW::Thread::PriorityEnum::LOWEST);
+
 /*===========================================================================*/
 /* Kinematics.                                                               */
 /*===========================================================================*/
@@ -105,6 +107,26 @@ extern "C" {
 		mahony_filter.configuration.Ki   = 0.1f;
 
 		module.add(imu_filter);
+
+		// Control node parameters
+		control_node.configuration.encoderTopic = "encoder";
+		control_node.configuration.imuTopic = imu_filter.configuration.topic;
+		control_node.configuration.motorTopic = "torque";
+
+		control_node.configuration.L = 0.40;
+		control_node.configuration.R = 0.2;
+
+		control_node.configuration.K_theta = -130.1918;
+		control_node.configuration.K_omega = -51.0960;
+		control_node.configuration.K_omegaR = -3.0436;
+
+		control_node.configuration.K_linear = 3.55;
+		control_node.configuration.Ti_linear = 1.3498;
+		control_node.configuration.Td_linear = 0.1411;
+
+		control_node.configuration.K_angular = 0.0;
+
+		module.add(control_node);
 
 		// Setup and run
 		module.setup();

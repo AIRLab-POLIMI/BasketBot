@@ -70,9 +70,12 @@ extern "C" {
       currentPid.configuration.maxV = 24;
       currentPid.configuration.R = 0.299f;
       currentPid.configuration.L = 8.2e-5f;
+      currentPid.configuration.T = 0.0115f;
+      currentPid.configuration.Kt = 30.2e-3;
+
       currentPid.configuration.controlCycles = 1;
       currentPid.configuration.omegaC = 6000.0f;
-      currentPid.configuration.topic = "current_left";
+      currentPid.configuration.topic = "torque_left";
 #endif
 
       // Add nodes to the node manager (== board)...

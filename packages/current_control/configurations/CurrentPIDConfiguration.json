@@ -34,6 +34,18 @@
       "size": 1 
     },
     {
+      "name": "Kt", 
+      "description": "Motor torque constant", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
+      "name": "T", 
+      "description": "Motor transmission ratio", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
       "name" : "controlCycles",
       "description": "Number of pwm cycles for each control cycle", 
       "type": "UINT32", 

@@ -37,6 +37,7 @@ private:
       pid_ie::PID_IE _currentPID;
 
       float _Kpwm;
+      float _Ktorque;
       float _current;
       uint32_t _controlCounter;
       uint32_t _controlCycles;

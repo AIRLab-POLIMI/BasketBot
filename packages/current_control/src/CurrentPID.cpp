@@ -61,6 +61,7 @@ CurrentPID::onConfigure()
 {
     //Set PWM gain
 	_Kpwm = 1.0 / configuration.maxV;
+	_Ktorque = configuration.T/configuration.Kt;
 	_controlCycles = configuration.controlCycles;
 
     
@@ -114,6 +115,8 @@ CurrentPID::callback(
    CurrentPID* _this = static_cast<CurrentPID*>(node);
 
    chSysLock();
+
+   float currentSetpoint = _Ktorque*msg.value;
    _this->_currentPID.set(msg.value);
    chSysUnlock();
 

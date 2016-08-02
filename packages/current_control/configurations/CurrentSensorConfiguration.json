@@ -1,0 +1,20 @@
+{
+  "name": "CurrentSensorConfiguration", 
+  "description": "Broadcaster node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "a", 
+      "description": "Scale of the current readings", 
+      "type": "FLOAT32", 
+      "size": 1
+    },
+    {
+      "name": "b", 
+      "description": "Bias of the current readings", 
+      "type": "FLOAT32", 
+      "size": 1 
+    }
+  ]
+} 
+ 

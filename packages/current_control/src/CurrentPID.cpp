@@ -1,86 +1,19 @@
 #include <current_control/CurrentPID.hpp>
 
-#include "ch.h"
-#include "hal.h"
-
 using namespace std::placeholders;
 
 namespace current_control
 {
 
 /*===========================================================================*/
-/* Current sensor parameters.                                                */
-/*===========================================================================*/
-
-#define _Kcs               0.007432946790511f
-#define _Qcs               -15.207809133385506f
-
-/*===========================================================================*/
-/* Config adc					                                             */
-/*===========================================================================*/
-
-#define ADC_NUM_CHANNELS   1
-#define ADC_BUF_DEPTH      1
-
-static bool onCycle = true;
-static float currentPeakHigh = 0.0f;
-static float currentPeakLow = 0.0f;
-
-static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
-
-static std::function<void(float)> adcCallback;
-
-static void current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
-
-	(void) adcp;
-	(void) n;
-
-	//Compute current
-	chSysLockFromISR();
-	if(onCycle)
-	{
-		currentPeakHigh = (_Kcs * buffer[0] + _Qcs);
-		if(adcCallback)
-			adcCallback(currentPeakHigh);
-	}
-	else
-		currentPeakLow = (_Kcs * buffer[0] + _Qcs);
-
-	onCycle = !onCycle;
-
-	chSysUnlockFromISR();
-
-}
-
-static const ADCConversionGroup adcgrpcfg = {
-  TRUE, // circular
-  ADC_NUM_CHANNELS, // num channels
-  current_callback, // end callback
-  NULL, // error callback
-  ADC_CFGR_EXTEN_RISING | ADC_CFGR_EXTSEL_SRC(9), // CFGR
-  ADC_TR(0, 4095),                                // TR1
-  ADC_CCR_DUAL(1),                                // CCR
-  {                                               // SMPR[2]
-  	ADC_SMPR1_SMP_AN1(ADC_SMPR_SMP_1P5),
-  	0
-  },
-  {                                              // SQR[4]
-	  ADC_SQR1_SQ1_N(ADC_CHANNEL_IN1),
-      0,
-      0,
-      0
-  }
-};
-
-
-/*===========================================================================*/
 /* Motor control nodes.                                                      */
 /*===========================================================================*/
 
 CurrentPID::CurrentPID(const char* name,
+					   CurrentSensor& currentSensor,
 					   Core::MW::CoreActuator<float>& pwm,
 					   Core::MW::Thread::PriorityEnum priority) :
-      CoreNode::CoreNode(name, priority), _pwm(pwm)
+      CoreNode::CoreNode(name, priority), _currentSensor(currentSensor), _pwm(pwm)
    {
 	  _Kpwm = 0.0f;
 	  _current = 0.0f;
@@ -109,7 +42,7 @@ void CurrentPID::controlCallback(float currentPeak)
 		_current /= _controlCycles;
 
 		// Compute control
-		float voltage = _currentPID.update(_current);
+		float voltage = _currentPID.update(-_current);
 
 		//Compute pwm signal
 		float pwm = _Kpwm * voltage;
@@ -148,12 +81,10 @@ bool
 CurrentPID::onPrepareHW()
 {
     // Start the ADC driver and conversion
-	ADCDriver* ADC_DRIVER = &ADCD3;
+	_currentSensor.start();
 
-	adcStart(ADC_DRIVER, NULL);
-	adcStartConversion(ADC_DRIVER, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
-
-	adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
+	std::function<void(float)> adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
+	_currentSensor.setCallback(adcCallback);
 
 	//Start pwm
 	_pwm.start();

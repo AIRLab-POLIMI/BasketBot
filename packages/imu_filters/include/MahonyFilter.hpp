@@ -1,8 +1,11 @@
 #pragma once
 
-#include <imu_filters/Filter.hpp>
-#include <imu_filters/MahonyConfiguration.hpp>
+#include <core/imu_filters/Filter.hpp>
+#include <core/imu_filters/MahonyConfiguration.hpp>
 
+
+namespace core
+{
 namespace imu_filters
 {
    class MahonyFilter : public Filter
@@ -40,4 +43,5 @@ namespace imu_filters
 
    };
 
+}
 }

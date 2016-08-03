@@ -1,9 +1,11 @@
-#include <balancing_robot_control/ControlNode.hpp>
+#include <core/balancing_robot_control/ControlNode.hpp>
 #include <cmath>
 
+namespace core
+{
 namespace balancing_robot_control {
 
-ControlNode::ControlNode(const char* name, Core::MW::Thread::Priority priority) :
+ControlNode::ControlNode(const char* name, core::os::Thread::Priority priority) :
 		CoreNode::CoreNode(name, priority) {
 	_workingAreaSize = 512;
 
@@ -16,8 +18,8 @@ ControlNode::~ControlNode() {
 
 bool ControlNode::onConfigure() {
 	//TODO use correct saturation limits
-	_Ts = Core::MW::Time::ms(1000.0f/configuration.frequency);
-	_stamp = Core::MW::Time::now();
+	_Ts = core::os::Time::ms(1000.0f/configuration.frequency);
+	_stamp = core::os::Time::now();
 
 	_linearVelocityPID.config(configuration.K_linear, configuration.Ti_linear,
 			configuration.Td_linear, 1.0/configuration.frequency, 100.0, 100.0, -100.0);
@@ -63,23 +65,23 @@ bool ControlNode::onPrepareMW() {
 
 bool ControlNode::onLoop() {
 
-	Core::MW::Thread::sleep_until(_stamp+_Ts);
+	core::os::Thread::sleep_until(_stamp+_Ts);
 
 	sensor_msgs::Delta_f32* deltaLeft;
 	sensor_msgs::Delta_f32* deltaRight;
-	sensor_msgs::Imu_f32* imu;
+	sensor_msgs::Imu* imu;
 
 	// Wait for sensors readings
 	while (!_mLeftSub.fetch(deltaLeft)) {
-		Core::MW::Thread::sleep(Core::MW::Time::ms(1));
+		core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
 	while (!_mLeftSub.fetch(deltaRight)) {
-		Core::MW::Thread::sleep(Core::MW::Time::ms(1));
+		core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
 	while (!_imuSub.fetch(imu)) {
-		Core::MW::Thread::sleep(Core::MW::Time::ms(1));
+		core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
 	//Compute wheels speeds
@@ -123,7 +125,7 @@ bool ControlNode::onLoop() {
 	_mRightSub.release(*deltaRight);
 	_imuSub.release(*imu);
 
-	_stamp = Core::MW::Time::now();
+	_stamp = core::os::Time::now();
 
 	return true;
 }
@@ -156,4 +158,5 @@ float ControlNode::computePitch(float q[4]) {
 
 }
 
+}
 }

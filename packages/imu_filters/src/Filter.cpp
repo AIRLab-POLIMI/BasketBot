@@ -1,7 +1,9 @@
-#include <imu_filters/Filter.hpp>
+#include <core/imu_filters/Filter.hpp>
 
 #include <cmath>
 
+namespace core
+{
 namespace imu_filters
 {
 
@@ -72,4 +74,5 @@ void Filter::initPose() {
 	computeQuaternion(x, y, z);
 }
 
+}
 }

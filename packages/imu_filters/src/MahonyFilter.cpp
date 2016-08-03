@@ -1,9 +1,11 @@
-#include <imu_filters/MahonyFilter.hpp>
+#include <core/imu_filters/MahonyFilter.hpp>
 
 using namespace std;
 
 #include <cmath>
 
+namespace core
+{
 namespace imu_filters {
 void MahonyFilter::config(float deltaT) {
 	_Kp = configuration.Kp;
@@ -209,5 +211,6 @@ void MahonyFilter::integrateRateChangeQuaternion(float qdot[4]) {
 	attitude[3] += qdot[3] * _deltaT;
 }
 
+}
 
 }

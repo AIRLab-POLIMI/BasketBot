@@ -1,8 +1,10 @@
 #pragma once
 
-#include <imu_filters/Measurement.hpp>
-#include <Core/MW/Array.hpp>
+#include <core/imu_filters/Measurement.hpp>
+#include <core/Array.hpp>
 
+namespace core
+{
 namespace imu_filters
 {
 
@@ -23,13 +25,14 @@ namespace imu_filters
 		void initPose();
 
    public:
-		Core::MW::Array<float, 4> attitude;
-		Core::MW::Array<float, 3> linear_acceleration;
-		Core::MW::Array<float, 3> angular_velocity;
+		core::Array<float, 4> attitude;
+		core::Array<float, 3> linear_acceleration;
+		core::Array<float, 3> angular_velocity;
        
    protected:
         measurement _measure;
        
    };
    
+}
 }

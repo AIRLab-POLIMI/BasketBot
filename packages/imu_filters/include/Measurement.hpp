@@ -1,5 +1,7 @@
 #pragma once
 
+namespace core
+{
 namespace imu_filters
 { 
       struct measurement
@@ -9,4 +11,5 @@ namespace imu_filters
       	float mag[3];
       };
 
+}
 }

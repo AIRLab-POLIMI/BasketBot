@@ -2,6 +2,9 @@
 #define _PID_EI_EI_HPP_
 
 #include <float.h>
+
+namespace core
+{
 namespace pid_ie
 {
     
@@ -55,6 +58,7 @@ public:
 	bool isSaturatedLow();
 };
 
+}
 }
 
 #endif /* _PID_EI_EI_HPP_ */

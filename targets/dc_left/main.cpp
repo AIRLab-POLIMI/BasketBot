@@ -2,44 +2,44 @@
 // DC left module //
 //----------------//
 
-#include <Configuration.hpp>
+#include <ModuleConfiguration.hpp>
 #include <Module.hpp>
 
 // --- MESSAGES ---------------------------------------------------------------
-#include <common_msgs/Led.hpp>
-#include <actuator_msgs/Setpoint_f32.hpp>
+#include <core/common_msgs/Led.hpp>
+#include <core/actuator_msgs/Setpoint_f32.hpp>
 
 // --- NODES ------------------------------------------------------------------
-#include <sensor_publisher/Publisher.hpp>
-#include <actuator_subscriber/Subscriber.hpp>
-#include <led/Subscriber.hpp>
+#include <core/sensor_publisher/Publisher.hpp>
+#include <core/actuator_subscriber/Subscriber.hpp>
+#include <core/led/Subscriber.hpp>
 
 // --- BOARD IMPL -------------------------------------------------------------
-#include <QEI_driver/QEI.hpp>
-#include <A4957_driver/A4957.hpp>
-#include <current_control/CurrentPID.hpp>
-#include <current_control/Calibration.hpp>
+#include <core/QEI_driver/QEI.hpp>
+#include <core/A4957_driver/A4957.hpp>
+#include <core/current_control/CurrentPID.hpp>
+#include <core/current_control/Calibration.hpp>
 
 // *** DO NOT MOVE ***
 Module module;
 
 // --- TYPES ------------------------------------------------------------------
-using QEI_Publisher = sensor_publisher::Publisher<Configuration::QEI_DELTA_DATATYPE>;
-using CurrentSensor = current_control::CurrentSensor;
-using CurrentPID = current_control::CurrentPID;
-using Calibration = current_control::Calibration;
+using QEI_Publisher = core::sensor_publisher::Publisher<ModuleConfiguration::QEI_DELTA_DATATYPE>;
+using CurrentSensor = core::current_control::CurrentSensor;
+using CurrentPID = core::current_control::CurrentPID;
+using Calibration = core::current_control::Calibration;
 
 // --- NODES ------------------------------------------------------------------
 
 //#define CALIBRATION
-led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
+core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
 
 #ifdef CALIBRATION
-Calibration calibration("calibration", module.hbridge_pwm, Core::MW::Thread::PriorityEnum::NORMAL);
+Calibration calibration("calibration", module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
 #else
-QEI_Publisher encoder("encoder", module.qei, Core::MW::Thread::PriorityEnum::NORMAL);
+QEI_Publisher encoder("encoder", module.qei, core::os::Thread::PriorityEnum::NORMAL);
 CurrentSensor currentSensor; //TODO move in module
-CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, Core::MW::Thread::PriorityEnum::NORMAL);
+CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
 #endif
 
 
@@ -55,14 +55,20 @@ extern "C" {
       currentSensor.init(); //TODO move in module
 
       // Module configuration
-      module.qei.configuration["period"] = 50;
-      module.qei.configuration["ticks"] = 1000;
+      core::QEI_driver::QEI_DeltaConfiguration qei_conf;
+      qei_conf.period = 50;
+      qei_conf.ticks = 1000;
+      module.qei.setConfiguration(qei_conf);
 
       // Nodes configuration
-      led_subscriber.configuration["topic"] = "led";
+      core::led::SubscriberConfiguration led_conf;
+      led_conf.topic = "led";
+      led_subscriber.setConfiguration(led_conf);
 
 #ifndef CALIBRATION
-      encoder.configuration["topic"] = "encoder_left";
+      core::sensor_publisher::Configuration encoder_conf;
+      encoder_conf.topic = "encoder_left";
+      encoder.setConfiguration(encoder_conf);
 
       currentSensor.configuration.a = 0.007432946790511f;
       currentSensor.configuration.b = -15.207809133385506f;
@@ -98,9 +104,9 @@ extern "C" {
             module.halt("This must not happen!");
          }
 
-         Core::MW::Thread::sleep(Core::MW::Time::ms(500));
+         core::os::Thread::sleep(core::os::Time::ms(500));
       }
 
-      return Core::MW::Thread::OK;
+      return core::os::Thread::OK;
    } // main
 }

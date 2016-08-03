@@ -1,4 +1,6 @@
-#include <current_control/CurrentSensor.hpp>
+#include <core/current_control/CurrentSensor.hpp>
+
+namespace core {
 
 namespace current_control {
 
@@ -111,9 +113,15 @@ bool CurrentSensor::update()
 	return true;
 }
 
+bool CurrentSensor::configure()
+{
+	return true;
+}
+
 void CurrentSensor::get(DataType& data)
 {
 	data = _data;
 }
 
+}
 }

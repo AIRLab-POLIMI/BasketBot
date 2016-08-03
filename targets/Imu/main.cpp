@@ -2,44 +2,44 @@
 // IMU module //
 //------------//
 
-#include <Configuration.hpp>
+#include <ModuleConfiguration.hpp>
 #include <Module.hpp>
 
 // MESSAGES
-#include <common_msgs/Led.hpp>
-#include <common_msgs/String64.hpp>
-#include <sensor_msgs/RPY_f32.hpp>
+#include <core/common_msgs/Led.hpp>
+#include <core/common_msgs/String64.hpp>
+#include <core/sensor_msgs/RPY_f32.hpp>
 
 // NODES
-#include <sensor_publisher/Publisher.hpp>
-#include <led/Publisher.hpp>
-#include <led/Subscriber.hpp>
-#include <imu_filters/ImuFilterNode.hpp>
-#include <imu_filters/MahonyFilter.hpp>
-#include <balancing_robot_control/ControlNode.hpp>
+#include <core/sensor_publisher/Publisher.hpp>
+#include <core/led/Publisher.hpp>
+#include <core/led/Subscriber.hpp>
+#include <core/imu_filters/ImuFilterNode.hpp>
+#include <core/imu_filters/MahonyFilter.hpp>
+#include <core/balancing_robot_control/ControlNode.hpp>
 
 // BOARD IMPL
-#include <L3GD20H_driver/L3GD20H.hpp>
-#include <LSM303D_driver/LSM303D.hpp>
+#include <core/L3GD20H_driver/L3GD20H.hpp>
+#include <core/LSM303D_driver/LSM303D.hpp>
 
 // *** DO NOT MOVE ***
 Module module;
 
 // TYPES
-using Vector3_i16_Publisher = sensor_publisher::Publisher<common_msgs::Vector3_i16>;
+using Vector3_i16_Publisher = core::sensor_publisher::Publisher<core::common_msgs::Vector3_i16>;
 
 // NODES
-Vector3_i16_Publisher gyro_publisher("gyro_publisher", module.gyro, Core::MW::Thread::PriorityEnum::NORMAL + 1);
-Vector3_i16_Publisher acc_publisher("acc_publisher", module.acc, Core::MW::Thread::PriorityEnum::NORMAL + 1);
-Vector3_i16_Publisher mag_publisher("mag_publisher", module.mag, Core::MW::Thread::PriorityEnum::NORMAL + 1);
+Vector3_i16_Publisher gyro_publisher("gyro_publisher", module.gyro, core::os::Thread::PriorityEnum::NORMAL + 1);
+Vector3_i16_Publisher acc_publisher("acc_publisher", module.acc, core::os::Thread::PriorityEnum::NORMAL + 1);
+Vector3_i16_Publisher mag_publisher("mag_publisher", module.mag, core::os::Thread::PriorityEnum::NORMAL + 1);
 
-led::Publisher led_publisher("led_publisher", Core::MW::Thread::PriorityEnum::LOWEST);
-led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
+core::led::Publisher led_publisher("led_publisher", core::os::Thread::PriorityEnum::LOWEST);
+core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
 
-imu_filters::MahonyFilter mahony_filter;
-imu_filters::ImuFilterNode imu_filter("imu_filter", mahony_filter);
+core::imu_filters::MahonyFilter mahony_filter;
+core::imu_filters::ImuFilterNode imu_filter("imu_filter", mahony_filter);
 
-balancing_robot_control::ControlNode control_node("controller", Core::MW::Thread::PriorityEnum::LOWEST);
+core::balancing_robot_control::ControlNode control_node("controller", core::os::Thread::PriorityEnum::LOWEST);
 
 /*===========================================================================*/
 /* Kinematics.                                                               */
@@ -72,18 +72,30 @@ extern "C" {
 		module.initialize();
 
 		// Led subscriber node
-		led_subscriber.configuration.topic = "led";
+		core::led::SubscriberConfiguration led_subscriber_conf;
+		led_subscriber_conf.topic = "led";
+		led_subscriber.setConfiguration(led_subscriber_conf);
 		module.add(led_subscriber);
 
 		// Led publisher
-		led_publisher.configuration.topic = "led";
-		led_publisher.configuration.led = (uint32_t)1;
+		core::led::PublisherConfiguration led_publisher_conf;
+		led_publisher_conf.topic = "led";
+		led_publisher_conf.led = (uint32_t)1;
+		led_publisher.setConfiguration(led_publisher_conf);
 		module.add(led_publisher);
 
 		// Sensor nodes
-		gyro_publisher.configuration.topic = "gyro";
-		acc_publisher.configuration.topic  = "acc";
-		mag_publisher.configuration.topic  = "mag";
+		core::sensor_publisher::Configuration gyro_conf;
+		core::sensor_publisher::Configuration acc_conf;
+		core::sensor_publisher::Configuration mag_conf;
+		gyro_conf.topic = "gyro";
+		acc_conf.topic  = "acc";
+		mag_conf.topic  = "mag";
+
+		gyro_publisher.setConfiguration(gyro_conf);
+		acc_publisher.setConfiguration(acc_conf);
+		mag_publisher.setConfiguration(mag_conf);
+
 		module.add(gyro_publisher);
 		module.add(acc_publisher);
 		module.add(mag_publisher);
@@ -138,9 +150,9 @@ extern "C" {
 				module.halt("This must not happen!");
 			}
 
-			Core::MW::Thread::sleep(Core::MW::Time::ms(500));
+			core::os::Thread::sleep(core::os::Time::ms(500));
 		}
 
-		return Core::MW::Thread::OK;
+		return core::os::Thread::OK;
 	}
 }

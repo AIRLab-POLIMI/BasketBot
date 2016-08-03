@@ -1,7 +1,7 @@
 #pragma once
 
-#include <current_control/CurrentSensorConfiguration.hpp>
-#include <Core/MW/CoreSensor.hpp>
+#include <core/current_control/CurrentSensorConfiguration.hpp>
+#include <core/mw/CoreSensor.hpp>
 
 #include "ch.h"
 #include "hal.h"
@@ -9,9 +9,11 @@
 #define ADC_NUM_CHANNELS   1
 #define ADC_BUF_DEPTH      1
 
+namespace core {
+
 namespace current_control {
 
-class CurrentSensor: public Core::MW::CoreSensor<float> {
+class CurrentSensor: public core::mw::CoreSensor<float> {
 public:
 	CurrentSensor();
 
@@ -34,6 +36,9 @@ public:
 	bool
 	update();
 
+	bool
+	configure();
+
 	void
 	get(DataType& data);
 
@@ -55,9 +60,11 @@ private:
 	static float currentPeakLow;
 
 protected:
-	Core::MW::Time _timestamp;
+	core::os::Time _timestamp;
 	DataType _data;
 
 };
+
+}
 
 }

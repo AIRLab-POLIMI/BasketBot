@@ -1,21 +1,23 @@
 #pragma once
 
-#include <Core/MW/CoreNode.hpp>
-#include <Core/MW/Subscriber.hpp>
-#include <Core/MW/Publisher.hpp>
+#include <core/mw/CoreNode.hpp>
+#include <core/mw/Subscriber.hpp>
+#include <core/mw/Publisher.hpp>
 
-#include <balancing_robot_control/ControlNodeConfiguration.hpp>
-#include <actuator_msgs/Setpoint_f32.hpp>
-#include <sensor_msgs/Delta_f32.hpp>
-#include <sensor_msgs/Imu_f32.hpp>
+#include <core/balancing_robot_control/ControlNodeConfiguration.hpp>
+#include <core/actuator_msgs/Setpoint_f32.hpp>
+#include <core/sensor_msgs/Delta_f32.hpp>
+#include <core/sensor_msgs/Imu.hpp>
 
-#include <pid_ie/pid_ie.hpp>
+#include <core/pid_ie/pid_ie.hpp>
 
+namespace core
+{
 namespace balancing_robot_control {
-class ControlNode: public Core::MW::CoreNode {
+class ControlNode: public core::mw::CoreNode {
 public:
-	ControlNode(const char* name, Core::MW::Thread::Priority priority =
-			Core::MW::Thread::PriorityEnum::NORMAL);
+	ControlNode(const char* name, core::os::Thread::Priority priority =
+			core::os::Thread::PriorityEnum::NORMAL);
 
 	virtual
 	~ControlNode();
@@ -39,21 +41,22 @@ private:
 	float computePitch(float orientation[4]);
 
 private:
-	Core::MW::Publisher<actuator_msgs::Setpoint_f32> _mLeftPub;
-	Core::MW::Publisher<actuator_msgs::Setpoint_f32> _mRightPub;
+	core::mw::Publisher<actuator_msgs::Setpoint_f32> _mLeftPub;
+	core::mw::Publisher<actuator_msgs::Setpoint_f32> _mRightPub;
 
-	Core::MW::Subscriber<sensor_msgs::Delta_f32, 5> _mLeftSub;
-	Core::MW::Subscriber<sensor_msgs::Delta_f32, 5> _mRightSub;
-	Core::MW::Subscriber<sensor_msgs::Imu_f32, 5> _imuSub;
+	core::mw::Subscriber<sensor_msgs::Delta_f32, 5> _mLeftSub;
+	core::mw::Subscriber<sensor_msgs::Delta_f32, 5> _mRightSub;
+	core::mw::Subscriber<sensor_msgs::Imu, 5> _imuSub;
 
 private:
-	pid_ie::PID_IE _linearVelocityPID;
-	pid_ie::PID_IE _angularVelocityPID;
+	core::pid_ie::PID_IE _linearVelocityPID;
+	core::pid_ie::PID_IE _angularVelocityPID;
 
-	Core::MW::Time _Ts;
-	Core::MW::Time _stamp;
+	core::os::Time _Ts;
+	core::os::Time _stamp;
 
 };
 
+}
 }
 

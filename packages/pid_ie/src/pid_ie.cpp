@@ -1,4 +1,7 @@
-#include <pid_ie/pid_ie.hpp>
+#include <core/pid_ie/pid_ie.hpp>
+
+namespace core
+{
 
 namespace pid_ie
 {
@@ -172,5 +175,7 @@ bool PID_IE::isSaturatedHigh() {
 bool PID_IE::isSaturatedLow() {
 	return _sLow;
 } 
+
+}
 
 }

@@ -1,4 +1,4 @@
-#include <current_control/Calibration.hpp>
+#include <core/current_control/Calibration.hpp>
 
 #include "ch.h"
 #include "hal.h"
@@ -6,6 +6,9 @@
 #include "chprintf.h"
 
 using namespace std::placeholders;
+
+namespace core
+{
 
 namespace current_control
 {
@@ -84,9 +87,9 @@ SerialConfig sd2Config = {
 /*===========================================================================*/
 
 Calibration::Calibration(const char* name,
-					   Core::MW::CoreActuator<float>& pwm,
+					   core::mw::CoreActuator<float>& pwm,
 					   bool positive,
-					   Core::MW::Thread::PriorityEnum priority) :
+					   core::os::Thread::PriorityEnum priority) :
       CoreNode::CoreNode(name, priority), _pwm(pwm), _positive(positive)
    {
 	  _current = 0.0f;
@@ -133,10 +136,12 @@ Calibration::onPrepareHW()
 bool
 Calibration::onLoop()
 {
-	this->spin(Core::MW::Time::ms(1));
+	this->spin(core::os::Time::ms(1));
 	chprintf((BaseSequentialStream *)&SD2, "%d\n", _current);
 
     return true;
 }
 
 } /* namespace current_control */
+
+}

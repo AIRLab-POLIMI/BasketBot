@@ -1,24 +1,26 @@
 #pragma once
 
-#include <Core/MW/CoreNode.hpp>
-#include <Core/MW/Subscriber.hpp>
-#include <Core/MW/CoreActuator.hpp>
+#include <core/mw/CoreNode.hpp>
+#include <core/mw/Subscriber.hpp>
+#include <core/mw/CoreActuator.hpp>
 
-#include <current_control/CurrentSensor.hpp>
-#include <current_control/CurrentPIDConfiguration.hpp>
-#include <actuator_msgs/Setpoint_f32.hpp>
-#include <pid_ie/pid_ie.hpp>
+#include <core/current_control/CurrentSensor.hpp>
+#include <core/current_control/CurrentPIDConfiguration.hpp>
+#include <core/actuator_msgs/Setpoint_f32.hpp>
+#include <core/pid_ie/pid_ie.hpp>
 
+namespace core
+{
 namespace current_control {
    class CurrentPID:
-      public Core::MW::CoreNode
+      public core::mw::CoreNode
    {
 public:
       CurrentPID(
          const char* name,
 		 CurrentSensor& currentSensor,
-		 Core::MW::CoreActuator<float>& pwm,
-         Core::MW::Thread::PriorityEnum priority = Core::MW::Thread::PriorityEnum::NORMAL
+		 core::mw::CoreActuator<float>& pwm,
+         core::os::Thread::PriorityEnum priority = core::os::Thread::PriorityEnum::NORMAL
       );
 
       virtual
@@ -31,8 +33,8 @@ public:
 
 private:
       CurrentSensor& _currentSensor;
-      Core::MW::CoreActuator<float>& _pwm;
-      Core::MW::Subscriber<actuator_msgs::Setpoint_f32, 5> _subscriber;
+      core::mw::CoreActuator<float>& _pwm;
+      core::mw::Subscriber<actuator_msgs::Setpoint_f32, 5> _subscriber;
 
       pid_ie::PID_IE _currentPID;
 
@@ -57,6 +59,7 @@ private:
       onLoop();
 
       static bool callback(const actuator_msgs::Setpoint_f32& msg,
-         Core::MW::Node* node);
+         core::mw::Node* node);
    };
 } 
+}

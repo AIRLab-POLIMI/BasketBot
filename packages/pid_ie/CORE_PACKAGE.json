@@ -1,6 +1,6 @@
 {
   "name": "pid_ie",
   "description": "Implicit euler PID with cascade architecture saturation control", 
-  "namespace": "@", 
+  "provider": "core", 
   "sources": ["pid_ie.cpp"]
 } 

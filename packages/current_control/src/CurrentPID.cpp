@@ -1,7 +1,10 @@
-#include <current_control/CurrentPID.hpp>
+#include <core/current_control/CurrentPID.hpp>
 
 using namespace std::placeholders;
 
+
+namespace core
+{
 namespace current_control
 {
 
@@ -11,11 +14,12 @@ namespace current_control
 
 CurrentPID::CurrentPID(const char* name,
 					   CurrentSensor& currentSensor,
-					   Core::MW::CoreActuator<float>& pwm,
-					   Core::MW::Thread::PriorityEnum priority) :
+					   core::mw::CoreActuator<float>& pwm,
+					   core::os::Thread::PriorityEnum priority) :
       CoreNode::CoreNode(name, priority), _currentSensor(currentSensor), _pwm(pwm)
    {
 	  _Kpwm = 0.0f;
+	  _Ktorque = 0.0f;
 	  _current = 0.0f;
 	  _controlCounter = 0;
 	  _controlCycles = 0;
@@ -109,7 +113,7 @@ CurrentPID::onPrepareMW()
 bool
 CurrentPID::callback(
    const actuator_msgs::Setpoint_f32& msg,
-   Core::MW::Node*                    node
+   core::mw::Node*                    node
 )
 {
    CurrentPID* _this = static_cast<CurrentPID*>(node);
@@ -128,7 +132,7 @@ CurrentPID::callback(
 bool
 CurrentPID::onLoop()
 {
-	if (!this->spin(Core::MW::Time::ms(100)))
+	if (!this->spin(core::os::Time::ms(100)))
 	{
 		chSysLock();
 		_currentPID.reset();
@@ -140,3 +144,5 @@ CurrentPID::onLoop()
 }
 
 } /* namespace current_control */
+
+}

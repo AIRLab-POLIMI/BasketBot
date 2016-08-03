@@ -1,17 +1,18 @@
 #include <Module.hpp>
 
-#include <imu_filters/ImuFilterNode.hpp>
-#include <Core/Utils/Math/Constants.hpp>
-#include <Core/Utils/Math/Conversions.hpp>
-#include <L3GD20H_driver/L3GD20H.hpp>
-#include <LSM303D_driver/LSM303D.hpp>
+#include <core/imu_filters/ImuFilterNode.hpp>
+#include <core/utils/math/Constants.hpp>
+#include <core/utils/math/Conversions.hpp>
+#include <core/L3GD20H_driver/L3GD20H.hpp>
+#include <core/LSM303D_driver/LSM303D.hpp>
 
+namespace core {
 
 namespace imu_filters {
    ImuFilterNode::ImuFilterNode(
       const char* name,
 	  Filter& filter,
-      Core::MW::Thread::Priority priority
+      core::os::Thread::Priority priority
    ) :
       CoreNode::CoreNode(name, priority), filter(filter)
    {
@@ -28,8 +29,8 @@ namespace imu_filters {
    {
 	   auto& c = configuration;
 	   filter.config(1.0f/c.frequency);
-	   _deltaT = Core::MW::Time::ms(1000.0f/c.frequency);
-	   _stamp = Core::MW::Time::now();
+	   _deltaT = core::os::Time::ms(1000.0f/c.frequency);
+	   _stamp = core::os::Time::now();
 
 	   return true;
    }
@@ -45,7 +46,7 @@ namespace imu_filters {
    bool
    ImuFilterNode::onLoop()
    {
-	   Core::MW::Thread::sleep_until(_stamp+_deltaT);
+	   core::os::Thread::sleep_until(_stamp+_deltaT);
 	   Module::acc.get(_accData);
 	   Module::gyro.get(_gyroData);
 	   Module::mag.get(_magData);
@@ -53,7 +54,7 @@ namespace imu_filters {
 	   adjustMeasurements();
 	   filter(measure);
 
-	   sensor_msgs::Imu_f32* msgp;
+	   sensor_msgs::Imu* msgp;
 	   if(_publisher.alloc(msgp))
 	   {
 		   msgp->orientation = filter.attitude;
@@ -61,7 +62,7 @@ namespace imu_filters {
 		   msgp->angular_velocity = filter.angular_velocity;
 		   _publisher.publish(msgp);
 	   }
-	   _stamp = Core::MW::Time::now();
+	   _stamp = core::os::Time::now();
 
        return true;
    } // Mahony::onLoop
@@ -93,3 +94,4 @@ namespace imu_filters {
 
 }
  
+}

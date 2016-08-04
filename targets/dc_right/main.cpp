@@ -64,7 +64,7 @@ extern "C" {
 
       #ifndef CALIBRATION
       core::sensor_publisher::Configuration encoder_conf;
-      encoder_conf.topic = "encoder_left";
+      encoder_conf.topic = "encoder_right";
       encoder.setConfiguration(encoder_conf);
 
       currentSensor.configuration.a = 0.007432946790511f;

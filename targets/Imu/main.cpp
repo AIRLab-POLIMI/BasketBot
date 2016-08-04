@@ -124,6 +124,7 @@ extern "C" {
 		control_node.configuration.encoderTopic = "encoder";
 		control_node.configuration.imuTopic = imu_filter.configuration.topic;
 		control_node.configuration.motorTopic = "torque";
+		control_node.configuration.frequency = 50;
 
 		control_node.configuration.L = 0.40;
 		control_node.configuration.R = 0.2;

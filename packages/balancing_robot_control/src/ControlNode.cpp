@@ -1,5 +1,5 @@
 #include <core/balancing_robot_control/ControlNode.hpp>
-#include <cmath>
+#include <math.h>
 
 namespace core
 {
@@ -22,43 +22,25 @@ bool ControlNode::onConfigure() {
 	_stamp = core::os::Time::now();
 
 	_linearVelocityPID.config(configuration.K_linear, configuration.Ti_linear,
-			configuration.Td_linear, 1.0/configuration.frequency, 100.0, 100.0, -100.0);
+			configuration.Td_linear, 1.0/configuration.frequency, 100.0, -100.0, 100.0);
 
 	_angularVelocityPID.config(configuration.K_angular, 0.0,
-			0.0, 1.0/configuration.frequency, 0.0, 100.0, -100.0);
+			0.0, 1.0/configuration.frequency, 0.0, -100.0, 100.0);
 	return true;
 }
 
 bool ControlNode::onPrepareMW() {
 
 	//publish motors setpoints
-	const char* motorTopic = configuration.motorTopic;
-
-	std::string topic1(motorTopic);
-	topic1 += "_left";
-
-	std::string topic2(motorTopic);
-	topic2 += "_right";
-
-	this->advertise(_mLeftPub, topic1.c_str());
-	this->advertise(_mRightPub, topic2.c_str());
+	advertise(_mLeftPub, configuration.motorTopicLeft);
+	advertise(_mRightPub, configuration.motorTopicRight);
 
 	//subscribe imu measurement
 	subscribe(_imuSub, configuration.imuTopic);
 
 	//subscribe motors setpoints
-	const char* encoderTopic = configuration.encoderTopic;
-
-	std::string encoderTopic1(encoderTopic);
-	encoderTopic1 += "_left";
-
-	std::string encoderTopic2(encoderTopic);
-	encoderTopic2 += "_right";
-
-
-	subscribe(_mLeftSub, encoderTopic1.c_str());
-	subscribe(_mRightSub, encoderTopic2.c_str());
-
+	subscribe(_mLeftSub, configuration.encoderTopicLeft);
+	subscribe(_mRightSub, configuration.encoderTopicRight);
 
 	return true;
 }
@@ -94,7 +76,12 @@ bool ControlNode::onLoop() {
 
 	//Compute orientation
 	float omega = imu->angular_velocity[1];
-	float theta = computePitch(imu->orientation);
+	float q[4];
+	q[0]=imu->orientation[0];
+	q[1]=imu->orientation[1];
+	q[2]=imu->orientation[2];
+	q[3]=imu->orientation[3];
+	float theta = computePitch(q);
 
 	//Linear velocity controller
 	float tauM = computeMeanTorque(theta, omega, omegaR);
@@ -153,8 +140,8 @@ float ControlNode::computeDifferentialTorque(float dPsi) {
 	return 0;
 }
 
-float ControlNode::computePitch(float q[4]) {
-	return std::asin(-2.0*(q[0]*q[2] - q[3]*q[1]));
+float ControlNode::computePitch(const float q[4]) {
+	return asin(2.0*(q[0]*q[2] - q[3]*q[1]));
 
 }
 

@@ -121,10 +121,12 @@ extern "C" {
 		module.add(imu_filter);
 
 		// Control node parameters
-		control_node.configuration.encoderTopic = "encoder";
+		control_node.configuration.encoderTopicLeft = "encoder_left";
+		control_node.configuration.encoderTopicRight = "encoder_right";
+		control_node.configuration.motorTopicLeft = "torque_left";
+		control_node.configuration.motorTopicRight = "torque_right";
 		control_node.configuration.imuTopic = imu_filter.configuration.topic;
-		control_node.configuration.motorTopic = "torque";
-		control_node.configuration.frequency = 50;
+		control_node.configuration.frequency = imu_filter.configuration.frequency;
 
 		control_node.configuration.L = 0.40;
 		control_node.configuration.R = 0.2;

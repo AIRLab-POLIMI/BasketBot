@@ -4,8 +4,14 @@
   "namespace": "@", 
   "fields": [ 
     {
-      "name": "motorTopic", 
-      "description": "Name of the topic of the motors", 
+      "name": "motorTopicLeft", 
+      "description": "Name of the topic of the left motor", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+      "name": "motorTopicRight", 
+      "description": "Name of the topic of the right motor", 
       "type": "CHAR", 
       "size": 16 
     },
@@ -16,8 +22,14 @@
      "size": 16
     },
     {
-     "name": "encoderTopic",
-     "description": "Name of the topic of the encoders",
+     "name": "encoderTopicLeft",
+     "description": "Name of the topic of the left encoder",
+     "type": "CHAR",
+     "size": 16
+    },
+    {
+     "name": "encoderTopicRight",
+     "description": "Name of the topic of the right encoder",
      "type": "CHAR",
      "size": 16
     },

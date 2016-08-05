@@ -24,9 +24,6 @@ public:
 	virtual
 	~ControlNode();
 
-public:
-	ControlNodeConfiguration configuration;
-
 private:
 	bool
 	onConfigure();

@@ -20,29 +20,29 @@ ControlNode::~ControlNode() {
 
 bool ControlNode::onConfigure() {
 	//TODO use correct saturation limits
-	_Ts = core::os::Time::ms(1000.0f/configuration.frequency);
+	_Ts = core::os::Time::ms(1000.0f/configuration().frequency);
 	_stamp = core::os::Time::now();
 
-	_linearVelocityPID.config(configuration.K_linear, configuration.Ti_linear,
-			configuration.Td_linear, 1.0/configuration.frequency, 100.0, -100.0, 100.0);
+	_linearVelocityPID.config(configuration().K_linear, configuration().Ti_linear,
+			configuration().Td_linear, 1.0/configuration().frequency, 100.0, -100.0, 100.0);
 
-	_angularVelocityPID.config(configuration.K_angular, 0.0,
-			0.0, 1.0/configuration.frequency, 0.0, -100.0, 100.0);
+	_angularVelocityPID.config(configuration().K_angular, 0.0,
+			0.0, 1.0/configuration().frequency, 0.0, -100.0, 100.0);
 	return true;
 }
 
 bool ControlNode::onPrepareMW() {
 
 	//publish motors setpoints
-	advertise(_mLeftPub, configuration.motorTopicLeft);
-	advertise(_mRightPub, configuration.motorTopicRight);
+	advertise(_mLeftPub, configuration().motorTopicLeft);
+	advertise(_mRightPub, configuration().motorTopicRight);
 
 	//subscribe imu measurement
-	subscribe(_imuSub, configuration.imuTopic);
+	subscribe(_imuSub, configuration().imuTopic);
 
 	//subscribe motors setpoints
-	subscribe(_mLeftSub, configuration.encoderTopicLeft);
-	subscribe(_mRightSub, configuration.encoderTopicRight);
+	subscribe(_mLeftSub, configuration().encoderTopicLeft);
+	subscribe(_mRightSub, configuration().encoderTopicRight);
 
 	return true;
 }
@@ -60,7 +60,7 @@ bool ControlNode::onLoop() {
 		core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
-	while (!_mLeftSub.fetch(deltaRight)) {
+	while (!_mRightSub.fetch(deltaRight)) {
 		core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
@@ -74,7 +74,7 @@ bool ControlNode::onLoop() {
 	float speedRight = deltaRight->value * frequency;
 
 	float omegaR = 0.5 * (speedLeft + speedRight);
-	float dPsi = (speedRight - speedLeft) * configuration.R / configuration.L;
+	float dPsi = (speedRight - speedLeft) * configuration().R / configuration().L;
 
 	//Compute orientation
 	float omega = imu->angular_velocity[1];
@@ -122,15 +122,15 @@ bool ControlNode::onLoop() {
 float ControlNode::computeMeanTorque(float theta, float omega, float omegaR) {
 
 	//Compute the stabilizing contribute
-	const float& K_theta = configuration.K_theta;
-	const float& K_omega = configuration.K_omega;
-	const float& K_omegaR = configuration.K_omegaR;
+	const float& K_theta = configuration().K_theta;
+	const float& K_omega = configuration().K_omega;
+	const float& K_omegaR = configuration().K_omegaR;
 
 	float stabilizingTorque = theta * K_theta + omega * K_omega
 			+ omegaR * K_omegaR;
 
 	//Compute the speed contribute
-	float linearVelocity = omegaR * configuration.R;
+	float linearVelocity = omegaR * configuration().R;
 	float speedTorque = _linearVelocityPID.update(linearVelocity);
 
 	//compute the mean torque

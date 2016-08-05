@@ -18,7 +18,7 @@ namespace imu_filters {
 	  CoreConfigurable<core::imu_filters::ImuFilterNodeConfiguration>::CoreConfigurable(name),
 	  filter(filter)
    {
-      _workingAreaSize = 512;
+      _workingAreaSize = 768;
    }
 
    ImuFilterNode::~ImuFilterNode()

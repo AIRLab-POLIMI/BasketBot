@@ -41,6 +41,20 @@ core::imu_filters::ImuFilterNode imu_filter("imu_filter", mahony_filter);
 
 core::balancing_robot_control::ControlNode control_node("controller", core::os::Thread::PriorityEnum::LOWEST);
 
+// CONFIGURATIONS
+core::sensor_publisher::Configuration gyro_conf;
+core::sensor_publisher::Configuration acc_conf;
+core::sensor_publisher::Configuration mag_conf;
+
+core::led::SubscriberConfiguration led_subscriber_conf;
+core::led::PublisherConfiguration led_publisher_conf;
+
+core::imu_filters::ImuFilterNodeConfiguration imu_filter_conf;
+core::imu_filters::MahonyConfiguration mahony_conf;
+
+core::balancing_robot_control::ControlNodeConfiguration control_node_conf;
+
+
 /*===========================================================================*/
 /* Kinematics.                                                               */
 /*===========================================================================*/
@@ -72,22 +86,17 @@ extern "C" {
 		module.initialize();
 
 		// Led subscriber node
-		core::led::SubscriberConfiguration led_subscriber_conf;
 		led_subscriber_conf.topic = "led";
 		led_subscriber.setConfiguration(led_subscriber_conf);
 		module.add(led_subscriber);
 
 		// Led publisher
-		core::led::PublisherConfiguration led_publisher_conf;
 		led_publisher_conf.topic = "led";
 		led_publisher_conf.led = (uint32_t)1;
 		led_publisher.setConfiguration(led_publisher_conf);
 		module.add(led_publisher);
 
 		// Sensor nodes
-		core::sensor_publisher::Configuration gyro_conf;
-		core::sensor_publisher::Configuration acc_conf;
-		core::sensor_publisher::Configuration mag_conf;
 		gyro_conf.topic = "gyro";
 		acc_conf.topic  = "acc";
 		mag_conf.topic  = "mag";
@@ -101,7 +110,6 @@ extern "C" {
 		module.add(mag_publisher);
 
 		// Imu filter node
-		core::imu_filters::ImuFilterNodeConfiguration imu_filter_conf;
 		imu_filter_conf.topic     = "imu";
 		imu_filter_conf.frequency = 100.0f;
 
@@ -115,7 +123,6 @@ extern "C" {
 		imu_filter.setConfiguration(imu_filter_conf);
 
 		// mahony filter parameters
-		core::imu_filters::MahonyConfiguration mahony_conf;
 		mahony_conf.Kacc = 4.0f;
 		mahony_conf.Kmag = 0.1f;
 		mahony_conf.Kp   = 0.5f;
@@ -126,7 +133,6 @@ extern "C" {
 		module.add(imu_filter);
 
 		// Control node parameters
-		core::balancing_robot_control::ControlNodeConfiguration control_node_conf;
 		control_node_conf.encoderTopicLeft = "encoder_left";
 		control_node_conf.encoderTopicRight = "encoder_right";
 		control_node_conf.motorTopicLeft = "torque_left";

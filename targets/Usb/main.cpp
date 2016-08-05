@@ -1,12 +1,12 @@
-#include <Configuration.hpp>
+#include <ModuleConfiguration.hpp>
 #include <Module.hpp>
 
 // --- MESSAGES ---------------------------------------------------------------
-#include <common_msgs/Led.hpp>
+#include <core/common_msgs/Led.hpp>
 
 // --- NODES ------------------------------------------------------------------
-#include <led/Subscriber.hpp>
-#include <led/Publisher.hpp>
+#include <core/led/Subscriber.hpp>
+#include <core/led/Publisher.hpp>
 #include "rosserial.hpp"
 
 // --- BOARD IMPL -------------------------------------------------------------
@@ -17,32 +17,34 @@
 Module module;
 
 // --- NODES ------------------------------------------------------------------
-led::Subscriber led_subscriber("led_subscriber", Core::MW::Thread::PriorityEnum::LOWEST);
-led::Publisher  led_publisher("led_publisher");
+core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
+
+rosserial::RosSerialPublisher rosserial_publisher("rosserial_publisher", core::os::Thread::PriorityEnum::NORMAL);
+
+// --- CONFIGURATIONS ---------------------------------------------------------
+core::led::SubscriberConfiguration led_conf;
 
 /*
  * Application entry point.
  */
 extern "C" {
-	int
-	main(
-			void
-	)
+	int	main(void)
 	{
 		module.initialize();
 
-		led_publisher.configuration["topic"] = "led";
-		led_publisher.configuration["led"]   = (uint32_t)1;
-
-		led_subscriber.configuration["topic"] = led_publisher.configuration["topic"];
+		// Led subscriber configuration
+		led_conf.topic = "led";
+		led_subscriber.setConfiguration(led_conf);
 
 		// Add nodes to the node manager (== board)...
 		module.add(led_subscriber);
-		module.add(led_publisher);
 
-//		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_pub_thread, nullptr);
-//		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_sub_thread, nullptr);
-		Core::MW::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_test_thread, nullptr);
+//		core::os::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_pub_thread, nullptr);
+//		core::os::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_sub_thread, nullptr);
+//      core::os::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_test_thread, nullptr);
+
+
+		module.add(rosserial_publisher);
 
 		// ... and let's play!
 		module.setup();
@@ -54,9 +56,9 @@ extern "C" {
 				module.halt("This must not happen!");
 			}
 
-			Core::MW::Thread::sleep(Core::MW::Time::ms(500));
+			core::os::Thread::sleep(core::os::Time::ms(500));
 		}
 
-		return Core::MW::Thread::OK;
+		return core::os::Thread::OK;
 	} // main
 }

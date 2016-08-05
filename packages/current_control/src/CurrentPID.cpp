@@ -16,7 +16,9 @@ CurrentPID::CurrentPID(const char* name,
 					   CurrentSensor& currentSensor,
 					   core::mw::CoreActuator<float>& pwm,
 					   core::os::Thread::PriorityEnum priority) :
-      CoreNode::CoreNode(name, priority), _currentSensor(currentSensor), _pwm(pwm)
+      CoreNode::CoreNode(name, priority),
+	  core::mw::CoreConfigurable<core::current_control::CurrentPIDConfiguration>(name),
+	  _currentSensor(currentSensor), _pwm(pwm)
    {
 	  _Kpwm = 0.0f;
 	  _Ktorque = 0.0f;
@@ -64,18 +66,18 @@ bool
 CurrentPID::onConfigure()
 {
     //Set PWM gain
-	_Kpwm = 1.0 / configuration.maxV;
-	_Ktorque = configuration.T/configuration.Kt;
-	_controlCycles = configuration.controlCycles;
+	_Kpwm = 1.0 / configuration().maxV;
+	_Ktorque = configuration().T/configuration().Kt;
+	_controlCycles = configuration().controlCycles;
 
     
     //Compute PID tuning
-    const float Kp = configuration.omegaC * configuration.L;
-	const float Ti = configuration.L / configuration.R;
+    const float Kp = configuration().omegaC * configuration().L;
+	const float Ti = configuration().L / configuration().R;
     const float Ts = _controlCycles/17.5e3; //TODO read from pwm driver
 
     //tune PID
-	_currentPID.config(Kp, Ti, 0.0f, Ts, 0.0f, -configuration.maxV, configuration.maxV);
+	_currentPID.config(Kp, Ti, 0.0f, Ts, 0.0f, -configuration().maxV, configuration().maxV);
     
     //set pid setpoint
 	_currentPID.set(0.0);
@@ -104,7 +106,7 @@ CurrentPID::onPrepareHW()
 bool
 CurrentPID::onPrepareMW()
 {
-    subscribe(_subscriber, configuration.topic);
+    subscribe(_subscriber, configuration().topic);
     _subscriber.set_callback(CurrentPID::callback);
 
     return true;

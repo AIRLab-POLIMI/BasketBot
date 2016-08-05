@@ -42,9 +42,6 @@ CurrentSensor currentSensor; //TODO move in module
 CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
 #endif
 
-
-
-
 // --- MAIN -------------------------------------------------------------------
 extern "C" {
    int
@@ -66,22 +63,29 @@ extern "C" {
       led_subscriber.setConfiguration(led_conf);
 
 #ifndef CALIBRATION
+      //encoder configuration
       core::sensor_publisher::Configuration encoder_conf;
       encoder_conf.topic = "encoder_left";
       encoder.setConfiguration(encoder_conf);
 
+      //current sensor configuration
       currentSensor.configuration.a = 0.007432946790511f;
       currentSensor.configuration.b = -15.207809133385506f;
 
-      currentPid.configuration.maxV = 24;
-      currentPid.configuration.R = 0.299f;
-      currentPid.configuration.L = 8.2e-5f;
-      currentPid.configuration.T = 0.0115f;
-      currentPid.configuration.Kt = 30.2e-3;
+      //current Pid configuration
+      core::current_control::CurrentPIDConfiguration currentPid_conf;
 
-      currentPid.configuration.controlCycles = 1;
-      currentPid.configuration.omegaC = 6000.0f;
-      currentPid.configuration.topic = "torque_left";
+      currentPid_conf.maxV = 24;
+      currentPid_conf.R = 0.299f;
+      currentPid_conf.L = 8.2e-5f;
+      currentPid_conf.T = 0.0115f;
+      currentPid_conf.Kt = 30.2e-3;
+
+      currentPid_conf.controlCycles = 1;
+      currentPid_conf.omegaC = 6000.0f;
+      currentPid_conf.topic = "torque_left";
+
+      currentPid.setConfiguration(currentPid_conf);
 #endif
 
       // Add nodes to the node manager (== board)...

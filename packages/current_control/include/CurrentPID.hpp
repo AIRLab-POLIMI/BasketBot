@@ -13,7 +13,8 @@ namespace core
 {
 namespace current_control {
    class CurrentPID:
-      public core::mw::CoreNode
+      public core::mw::CoreNode,
+	  public core::mw::CoreConfigurable<core::current_control::CurrentPIDConfiguration>
    {
 public:
       CurrentPID(
@@ -27,9 +28,6 @@ public:
       ~CurrentPID();
 
       void controlCallback(float currentPeak);
-
-public:
-      CurrentPIDConfiguration configuration;
 
 private:
       CurrentSensor& _currentSensor;

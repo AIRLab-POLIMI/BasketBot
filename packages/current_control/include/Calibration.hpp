@@ -4,14 +4,15 @@
 #include <core/mw/Subscriber.hpp>
 #include <core/mw/CoreActuator.hpp>
 
-#include <core/current_control/CurrentPIDConfiguration.hpp>
+#include <core/current_control/CalibrationConfiguration.hpp>
 #include <core/actuator_msgs/Setpoint_f32.hpp>
 #include <core/pid_ie/pid_ie.hpp>
 
 namespace core {
 namespace current_control {
    class Calibration:
-      public core::mw::CoreNode
+      public core::mw::CoreNode,
+	  public core::mw::CoreConfigurable<core::current_control::CalibrationConfiguration>
    {
 public:
 	   Calibration(

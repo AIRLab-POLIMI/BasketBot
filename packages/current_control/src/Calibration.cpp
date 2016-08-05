@@ -90,7 +90,9 @@ Calibration::Calibration(const char* name,
 					   core::mw::CoreActuator<float>& pwm,
 					   bool positive,
 					   core::os::Thread::PriorityEnum priority) :
-      CoreNode::CoreNode(name, priority), _pwm(pwm), _positive(positive)
+      CoreNode::CoreNode(name, priority),
+	  core::mw::CoreConfigurable<core::current_control::CalibrationConfiguration>(name),
+	  _pwm(pwm), _positive(positive)
    {
 	  _current = 0.0f;
       _workingAreaSize = 512;

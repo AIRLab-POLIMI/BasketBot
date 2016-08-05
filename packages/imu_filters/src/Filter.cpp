@@ -74,5 +74,10 @@ void Filter::initPose() {
 	computeQuaternion(x, y, z);
 }
 
+Filter::~Filter()
+{
+
+}
+
 }
 }

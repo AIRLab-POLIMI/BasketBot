@@ -7,11 +7,28 @@ using namespace std;
 namespace core
 {
 namespace imu_filters {
+
+MahonyFilter::MahonyFilter(const char* name)
+	: CoreConfigurable<core::imu_filters::MahonyConfiguration>::CoreConfigurable(name)
+{
+	_Kp = 0;
+	_Ki = 0;
+	_Kacc = 0;
+	_Kmag = 0;
+	_deltaT = 0;
+
+	bias_p = 0;
+	bias_q = 0;
+	bias_r = 0;
+
+	needReset = true;
+}
+
 void MahonyFilter::config(float deltaT) {
-	_Kp = configuration.Kp;
-	_Ki = configuration.Ki;
-	_Kacc = configuration.Kacc;
-	_Kmag = configuration.Kmag;
+	_Kp = configuration().Kp;
+	_Ki = configuration().Ki;
+	_Kacc = configuration().Kacc;
+	_Kmag = configuration().Kmag;
 	_deltaT = deltaT;
 
 	bias_p = 0;

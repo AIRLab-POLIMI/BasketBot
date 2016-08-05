@@ -36,7 +36,7 @@ Vector3_i16_Publisher mag_publisher("mag_publisher", module.mag, core::os::Threa
 core::led::Publisher led_publisher("led_publisher", core::os::Thread::PriorityEnum::LOWEST);
 core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
 
-core::imu_filters::MahonyFilter mahony_filter;
+core::imu_filters::MahonyFilter mahony_filter("mahony_filter");
 core::imu_filters::ImuFilterNode imu_filter("imu_filter", mahony_filter);
 
 core::balancing_robot_control::ControlNode control_node("controller", core::os::Thread::PriorityEnum::LOWEST);
@@ -100,46 +100,54 @@ extern "C" {
 		module.add(acc_publisher);
 		module.add(mag_publisher);
 
-		// Mahony filter node
-		imu_filter.configuration.topic     = "imu";
-		imu_filter.configuration.frequency = 100.0f;
+		// Imu filter node
+		core::imu_filters::ImuFilterNodeConfiguration imu_filter_conf;
+		imu_filter_conf.topic     = "imu";
+		imu_filter_conf.frequency = 100.0f;
 
-		//Imu calibration parameters
-		imu_filter.configuration.acc_a = { 0.000982402074221, 0.000947431355433, 0.001007804098727};
-		imu_filter.configuration.acc_b = {0.010529343232548, 0.044172464327909, -0.113292069793833};
-		imu_filter.configuration.gyr_a = {0.311704244531320e-3, 0.314591558752256e-3, 0.3066036023887353e-3};
-		imu_filter.configuration.gyr_b = {-0.148446667051465, -0.012753980951780, 0.025803887886194};
-		imu_filter.configuration.mag_a = {0.002166223718555, 0.002341707054921, 0.002613937090468};
-		imu_filter.configuration.mag_b = {-0.160726372652952, 0.093705049503890, 0.077222493617249};
+		imu_filter_conf.acc_a = { 0.000982402074221, 0.000947431355433, 0.001007804098727};
+		imu_filter_conf.acc_b = {0.010529343232548, 0.044172464327909, -0.113292069793833};
+		imu_filter_conf.gyr_a = {0.311704244531320e-3, 0.314591558752256e-3, 0.3066036023887353e-3};
+		imu_filter_conf.gyr_b = {-0.148446667051465, -0.012753980951780, 0.025803887886194};
+		imu_filter_conf.mag_a = {0.002166223718555, 0.002341707054921, 0.002613937090468};
+		imu_filter_conf.mag_b = {-0.160726372652952, 0.093705049503890, 0.077222493617249};
+
+		imu_filter.setConfiguration(imu_filter_conf);
 
 		// mahony filter parameters
-		mahony_filter.configuration.Kacc = 4.0f;
-		mahony_filter.configuration.Kmag = 0.1f;
-		mahony_filter.configuration.Kp   = 0.5f;
-		mahony_filter.configuration.Ki   = 0.1f;
+		core::imu_filters::MahonyConfiguration mahony_conf;
+		mahony_conf.Kacc = 4.0f;
+		mahony_conf.Kmag = 0.1f;
+		mahony_conf.Kp   = 0.5f;
+		mahony_conf.Ki   = 0.1f;
+
+		mahony_filter.setConfiguration(mahony_conf);
 
 		module.add(imu_filter);
 
 		// Control node parameters
-		control_node.configuration.encoderTopicLeft = "encoder_left";
-		control_node.configuration.encoderTopicRight = "encoder_right";
-		control_node.configuration.motorTopicLeft = "torque_left";
-		control_node.configuration.motorTopicRight = "torque_right";
-		control_node.configuration.imuTopic = imu_filter.configuration.topic;
-		control_node.configuration.frequency = imu_filter.configuration.frequency;
+		core::balancing_robot_control::ControlNodeConfiguration control_node_conf;
+		control_node_conf.encoderTopicLeft = "encoder_left";
+		control_node_conf.encoderTopicRight = "encoder_right";
+		control_node_conf.motorTopicLeft = "torque_left";
+		control_node_conf.motorTopicRight = "torque_right";
+		control_node_conf.imuTopic = imu_filter_conf.topic;
+		control_node_conf.frequency = imu_filter_conf.frequency;
 
-		control_node.configuration.L = 0.40;
-		control_node.configuration.R = 0.2;
+		control_node_conf.L = 0.40;
+		control_node_conf.R = 0.2;
 
-		control_node.configuration.K_theta = -130.1918;
-		control_node.configuration.K_omega = -51.0960;
-		control_node.configuration.K_omegaR = -3.0436;
+		control_node_conf.K_theta = -130.1918;
+		control_node_conf.K_omega = -51.0960;
+		control_node_conf.K_omegaR = -3.0436;
 
-		control_node.configuration.K_linear = 3.55;
-		control_node.configuration.Ti_linear = 1.3498;
-		control_node.configuration.Td_linear = 0.1411;
+		control_node_conf.K_linear = 3.55;
+		control_node_conf.Ti_linear = 1.3498;
+		control_node_conf.Td_linear = 0.1411;
 
-		control_node.configuration.K_angular = 0.0;
+		control_node_conf.K_angular = 0.0;
+
+		control_node.setConfiguration(control_node_conf);
 
 		module.add(control_node);
 

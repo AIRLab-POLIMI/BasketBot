@@ -17,6 +17,8 @@ namespace imu_filters
 	   virtual void operator()(const measurement& measure) = 0;
 	   virtual void reset() = 0;
 
+	   virtual ~Filter();
+
    protected:
 		void computeAttMatrix(float attitude_matrix[3][3]);
 		void computeQuaternion(float x[3], float y[3], float z[3]);

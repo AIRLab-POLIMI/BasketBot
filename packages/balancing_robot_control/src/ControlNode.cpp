@@ -6,7 +6,9 @@ namespace core
 namespace balancing_robot_control {
 
 ControlNode::ControlNode(const char* name, core::os::Thread::Priority priority) :
-		CoreNode::CoreNode(name, priority) {
+		CoreNode::CoreNode(name, priority),
+		CoreConfigurable<core::balancing_robot_control::ControlNodeConfiguration>::CoreConfigurable(name)
+{
 	_workingAreaSize = 512;
 
 	_Ts = 0;

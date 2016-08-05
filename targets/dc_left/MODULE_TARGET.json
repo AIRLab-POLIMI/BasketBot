@@ -2,7 +2,7 @@
   "name": "dc_left",
   "description": "dc_left",
   "module": "dc",
-  "required_packages": ["current_control", "pid_ie", "extra_msgs"],
+  "required_packages": ["current_control", "pid_ie"],
   "sources": [
     "main.cpp"
   ],

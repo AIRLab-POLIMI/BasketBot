@@ -17,7 +17,8 @@ namespace core
 {
 namespace imu_filters {
    class ImuFilterNode:
-      public core::mw::CoreNode
+      public core::mw::CoreNode,
+	  public core::mw::CoreConfigurable<core::imu_filters::ImuFilterNodeConfiguration>
    {
 public:
 	   ImuFilterNode(
@@ -27,9 +28,6 @@ public:
       );
       virtual
       ~ImuFilterNode();
-
-public:
-      ImuFilterNodeConfiguration configuration;
 
 private:
       ModuleConfiguration::L3GD20H_GYRO_DATATYPE _gyroData;

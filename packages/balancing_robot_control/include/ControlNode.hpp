@@ -14,7 +14,9 @@
 namespace core
 {
 namespace balancing_robot_control {
-class ControlNode: public core::mw::CoreNode {
+class ControlNode: public core::mw::CoreNode,
+				   public core::mw::CoreConfigurable<core::balancing_robot_control::ControlNodeConfiguration>::CoreConfigurable
+{
 public:
 	ControlNode(const char* name, core::os::Thread::Priority priority =
 			core::os::Thread::PriorityEnum::NORMAL);

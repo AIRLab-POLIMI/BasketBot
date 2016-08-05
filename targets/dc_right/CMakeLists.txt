@@ -20,5 +20,4 @@ core_target_module(
   PACKAGES
     current_control
     pid_ie
-    extra_msgs
 )

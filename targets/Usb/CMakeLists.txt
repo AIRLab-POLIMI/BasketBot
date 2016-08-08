@@ -25,4 +25,5 @@ core_target_module(
   PACKAGES
     actuator_msgs
     sensor_msgs
+    quaternions
 )

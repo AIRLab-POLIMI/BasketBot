@@ -1,0 +1,6 @@
+{
+  "name": "quaternions",
+  "description": "Package that contains quaternion related functions", 
+  "provider": "core", 
+  "sources": ["Utils.cpp"]
+} 

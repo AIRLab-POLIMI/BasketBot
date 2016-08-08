@@ -39,11 +39,6 @@ extern "C" {
 		// Add nodes to the node manager (== board)...
 		module.add(led_subscriber);
 
-//		core::os::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_pub_thread, nullptr);
-//		core::os::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_sub_thread, nullptr);
-//      core::os::Thread::create_heap(NULL, THD_WORKING_AREA_SIZE(4096), NORMALPRIO, rosserial_test_thread, nullptr);
-
-
 		module.add(rosserial_publisher);
 
 		// ... and let's play!

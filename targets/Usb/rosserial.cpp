@@ -1,14 +1,8 @@
-/*#define USE_USB_SERIAL 1
-
-#include "ch.h"
-#include "hal.h"
-#include "usbcfg.h"*/
-
 #include "rosserial.hpp"
 
-ros::NodeHandle nh;
+#include <core/quaternions/Utils.hpp>
 
-core::sensor_msgs::Imu imu_msg;
+ros::NodeHandle nh;
 
 const char* topicName = "imu";
 
@@ -16,34 +10,55 @@ namespace rosserial {
 
 RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
-		CoreNode::CoreNode(name, priority), imu_pub("imu", &ros_imu_msg) {
+		CoreNode::CoreNode(name, priority), imu_pub("imu", &ros_msg) {
 	_workingAreaSize = 512;
 
 }
 
 bool RosSerialPublisher::onPrepareMW() {
 	subscribe(_subscriber, topicName);
+	_subscriber.set_callback(imuCallback);
 
 	return true;
 }
 
+bool RosSerialPublisher::imuCallback(
+	   const core::sensor_msgs::Imu& msg,
+	   core::mw::Node*               node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->core_msg = msg;
+
+   return true;
+}
+
 bool RosSerialPublisher::onLoop() {
-	if (spin(core::os::Time::ms(500))) {
-		ros_imu_msg.orientation.x = imu_msg.orientation[0];
-		ros_imu_msg.orientation.y = imu_msg.orientation[1];
-		ros_imu_msg.orientation.z = imu_msg.orientation[2];
-		ros_imu_msg.orientation.w = imu_msg.orientation[3];
 
-		//TODO linear
+	if(this->spin(core::os::Time::ms(1)))
+	{
+		core::sensor_msgs::Imu* imu_msg;
+		_subscriber.fetch(imu_msg);
 
-		//TODO angular
+		float q[4];
+		q[0]=core_msg.orientation[0];
+		q[1]=core_msg.orientation[1];
+		q[2]=core_msg.orientation[2];
+		q[3]=core_msg.orientation[3];
 
-		imu_pub.publish(&ros_imu_msg);
+		/*ros_msg.z = atan2((q[2]*q[3]+q[0]*q[1]),(0.5-(q[1]*q[1]+q[2]*q[2]))) * 180.0 / 3.14;
+		ros_msg.y = asin(2.0*(q[0]*q[2] - q[3]*q[1])) * 180.0 / 3.14;
+		ros_msg.x = atan2(2.0*(q[1]*q[2]+q[0]*q[3]),(0.5*(q[2]*q[2]+q[3]*q[3]))) * 180.0 / 3.14;*/
 
+		ros_msg.x = quaternions::Utils::getRoll(q) * 180 / 3.14;
+		ros_msg.y = quaternions::Utils::getPitch(q) * 180 / 3.14;
+		ros_msg.z = quaternions::Utils::getYaw(q) * 180 / 3.14;
+
+		imu_pub.publish(&ros_msg);
 	}
 
 	nh.spinOnce();
-	core::os::Thread::sleep(core::os::Time::ms(10));
+
 
 	return true;
 }
@@ -53,6 +68,9 @@ bool RosSerialPublisher::onStart() {
 	nh.advertise(imu_pub);
 
 	nh.spinOnce();
+	core::os::Thread::sleep(core::os::Time::ms(100));
+
+	_stamp = core::os::Time::now();
 
 	return true;
 }

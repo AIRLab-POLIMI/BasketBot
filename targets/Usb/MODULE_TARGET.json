@@ -2,7 +2,7 @@
   "name": "Usb",
   "description": "Usb",
   "module": "usb",
-  "required_packages": ["actuator_msgs", "sensor_msgs"],
+  "required_packages": ["actuator_msgs", "sensor_msgs", "quaternions"],
   "sources": [
     "main.cpp",
     "rosserial.cpp",

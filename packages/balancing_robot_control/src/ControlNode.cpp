@@ -1,6 +1,8 @@
 #include <core/balancing_robot_control/ControlNode.hpp>
 #include <math.h>
 
+#include <core/quaternions/Utils.hpp>
+
 namespace core
 {
 namespace balancing_robot_control {
@@ -83,7 +85,7 @@ bool ControlNode::onLoop() {
 	q[1]=imu->orientation[1];
 	q[2]=imu->orientation[2];
 	q[3]=imu->orientation[3];
-	float theta = computePitch(q);
+	float theta = quaternions::Utils::getPitch(q);
 
 	//Linear velocity controller
 	float tauM = computeMeanTorque(theta, omega, omegaR);
@@ -140,11 +142,6 @@ float ControlNode::computeMeanTorque(float theta, float omega, float omegaR) {
 float ControlNode::computeDifferentialTorque(float dPsi) {
 	//TODO implement
 	return 0;
-}
-
-float ControlNode::computePitch(const float q[4]) {
-	return asin(2.0*(q[0]*q[2] - q[3]*q[1]));
-
 }
 
 }

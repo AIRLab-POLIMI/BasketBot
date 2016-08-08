@@ -37,7 +37,6 @@ private:
 private:
 	float computeMeanTorque(float theta, float omega, float omegaR);
 	float computeDifferentialTorque(float dPsi);
-	float computePitch(const float orientation[4]);
 
 private:
 	core::mw::Publisher<actuator_msgs::Setpoint_f32> _mLeftPub;

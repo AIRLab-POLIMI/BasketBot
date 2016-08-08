@@ -22,4 +22,5 @@ core_target_module(
     balancing_robot_control
     actuator_msgs
     pid_ie
+    quaternions
 )

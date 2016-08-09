@@ -97,33 +97,3 @@ void RosSerialPublisher::setpointCallbackPrivate(const std_msgs::Float32& setpoi
 }
 
 }
-
-
- /*core::mw::Publisher<core::actuator_msgs::Setpoint_f32> setpoint_pub;
-
- void setpoint_cb( const std_msgs::Float32& cmd_vel_msg){
- core::actuator_msgs::Setpoint_f32* msgp;
-
- if (setpoint_pub.alloc(msgp)) {
- msgp->value = cmd_vel_msg.data;
- setpoint_pub.publish(*msgp);
- }
- }
-
- void rosserial_sub_thread(void * arg) {
- core::mw::Node node("rosserial_sub", false);
- ros::Subscriber<std_msgs::Float32> setpoint_sub("cmd_vel", &setpoint_cb );
-
- (void) arg;
- chRegSetThreadName("rosserial_sub");
-
- node.advertise(setpoint_pub, "cmd_vel");
-
- nh.initNode();
- nh.subscribe(setpoint_sub);
-
- for (;;) {
- nh.spinOnce();
- chThdSleepMilliseconds(5);
- }
- }*/

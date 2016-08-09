@@ -2,5 +2,5 @@
   "name": "current_control",
   "description": "Package for current control: motor control with PID, current sensor calibration, broadcasting node", 
   "provider": "core",
-  "sources": ["CurrentPID.cpp", "Calibration.cpp", "CurrentSensor.cpp"]
+  "sources": ["CurrentPID.cpp", "Calibration.cpp", "CurrentSensor.cpp", "Broadcaster.cpp"]
 } 

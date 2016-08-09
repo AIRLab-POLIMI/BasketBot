@@ -1,0 +1,19 @@
+{
+  "name": "BroadcasterConfiguration", 
+  "description": "Broadcaster node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "topic", 
+      "description": "Measured current topic", 
+      "type": "CHAR", 
+      "size": 16
+    },
+    {
+      "name": "frequency", 
+      "description": "Frequency of current pubblication", 
+      "type": "FLOAT32", 
+      "size": 1 
+    }
+  ]
+} 

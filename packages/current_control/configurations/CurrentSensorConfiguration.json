@@ -1,6 +1,6 @@
 {
   "name": "CurrentSensorConfiguration", 
-  "description": "Broadcaster node configuration", 
+  "description": "Current sensor node configuration", 
   "namespace": "@", 
   "fields": [ 
     {

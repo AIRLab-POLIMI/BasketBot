@@ -1,5 +1,7 @@
 #include <core/current_control/CurrentPID.hpp>
 
+#include <cmath>
+
 using namespace std::placeholders;
 
 
@@ -36,7 +38,7 @@ CurrentPID::~CurrentPID()
 void CurrentPID::controlCallback(float currentPeak)
 {
 	//Add new current peak, only if in a meaningful region
-	if(_currentPID.getLastOutput() > 0.01)
+	if(std::abs(_currentPID.getLastOutput()) > 0.1)
 		_current += currentPeak;
 
 	//Count cycle
@@ -138,7 +140,6 @@ CurrentPID::onLoop()
 	{
 		chSysLock();
 		_currentPID.reset();
-		//_currentPID.set(0.5);
 		chSysUnlock();
 	}
 

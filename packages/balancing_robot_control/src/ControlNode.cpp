@@ -70,10 +70,9 @@ bool ControlNode::onLoop() {
 		core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
-	//Compute wheels speeds
-	float frequency = 50; //TODO change QEI driver
-	float speedLeft = deltaLeft->value * frequency;
-	float speedRight = deltaRight->value * frequency;
+	//Compute wheels speeds //TODO change qei driver
+	float speedLeft = deltaLeft->value * configuration().frequency;
+	float speedRight = deltaRight->value * configuration().frequency;
 
 	float omegaR = 0.5 * (speedLeft + speedRight);
 	float dPsi = (speedRight - speedLeft) * configuration().R / configuration().L;

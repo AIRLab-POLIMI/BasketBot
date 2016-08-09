@@ -8,9 +8,13 @@
 
 #include <ModuleConfiguration.hpp>
 
+//Core msgs
 #include <core/sensor_msgs/Imu.hpp>
-#include <sensor_msgs/Imu.h>
+#include <core/actuator_msgs/Setpoint_f32.hpp>
 
+//ROS msgs
+#include <sensor_msgs/Imu.h>
+#include <std_msgs/Float32.h>
 #include <geometry_msgs/Vector3.h>
 
 #define USE_USB_SERIAL 1
@@ -32,6 +36,13 @@ public:
 	   const core::sensor_msgs::Imu& msg,
 	   core::mw::Node*               node);
 
+
+	static void
+	setpointCallback(const std_msgs::Float32& setpoint_msg);
+
+private:
+	void setpointCallbackPrivate(const std_msgs::Float32& setpoint_msg);
+
 private:
       bool
       onPrepareMW();
@@ -43,19 +54,21 @@ private:
       onLoop();
 
 private:
-    //Nova Core Subscribers
+
+      static std::function<void(const std_msgs::Float32&)> rosCallback;
+
+private:
+    //Nova Core
 	core::mw::Subscriber<core::sensor_msgs::Imu, 5> _subscriber;
+	core::mw::Publisher<core::actuator_msgs::Setpoint_f32> _publisher;
 
-	//Nova core msg
-	core::sensor_msgs::Imu core_msg;
+	core::sensor_msgs::Imu core_imu_msg;
 
-	//ROS messages
-	geometry_msgs::Vector3 ros_msg;
+	//ROS
+	geometry_msgs::Vector3 ros_imu_msg;
 
-	//ROS publuishers
 	ros::Publisher imu_pub;
-
-	core::os::Time _stamp;
+	ros::Subscriber<std_msgs::Float32> setpoint_sub;
 
 };
 

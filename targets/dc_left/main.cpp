@@ -42,6 +42,16 @@ CurrentSensor currentSensor; //TODO move in module
 CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
 #endif
 
+// --- CONFIGURATIONS ---------------------------------------------------------
+core::QEI_driver::QEI_DeltaConfiguration qei_conf;
+core::led::SubscriberConfiguration led_conf;
+core::A4957_driver::A4957_SignMagnitudeConfiguration pwm_conf;
+
+#ifndef CALIBRATION
+core::sensor_publisher::Configuration encoder_conf;
+core::current_control::CurrentPIDConfiguration currentPid_conf;
+#endif
+
 // --- MAIN -------------------------------------------------------------------
 extern "C" {
    int
@@ -52,19 +62,21 @@ extern "C" {
       currentSensor.init(); //TODO move in module
 
       // Module configuration
-      core::QEI_driver::QEI_DeltaConfiguration qei_conf;
       qei_conf.period = 50;
       qei_conf.ticks = 1000;
       module.qei.setConfiguration(qei_conf);
 
+      pwm_conf.kappa = 1.0;
+      pwm_conf.frequency = 72000000;
+      pwm_conf.period = 4096/2;
+      module.hbridge_pwm.setConfiguration(pwm_conf);
+
       // Nodes configuration
-      core::led::SubscriberConfiguration led_conf;
       led_conf.topic = "led";
       led_subscriber.setConfiguration(led_conf);
 
 #ifndef CALIBRATION
       //encoder configuration
-      core::sensor_publisher::Configuration encoder_conf;
       encoder_conf.topic = "encoder_left";
       encoder.setConfiguration(encoder_conf);
 
@@ -73,8 +85,6 @@ extern "C" {
       currentSensor.configuration.b = -15.207809133385506f;
 
       //current Pid configuration
-      core::current_control::CurrentPIDConfiguration currentPid_conf;
-
       currentPid_conf.maxV = 24;
       currentPid_conf.R = 0.299f;
       currentPid_conf.L = 8.2e-5f;

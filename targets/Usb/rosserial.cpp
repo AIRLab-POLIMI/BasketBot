@@ -47,8 +47,6 @@ bool RosSerialPublisher::onLoop() {
 
 	if(this->spin(core::os::Time::ms(1)))
 	{
-		core::sensor_msgs::Imu* imu_msg;
-		_subscriber.fetch(imu_msg);
 
 		float q[4];
 		q[0]=core_imu_msg.orientation[0];

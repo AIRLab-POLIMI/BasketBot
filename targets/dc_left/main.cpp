@@ -105,7 +105,7 @@ extern "C" {
 
       //broadcaster configuration
       broadcaster_conf.topic = "current_left";
-      broadcaster_conf.frequency = 100;
+      broadcaster_conf.frequency = 100.0;
 
       broadcaster.setConfiguration(broadcaster_conf);
 

@@ -31,7 +31,7 @@ namespace imu_filters {
    {
 	   auto& c = configuration();
 	   filter.config(1.0f/c.frequency);
-	   _deltaT = core::os::Time::ms(1000.0f/c.frequency);
+	   _deltaT = core::os::Time::hz(c.frequency);
 	   _stamp = core::os::Time::now();
 
 	   return true;

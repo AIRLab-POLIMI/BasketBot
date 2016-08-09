@@ -4,7 +4,8 @@
 
 ros::NodeHandle nh;
 
-const char* topicName = "imu";
+const char* imuTopic = "imu";
+const char* currentTopic = "current_left";
 
 const char* setpointName = "torque_left";
 
@@ -16,16 +17,23 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
 		CoreNode::CoreNode(name, priority),
 		imu_pub("imu", &ros_imu_msg),
+		current_pub(currentTopic, &ros_current_msg),
 		setpoint_sub("cmd_vel", RosSerialPublisher::setpointCallback)
 {
 	_workingAreaSize = 512;
+
+	imuNew = false;
+	currentNew = false;
 }
 
 bool RosSerialPublisher::onPrepareMW() {
 	rosCallback	= std::bind(&RosSerialPublisher::setpointCallbackPrivate, this, std::placeholders::_1);
 
-	subscribe(_subscriber, topicName);
-	_subscriber.set_callback(imuCallback);
+	subscribe(_subscriberImu, imuTopic);
+	_subscriberImu.set_callback(imuCallback);
+
+	subscribe(_subscriberCurrent, currentTopic);
+	_subscriberCurrent.set_callback(currentCallback);
 
 	advertise(_publisher, setpointName);
 
@@ -38,7 +46,30 @@ bool RosSerialPublisher::imuCallback(
 {
 	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
 
-	tmp->core_imu_msg = msg;
+	float q[4];
+	q[0]=msg.orientation[0];
+	q[1]=msg.orientation[1];
+	q[2]=msg.orientation[2];
+	q[3]=msg.orientation[3];
+
+	tmp->ros_imu_msg.x = quaternions::Utils::getRoll(q) * 180 / 3.14;
+	tmp->ros_imu_msg.y = quaternions::Utils::getPitch(q) * 180 / 3.14;
+	tmp->ros_imu_msg.z = quaternions::Utils::getYaw(q) * 180 / 3.14;
+
+	tmp->imuNew = true;
+
+   return true;
+}
+
+bool RosSerialPublisher::currentCallback(
+	   const core::actuator_msgs::Setpoint_f32& msg,
+	   core::mw::Node* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_current_msg.data = msg.value;
+
+	tmp->currentNew = true;
 
    return true;
 }
@@ -47,18 +78,17 @@ bool RosSerialPublisher::onLoop() {
 
 	if(this->spin(core::os::Time::ms(1)))
 	{
+		if(imuNew)
+		{
+			imu_pub.publish(&ros_imu_msg);
+			imuNew = false;
+		}
 
-		float q[4];
-		q[0]=core_imu_msg.orientation[0];
-		q[1]=core_imu_msg.orientation[1];
-		q[2]=core_imu_msg.orientation[2];
-		q[3]=core_imu_msg.orientation[3];
-
-		ros_imu_msg.x = quaternions::Utils::getRoll(q) * 180 / 3.14;
-		ros_imu_msg.y = quaternions::Utils::getPitch(q) * 180 / 3.14;
-		ros_imu_msg.z = quaternions::Utils::getYaw(q) * 180 / 3.14;
-
-		imu_pub.publish(&ros_imu_msg);
+		if(currentNew)
+		{
+			current_pub.publish(&ros_current_msg);
+			currentNew = false;
+		}
 	}
 
 	nh.spinOnce();
@@ -70,6 +100,7 @@ bool RosSerialPublisher::onLoop() {
 bool RosSerialPublisher::onStart() {
 	nh.initNode();
 	nh.advertise(imu_pub);
+	nh.advertise(current_pub);
 	nh.subscribe(setpoint_sub);
 
 	nh.spinOnce();

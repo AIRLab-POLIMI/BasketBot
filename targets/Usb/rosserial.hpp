@@ -23,7 +23,6 @@
 #include <usbcfg.h>
 #include <ros.h>
 
-
 namespace rosserial {
 class RosSerialPublisher: public core::mw::CoreNode {
 public:
@@ -39,6 +38,10 @@ public:
 
 	static void
 	setpointCallback(const std_msgs::Float32& setpoint_msg);
+
+	static bool
+	currentCallback(const core::actuator_msgs::Setpoint_f32& msg,
+				   core::mw::Node* node);
 
 private:
 	void setpointCallbackPrivate(const std_msgs::Float32& setpoint_msg);
@@ -59,15 +62,19 @@ private:
 
 private:
     //Nova Core
-	core::mw::Subscriber<core::sensor_msgs::Imu, 5> _subscriber;
+	core::mw::Subscriber<core::sensor_msgs::Imu, 5> _subscriberImu;
+	core::mw::Subscriber<core::actuator_msgs::Setpoint_f32, 5> _subscriberCurrent;
 	core::mw::Publisher<core::actuator_msgs::Setpoint_f32> _publisher;
 
-	core::sensor_msgs::Imu core_imu_msg;
+	bool currentNew;
+	bool imuNew;
 
 	//ROS
 	geometry_msgs::Vector3 ros_imu_msg;
+	std_msgs::Float32 ros_current_msg;
 
 	ros::Publisher imu_pub;
+	ros::Publisher current_pub;
 	ros::Subscriber<std_msgs::Float32> setpoint_sub;
 
 };

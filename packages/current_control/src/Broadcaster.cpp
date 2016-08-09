@@ -11,6 +11,7 @@ Broadcaster::Broadcaster(const char* name, CurrentSensor& currentSensor,
 			  _currentSensor(currentSensor)
 {
 	_current = 0;
+	_workingAreaSize = 512;
 }
 
 Broadcaster::~Broadcaster() {
@@ -19,7 +20,7 @@ Broadcaster::~Broadcaster() {
 
 bool Broadcaster::onConfigure() {
 
-	_deltaT = core::os::Time::s(1.0/configuration().frequency);
+	_deltaT = core::os::Time::hz(configuration().frequency);
 
 	return true;
 

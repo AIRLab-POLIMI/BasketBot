@@ -22,7 +22,7 @@ ControlNode::~ControlNode() {
 
 bool ControlNode::onConfigure() {
 	//TODO use correct saturation limits
-	_Ts = core::os::Time::ms(1000.0f/configuration().frequency);
+	_Ts = core::os::Time::hz(configuration().frequency);
 	_stamp = core::os::Time::now();
 
 	_linearVelocityPID.config(configuration().K_linear, configuration().Ti_linear,

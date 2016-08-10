@@ -42,7 +42,7 @@ Calibration calibration("calibration", module.hbridge_pwm, core::os::Thread::Pri
 QEI_Publisher encoder("encoder", module.qei, core::os::Thread::PriorityEnum::NORMAL);
 CurrentSensor currentSensor; //TODO move in module
 CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
-Broadcaster broadcaster("broadcaster", currentSensor, core::os::Thread::PriorityEnum::NORMAL);
+//Broadcaster broadcaster("broadcaster", currentSensor, core::os::Thread::PriorityEnum::NORMAL);
 #endif
 
 // --- CONFIGURATIONS ---------------------------------------------------------
@@ -54,7 +54,7 @@ core::A4957_driver::A4957_SignMagnitudeConfiguration pwm_conf;
 core::sensor_publisher::Configuration encoder_conf;
 core::current_control::CurrentPIDConfiguration currentPid_conf;
 
-core::current_control::BroadcasterConfiguration broadcaster_conf;
+//core::current_control::BroadcasterConfiguration broadcaster_conf;
 #endif
 
 // --- MAIN -------------------------------------------------------------------
@@ -104,10 +104,10 @@ extern "C" {
 
 
       //broadcaster configuration
-      broadcaster_conf.topic = "current_left";
+      /*broadcaster_conf.topic = "current_left";
       broadcaster_conf.frequency = 100.0;
 
-      broadcaster.setConfiguration(broadcaster_conf);
+      broadcaster.setConfiguration(broadcaster_conf);*/
 
 #endif
 
@@ -120,7 +120,7 @@ extern "C" {
       module.add(encoder);
       module.add(currentPid);
 
-      module.add(broadcaster);
+      //module.add(broadcaster);
 #endif
 
       // ... and let's play!

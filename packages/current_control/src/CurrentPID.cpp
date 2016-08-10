@@ -91,10 +91,9 @@ bool
 CurrentPID::onPrepareHW()
 {
     // Start the ADC driver and conversion
-	_currentSensor.start();
-
 	std::function<void(float)> adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
 	_currentSensor.setCallback(adcCallback);
+	_currentSensor.start();
 
 	//Start pwm
 	_pwm.start();

@@ -19,7 +19,6 @@
 #include <core/A4957_driver/A4957.hpp>
 #include <core/current_control/CurrentPID.hpp>
 #include <core/current_control/Calibration.hpp>
-#include <core/current_control/Broadcaster.hpp>
 
 // *** DO NOT MOVE ***
 Module module;
@@ -29,7 +28,6 @@ using QEI_Publisher = core::sensor_publisher::Publisher<ModuleConfiguration::QEI
 using CurrentSensor = core::current_control::CurrentSensor;
 using CurrentPID = core::current_control::CurrentPID;
 using Calibration = core::current_control::Calibration;
-using Broadcaster = core::current_control::Broadcaster;
 
 // --- NODES ------------------------------------------------------------------
 
@@ -42,7 +40,6 @@ Calibration calibration("calibration", module.hbridge_pwm, core::os::Thread::Pri
 QEI_Publisher encoder("encoder", module.qei, core::os::Thread::PriorityEnum::NORMAL);
 CurrentSensor currentSensor; //TODO move in module
 CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
-//Broadcaster broadcaster("broadcaster", currentSensor, core::os::Thread::PriorityEnum::NORMAL);
 #endif
 
 // --- CONFIGURATIONS ---------------------------------------------------------
@@ -53,8 +50,6 @@ core::A4957_driver::A4957_SignMagnitudeConfiguration pwm_conf;
 #ifndef CALIBRATION
 core::sensor_publisher::Configuration encoder_conf;
 core::current_control::CurrentPIDConfiguration currentPid_conf;
-
-//core::current_control::BroadcasterConfiguration broadcaster_conf;
 #endif
 
 // --- MAIN -------------------------------------------------------------------
@@ -67,8 +62,11 @@ extern "C" {
       currentSensor.init(); //TODO move in module
 
       // Module configuration
-      qei_conf.period = 50;
-      qei_conf.ticks = 1000;
+      const float encoderTicks = 500;
+      const float transmissionRatio = 26.0*10.0/3.0;
+
+      qei_conf.period = 100;
+      qei_conf.ticks = encoderTicks/transmissionRatio;
       module.qei.setConfiguration(qei_conf);
 
       pwm_conf.kappa = 1.0;
@@ -87,7 +85,7 @@ extern "C" {
 
       //current sensor configuration
       currentSensor.configuration.a = 0.007432946790511f;
-      currentSensor.configuration.b = -15.207809133385506f;
+      currentSensor.configuration.b = -15.107809133385506f;
 
       //current Pid configuration
       currentPid_conf.maxV = 24;
@@ -101,14 +99,6 @@ extern "C" {
       currentPid_conf.topic = "torque_left";
 
       currentPid.setConfiguration(currentPid_conf);
-
-
-      //broadcaster configuration
-      /*broadcaster_conf.topic = "current_left";
-      broadcaster_conf.frequency = 100.0;
-
-      broadcaster.setConfiguration(broadcaster_conf);*/
-
 #endif
 
       // Add nodes to the node manager (== board)...
@@ -119,8 +109,6 @@ extern "C" {
 #else
       module.add(encoder);
       module.add(currentPid);
-
-      //module.add(broadcaster);
 #endif
 
       // ... and let's play!

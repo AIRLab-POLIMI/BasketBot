@@ -62,8 +62,11 @@ extern "C" {
       currentSensor.init(); //TODO move in module
 
       // Module configuration
-      qei_conf.period = 50;
-      qei_conf.ticks = 1000;
+      const float encoderTicks = 500;
+      const float transmissionRatio = 26.0*10.0/3.0;
+
+      qei_conf.period = 100;
+      qei_conf.ticks = encoderTicks/transmissionRatio;
       module.qei.setConfiguration(qei_conf);
 
       pwm_conf.kappa = 1.0;

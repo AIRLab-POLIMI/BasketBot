@@ -10,6 +10,12 @@
       "size": 16 
     },
     {
+      "name": "invert", 
+      "description": "Invert torque convention, i.e. make positive torque clockwise", 
+      "type": "UINT8", 
+      "size": 1 
+    },
+    {
       "name": "R", 
       "description": "Motor resistance", 
       "type": "FLOAT32", 

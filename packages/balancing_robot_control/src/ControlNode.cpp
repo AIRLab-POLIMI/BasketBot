@@ -26,10 +26,14 @@ bool ControlNode::onConfigure() {
 	_stamp = core::os::Time::now();
 
 	_linearVelocityPID.config(configuration().K_linear, configuration().Ti_linear,
-			configuration().Td_linear, 1.0/configuration().frequency, 100.0, -100.0, 100.0);
+			configuration().Td_linear, _Ts.to_s(), 100.0, -20.0, 20.0);
 
 	_angularVelocityPID.config(configuration().K_angular, 0.0,
-			0.0, 1.0/configuration().frequency, 0.0, -100.0, 100.0);
+			0.0, 1.0/configuration().frequency, 100.0, -5.0, 5.0);
+
+
+	_linearVelocityPID.set(0);
+	_angularVelocityPID.set(0);
 	return true;
 }
 
@@ -59,15 +63,15 @@ bool ControlNode::onLoop() {
 
 	// Wait for sensors readings
 	while (!_mLeftSub.fetch(deltaLeft)) {
-		core::os::Thread::sleep(core::os::Time::ms(1));
+		//core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
 	while (!_mRightSub.fetch(deltaRight)) {
-		core::os::Thread::sleep(core::os::Time::ms(1));
+		//core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
 	while (!_imuSub.fetch(imu)) {
-		core::os::Thread::sleep(core::os::Time::ms(1));
+		//core::os::Thread::sleep(core::os::Time::ms(1));
 	}
 
 	//Compute wheels speeds //TODO change qei driver
@@ -107,7 +111,7 @@ bool ControlNode::onLoop() {
 
 	if (_mRightPub.alloc(torqueRight)) {
 		torqueRight->value = tauR;
-		_mLeftPub.publish(torqueRight);
+		_mRightPub.publish(torqueRight);
 	}
 
 	//Release messages

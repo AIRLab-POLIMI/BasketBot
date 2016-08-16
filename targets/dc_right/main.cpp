@@ -65,8 +65,9 @@ extern "C" {
       const float encoderTicks = 500;
       const float transmissionRatio = 26.0*10.0/3.0;
 
-      qei_conf.period = 100;
-      qei_conf.ticks = encoderTicks/transmissionRatio;
+      qei_conf.period = 10;
+      qei_conf.ticks = encoderTicks*transmissionRatio;
+      qei_conf.invert = 1;
       module.qei.setConfiguration(qei_conf);
 
       pwm_conf.kappa = 1.0;
@@ -95,6 +96,7 @@ extern "C" {
       currentPid_conf.Kt = 30.2e-3;
 
       currentPid_conf.controlCycles = 1;
+      currentPid_conf.invert = 1;
       currentPid_conf.omegaC = 6000.0f;
       currentPid_conf.topic = "torque_right";
 

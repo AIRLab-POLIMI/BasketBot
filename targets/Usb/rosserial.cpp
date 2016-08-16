@@ -6,8 +6,9 @@ ros::NodeHandle nh;
 
 const char* imuTopic = "imu";
 const char* currentTopic = "current_left";
-
 const char* setpointName = "torque_left";
+const char* leftName = "encoder_left";
+const char* rightName = "encoder_right";
 
 namespace rosserial {
 
@@ -18,12 +19,16 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		CoreNode::CoreNode(name, priority),
 		imu_pub("imu", &ros_imu_msg),
 		current_pub(currentTopic, &ros_current_msg),
+		encoder_left_pub(leftName, &ros_left_msg),
+		encoder_right_pub(rightName, &ros_right_msg),
 		setpoint_sub("cmd_vel", RosSerialPublisher::setpointCallback)
 {
 	_workingAreaSize = 512;
 
 	imuNew = false;
 	currentNew = false;
+	encoderLeft = false;
+	encoderRight = false;
 }
 
 bool RosSerialPublisher::onPrepareMW() {
@@ -34,6 +39,13 @@ bool RosSerialPublisher::onPrepareMW() {
 
 	subscribe(_subscriberCurrent, currentTopic);
 	_subscriberCurrent.set_callback(currentCallback);
+
+	subscribe(_subscriberLeft, leftName);
+	_subscriberLeft.set_callback(encoderLeftCallback);
+
+	subscribe(_subscriberRight, rightName);
+	_subscriberRight.set_callback(encoderRightCallback);
+
 
 	advertise(_publisher, setpointName);
 
@@ -74,6 +86,30 @@ bool RosSerialPublisher::currentCallback(
    return true;
 }
 
+bool RosSerialPublisher::encoderLeftCallback(const core::sensor_msgs::Delta_f32& msg,
+			   core::mw::Node* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+
+	tmp->ros_left_msg.data = msg.value;
+	tmp->encoderLeft = true;
+
+	return true;
+}
+
+bool RosSerialPublisher::encoderRightCallback(const core::sensor_msgs::Delta_f32& msg,
+				   core::mw::Node* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+
+	tmp->ros_right_msg.data = msg.value;
+	tmp->encoderRight = true;
+
+	return true;
+}
+
 bool RosSerialPublisher::onLoop() {
 
 	if(this->spin(core::os::Time::ms(1)))
@@ -88,6 +124,18 @@ bool RosSerialPublisher::onLoop() {
 		{
 			current_pub.publish(&ros_current_msg);
 			currentNew = false;
+		}
+
+		if(encoderLeft)
+		{
+			encoder_left_pub.publish(&ros_left_msg);
+			encoderLeft = false;
+		}
+
+		if(encoderRight)
+		{
+			encoder_right_pub.publish(&ros_right_msg);
+			encoderRight = false;
 		}
 	}
 

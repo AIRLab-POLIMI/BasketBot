@@ -22,6 +22,7 @@ CurrentPID::CurrentPID(const char* name,
 	  core::mw::CoreConfigurable<core::current_control::CurrentPIDConfiguration>(name),
 	  _currentSensor(currentSensor), _pwm(pwm)
    {
+      _sign = 0;
 	  _Kpwm = 0.0f;
 	  _Ktorque = 0.0f;
 	  _current = 0.0f;
@@ -68,6 +69,7 @@ bool
 CurrentPID::onConfigure()
 {
     //Set PWM gain
+	_sign = (uint8_t)configuration().invert ? -1 : 1;
 	_Kpwm = 1.0 / configuration().maxV;
 	_Ktorque = configuration().T/configuration().Kt;
 	_controlCycles = configuration().controlCycles;
@@ -123,7 +125,8 @@ CurrentPID::callback(
 
    chSysLock();
 
-   float currentSetpoint = _this->_Ktorque*msg.value;
+   float currentSetpoint = _this->_sign*_this->_Ktorque*msg.value;
+
    _this->_currentPID.set(currentSetpoint);
    chSysUnlock();
 

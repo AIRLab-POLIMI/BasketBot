@@ -155,7 +155,7 @@ extern "C" {
 
 		control_node.setConfiguration(control_node_conf);
 
-		//module.add(control_node); TODO readd this node
+		module.add(control_node);
 
 		// Setup and run
 		module.setup();

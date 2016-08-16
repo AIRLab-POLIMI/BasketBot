@@ -36,6 +36,7 @@ private:
 
       pid_ie::PID_IE _currentPID;
 
+      int _sign;
       float _Kpwm;
       float _Ktorque;
       float _current;

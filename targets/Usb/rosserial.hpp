@@ -10,6 +10,7 @@
 
 //Core msgs
 #include <core/sensor_msgs/Imu.hpp>
+#include <core/sensor_msgs/Delta_f32.hpp>
 #include <core/actuator_msgs/Setpoint_f32.hpp>
 
 //ROS msgs
@@ -43,6 +44,14 @@ public:
 	currentCallback(const core::actuator_msgs::Setpoint_f32& msg,
 				   core::mw::Node* node);
 
+	static bool
+	encoderLeftCallback(const core::sensor_msgs::Delta_f32& msg,
+				   core::mw::Node* node);
+
+	static bool
+	encoderRightCallback(const core::sensor_msgs::Delta_f32& msg,
+					   core::mw::Node* node);
+
 private:
 	void setpointCallbackPrivate(const std_msgs::Float32& setpoint_msg);
 
@@ -64,17 +73,25 @@ private:
     //Nova Core
 	core::mw::Subscriber<core::sensor_msgs::Imu, 5> _subscriberImu;
 	core::mw::Subscriber<core::actuator_msgs::Setpoint_f32, 5> _subscriberCurrent;
+	core::mw::Subscriber<core::sensor_msgs::Delta_f32, 5> _subscriberLeft;
+	core::mw::Subscriber<core::sensor_msgs::Delta_f32, 5> _subscriberRight;
 	core::mw::Publisher<core::actuator_msgs::Setpoint_f32> _publisher;
 
 	bool currentNew;
 	bool imuNew;
+	bool encoderLeft;
+	bool encoderRight;
 
 	//ROS
 	geometry_msgs::Vector3 ros_imu_msg;
 	std_msgs::Float32 ros_current_msg;
+	std_msgs::Float32 ros_left_msg;
+	std_msgs::Float32 ros_right_msg;
 
 	ros::Publisher imu_pub;
 	ros::Publisher current_pub;
+	ros::Publisher encoder_left_pub;
+	ros::Publisher encoder_right_pub;
 	ros::Subscriber<std_msgs::Float32> setpoint_sub;
 
 };

@@ -10,6 +10,8 @@ const char* setpointName = "torque_left";
 const char* leftName = "encoder_left";
 const char* rightName = "encoder_right";
 
+const float encoderFrequency = 100;
+
 namespace rosserial {
 
 std::function<void(const std_msgs::Float32&)> RosSerialPublisher::rosCallback;
@@ -92,7 +94,7 @@ bool RosSerialPublisher::encoderLeftCallback(const core::sensor_msgs::Delta_f32&
 	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
 
 
-	tmp->ros_left_msg.data = msg.value;
+	tmp->ros_left_msg.data = msg.value*encoderFrequency;
 	tmp->encoderLeft = true;
 
 	return true;
@@ -104,7 +106,7 @@ bool RosSerialPublisher::encoderRightCallback(const core::sensor_msgs::Delta_f32
 	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
 
 
-	tmp->ros_right_msg.data = msg.value;
+	tmp->ros_right_msg.data = msg.value*encoderFrequency;
 	tmp->encoderRight = true;
 
 	return true;
@@ -150,6 +152,8 @@ bool RosSerialPublisher::onStart() {
 	nh.advertise(imu_pub);
 	nh.advertise(current_pub);
 	nh.subscribe(setpoint_sub);
+	nh.advertise(encoder_left_pub);
+	nh.advertise(encoder_right_pub);
 
 	nh.spinOnce();
 	core::os::Thread::sleep(core::os::Time::ms(100));

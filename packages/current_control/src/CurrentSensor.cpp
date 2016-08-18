@@ -109,7 +109,9 @@ bool CurrentSensor::waitUntilReady()
 bool CurrentSensor::update()
 {
 	//TODO implement correctly
+	chSysLock();
 	_data = currentPeakHigh;
+	chSysUnlock();
 	return true;
 }
 

@@ -11,7 +11,7 @@ ControlNode::ControlNode(const char* name, core::os::Thread::Priority priority) 
 		CoreNode::CoreNode(name, priority),
 		CoreConfigurable<core::balancing_robot_control::ControlNodeConfiguration>::CoreConfigurable(name)
 {
-	_workingAreaSize = 512;
+	_workingAreaSize = 768;
 
 	_Ts = 0;
 }
@@ -90,6 +90,11 @@ bool ControlNode::onLoop() {
 	q[3]=imu->orientation[3];
 	float theta = quaternions::Utils::getPitch(q);
 
+	//Release messages
+	_mLeftSub.release(*deltaLeft);
+	_mRightSub.release(*deltaRight);
+	_imuSub.release(*imu);
+
 	//Linear velocity controller
 	float tauM = computeMeanTorque(theta, omega, omegaR);
 
@@ -114,11 +119,6 @@ bool ControlNode::onLoop() {
 		_mRightPub.publish(torqueRight);
 	}
 
-	//Release messages
-	_mLeftSub.release(*deltaLeft);
-	_mRightSub.release(*deltaRight);
-	_imuSub.release(*imu);
-
 	_stamp = core::os::Time::now();
 
 	return true;
@@ -132,14 +132,14 @@ float ControlNode::computeMeanTorque(float theta, float omega, float omegaR) {
 	const float& K_omegaR = configuration().K_omegaR;
 
 	float stabilizingTorque = theta * K_theta + omega * K_omega
-			+ omegaR * K_omegaR;
+			- omegaR * K_omegaR;
 
 	//Compute the speed contribute
 	float linearVelocity = omegaR * configuration().R;
 	float speedTorque = _linearVelocityPID.update(linearVelocity);
 
 	//compute the mean torque
-	return speedTorque - stabilizingTorque;
+	return /*-speedTorque*/ - stabilizingTorque;
 }
 
 float ControlNode::computeDifferentialTorque(float dPsi) {

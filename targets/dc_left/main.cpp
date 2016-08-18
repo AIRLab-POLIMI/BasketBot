@@ -19,6 +19,7 @@
 #include <core/A4957_driver/A4957.hpp>
 #include <core/current_control/CurrentPID.hpp>
 #include <core/current_control/Calibration.hpp>
+#include <core/current_control/Broadcaster.hpp>
 
 // *** DO NOT MOVE ***
 Module module;
@@ -27,18 +28,20 @@ Module module;
 using QEI_Publisher = core::sensor_publisher::Publisher<ModuleConfiguration::QEI_DELTA_DATATYPE>;
 using CurrentSensor = core::current_control::CurrentSensor;
 using CurrentPID = core::current_control::CurrentPID;
-using Calibration = core::current_control::Calibration;
+using Subscriber = core::actuator_subscriber::Subscriber<float, core::actuator_msgs::Setpoint_f32>;
+using Broadcaster = core::current_control::Broadcaster;
 
 // --- NODES ------------------------------------------------------------------
 
-//#define CALIBRATION
+#define CALIBRATION
+CurrentSensor currentSensor; //TODO move in module
 core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
+Broadcaster broadcaster("broadcaster", currentSensor, core::os::Thread::PriorityEnum::NORMAL);
 
 #ifdef CALIBRATION
-Calibration calibration("calibration", module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
+Subscriber calibration ("calibration", module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
 #else
 QEI_Publisher encoder("encoder", module.qei, core::os::Thread::PriorityEnum::NORMAL);
-CurrentSensor currentSensor; //TODO move in module
 CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
 #endif
 
@@ -46,8 +49,11 @@ CurrentPID currentPid("current_pid", currentSensor, module.hbridge_pwm, core::os
 core::QEI_driver::QEI_DeltaConfiguration qei_conf;
 core::led::SubscriberConfiguration led_conf;
 core::A4957_driver::A4957_SignMagnitudeConfiguration pwm_conf;
+core::current_control::BroadcasterConfiguration broadcaster_conf;
 
-#ifndef CALIBRATION
+#ifdef CALIBRATION
+core::actuator_subscriber::Configuration calibration_conf;
+#else
 core::sensor_publisher::Configuration encoder_conf;
 core::current_control::CurrentPIDConfiguration currentPid_conf;
 #endif
@@ -62,7 +68,7 @@ extern "C" {
       currentSensor.init(); //TODO move in module
 
       // Module configuration
-      const float encoderTicks = 500;
+      const float encoderTicks = 4*500;
       const float transmissionRatio = 26.0*10.0/3.0;
 
       qei_conf.period = 10;
@@ -79,7 +85,15 @@ extern "C" {
       led_conf.topic = "led";
       led_subscriber.setConfiguration(led_conf);
 
-#ifndef CALIBRATION
+#ifdef CALIBRATION
+      //current sensor configuration
+      currentSensor.configuration.a = 1.0;
+      currentSensor.configuration.b = 0.0;
+
+      //calibration configuration
+      calibration_conf.topic = "torque_left";
+      calibration.setConfiguration(calibration_conf);
+#else
       //encoder configuration
       encoder_conf.topic = "encoder_left";
       encoder.setConfiguration(encoder_conf);
@@ -101,17 +115,28 @@ extern "C" {
       currentPid_conf.topic = "torque_left";
 
       currentPid.setConfiguration(currentPid_conf);
+
 #endif
+
+      //broadcaster configuration
+      broadcaster_conf.frequency = 100;
+      broadcaster_conf.topic = "current_left";
+
+      broadcaster.setConfiguration(broadcaster_conf);
+
 
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
 
 #ifdef CALIBRATION
       module.add(calibration);
+      currentSensor.start();
 #else
       module.add(encoder);
       module.add(currentPid);
 #endif
+
+      module.add(broadcaster);
 
       // ... and let's play!
       module.setup();

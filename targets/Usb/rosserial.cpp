@@ -6,9 +6,10 @@ ros::NodeHandle nh;
 
 const char* imuTopic = "imu";
 const char* currentTopic = "current_left";
-const char* setpointName = "torque_left";
 const char* leftName = "encoder_left";
 const char* rightName = "encoder_right";
+
+const char* setpointName = "cmd_vel";
 
 const float encoderFrequency = 100;
 
@@ -19,11 +20,11 @@ std::function<void(const std_msgs::Float32&)> RosSerialPublisher::rosCallback;
 RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
 		CoreNode::CoreNode(name, priority),
-		imu_pub("imu", &ros_imu_msg),
+		imu_pub(imuTopic, &ros_imu_msg),
 		current_pub(currentTopic, &ros_current_msg),
 		encoder_left_pub(leftName, &ros_left_msg),
 		encoder_right_pub(rightName, &ros_right_msg),
-		setpoint_sub("cmd_vel", RosSerialPublisher::setpointCallback)
+		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
 {
 	_workingAreaSize = 512;
 

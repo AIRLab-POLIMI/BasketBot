@@ -33,10 +33,10 @@ using Broadcaster = core::current_control::Broadcaster;
 
 // --- NODES ------------------------------------------------------------------
 
-#define CALIBRATION
+//#define CALIBRATION
 CurrentSensor currentSensor; //TODO move in module
 core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
-Broadcaster broadcaster("broadcaster", currentSensor, core::os::Thread::PriorityEnum::NORMAL);
+Broadcaster broadcaster("broadcaster", currentSensor, core::os::Thread::PriorityEnum::LOWEST);
 
 #ifdef CALIBRATION
 Subscriber calibration ("calibration", module.hbridge_pwm, core::os::Thread::PriorityEnum::NORMAL);
@@ -63,10 +63,6 @@ extern "C" {
    int
    main()
    {
-      module.initialize();
-
-      currentSensor.init(); //TODO move in module
-
       // Module configuration
       const float encoderTicks = 4*500;
       const float transmissionRatio = 26.0*10.0/3.0;
@@ -81,6 +77,10 @@ extern "C" {
       pwm_conf.period = 4096/2;
       module.hbridge_pwm.setConfiguration(pwm_conf);
 
+      module.initialize();
+
+      currentSensor.init(); //TODO move in module
+
       // Nodes configuration
       led_conf.topic = "led";
       led_subscriber.setConfiguration(led_conf);
@@ -91,7 +91,7 @@ extern "C" {
       currentSensor.configuration.b = 0.0;
 
       //calibration configuration
-      calibration_conf.topic = "torque_left";
+      calibration_conf.topic = "cmd_vel";
       calibration.setConfiguration(calibration_conf);
 #else
       //encoder configuration
@@ -99,8 +99,8 @@ extern "C" {
       encoder.setConfiguration(encoder_conf);
 
       //current sensor configuration
-      currentSensor.configuration.a = 0.007432946790511f;
-      currentSensor.configuration.b = -15.107809133385506f;
+      currentSensor.configuration.a = 0.00735450542782f;
+      currentSensor.configuration.b = -15.397505657501757f;
 
       //current Pid configuration
       currentPid_conf.maxV = 24;
@@ -113,7 +113,6 @@ extern "C" {
       currentPid_conf.invert = 1;
       currentPid_conf.omegaC = 6000.0f;
       currentPid_conf.topic = "torque_left";
-
       currentPid.setConfiguration(currentPid_conf);
 
 #endif
@@ -136,7 +135,7 @@ extern "C" {
       module.add(currentPid);
 #endif
 
-      module.add(broadcaster);
+      //module.add(broadcaster);
 
       // ... and let's play!
       module.setup();

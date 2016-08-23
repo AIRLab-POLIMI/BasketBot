@@ -136,7 +136,7 @@ extern "C" {
       module.add(currentPid);
 #endif
 
-      module.add(broadcaster);
+      //module.add(broadcaster);
 
       // ... and let's play!
       module.setup();

@@ -68,6 +68,10 @@ void CurrentPID::controlCallback(float currentPeak)
 bool
 CurrentPID::onConfigure()
 {
+	if(!isConfigured()) {
+		return false;
+	}
+
     //Set PWM gain
 	_sign = (uint8_t)configuration().invert ? -1 : 1;
 	_Kpwm = 1.0 / configuration().maxV;
@@ -86,6 +90,10 @@ CurrentPID::onConfigure()
     //set pid setpoint
 	_currentPID.set(0.0);
     
+	if(!_pwm.configure()) {
+		return false;
+	}
+
     return true;
 }
 
@@ -97,11 +105,8 @@ CurrentPID::onPrepareHW()
 	_currentSensor.setCallback(adcCallback);
 	_currentSensor.start();
 
-	//Start pwm
-	_pwm.start();
-
-	float value = 0.0f;
-	_pwm.set(value);
+	// Initialize the H bridge driver
+	_pwm.init();
 
     return true;
 }
@@ -133,7 +138,16 @@ CurrentPID::callback(
    return true;
 }
 
+bool
+CurrentPID::onStart() {
+	// Start the H bridge driver
+	_pwm.start();
 
+	float value = 0.0f;
+	_pwm.set(value);
+
+	return true;
+}
 
 bool
 CurrentPID::onLoop()
@@ -146,6 +160,14 @@ CurrentPID::onLoop()
 	}
 
     return true;
+}
+
+bool
+CurrentPID::onStop() {
+	// Stop the H bridge driver
+	_pwm.stop();
+
+	return true;
 }
 
 } /* namespace current_control */

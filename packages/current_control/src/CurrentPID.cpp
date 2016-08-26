@@ -94,6 +94,10 @@ CurrentPID::onConfigure()
 		return false;
 	}
 
+	if(!_currentSensor.configure()) {
+		return false;
+	}
+
     return true;
 }
 
@@ -103,10 +107,10 @@ CurrentPID::onPrepareHW()
     // Start the ADC driver and conversion
 	std::function<void(float)> adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
 	_currentSensor.setCallback(adcCallback);
-	_currentSensor.start();
 
 	// Initialize the H bridge driver
 	_pwm.init();
+	_currentSensor.init();
 
     return true;
 }
@@ -140,6 +144,8 @@ CurrentPID::callback(
 
 bool
 CurrentPID::onStart() {
+	_currentSensor.start();
+
 	// Start the H bridge driver
 	_pwm.start();
 
@@ -166,7 +172,7 @@ bool
 CurrentPID::onStop() {
 	// Stop the H bridge driver
 	_pwm.stop();
-
+	_currentSensor.stop();
 	return true;
 }
 

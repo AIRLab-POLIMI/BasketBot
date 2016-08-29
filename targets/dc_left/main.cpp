@@ -127,6 +127,8 @@ extern "C" {
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
 
+      module.add(broadcaster);
+
 #ifdef CALIBRATION
       module.add(calibration);
       currentSensor.start();
@@ -134,8 +136,6 @@ extern "C" {
       module.add(encoder);
       module.add(currentPid);
 #endif
-
-      //module.add(broadcaster);
 
       // ... and let's play!
       module.setup();

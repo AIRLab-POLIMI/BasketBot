@@ -113,7 +113,6 @@ extern "C" {
       currentPid_conf.invert = 0;
       currentPid_conf.omegaC = 6000.0f;
       currentPid_conf.topic = "torque_right";
-
       currentPid.setConfiguration(currentPid_conf);
 
 #endif
@@ -128,6 +127,8 @@ extern "C" {
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
 
+      module.add(broadcaster);
+
 #ifdef CALIBRATION
       module.add(calibration);
       currentSensor.start();
@@ -135,8 +136,6 @@ extern "C" {
       module.add(encoder);
       module.add(currentPid);
 #endif
-
-      //module.add(broadcaster);
 
       // ... and let's play!
       module.setup();

@@ -79,8 +79,6 @@ extern "C" {
 
       module.initialize();
 
-      currentSensor.init(); //TODO move in module
-
       // Nodes configuration
       led_conf.topic = "led";
       led_subscriber.setConfiguration(led_conf);

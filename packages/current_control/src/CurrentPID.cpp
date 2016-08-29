@@ -68,6 +68,10 @@ void CurrentPID::controlCallback(float currentPeak)
 bool
 CurrentPID::onConfigure()
 {
+	if(!isConfigured()) {
+		return false;
+	}
+
     //Set PWM gain
 	_sign = (uint8_t)configuration().invert ? -1 : 1;
 	_Kpwm = 1.0 / configuration().maxV;
@@ -86,6 +90,14 @@ CurrentPID::onConfigure()
     //set pid setpoint
 	_currentPID.set(0.0);
     
+	if(!_pwm.configure()) {
+		return false;
+	}
+
+	if(!_currentSensor.configure()) {
+		return false;
+	}
+
     return true;
 }
 
@@ -95,13 +107,10 @@ CurrentPID::onPrepareHW()
     // Start the ADC driver and conversion
 	std::function<void(float)> adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
 	_currentSensor.setCallback(adcCallback);
-	_currentSensor.start();
 
-	//Start pwm
-	_pwm.start();
-
-	float value = 0.0f;
-	_pwm.set(value);
+	// Initialize the H bridge driver
+	_pwm.init();
+	_currentSensor.init();
 
     return true;
 }
@@ -133,7 +142,18 @@ CurrentPID::callback(
    return true;
 }
 
+bool
+CurrentPID::onStart() {
+	_currentSensor.start();
 
+	// Start the H bridge driver
+	_pwm.start();
+
+	float value = 0.0f;
+	_pwm.set(value);
+
+	return true;
+}
 
 bool
 CurrentPID::onLoop()
@@ -146,6 +166,14 @@ CurrentPID::onLoop()
 	}
 
     return true;
+}
+
+bool
+CurrentPID::onStop() {
+	// Stop the H bridge driver
+	_pwm.stop();
+	_currentSensor.stop();
+	return true;
 }
 
 } /* namespace current_control */

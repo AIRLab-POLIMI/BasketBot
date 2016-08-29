@@ -55,7 +55,13 @@ private:
       onPrepareMW();
 
       bool
+	  onStart();
+
+      bool
       onLoop();
+
+      bool
+	  onStop();
 
       static bool callback(const actuator_msgs::Setpoint_f32& msg,
          core::mw::Node* node);

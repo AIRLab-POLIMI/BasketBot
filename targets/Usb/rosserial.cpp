@@ -5,7 +5,8 @@
 ros::NodeHandle nh;
 
 const char* imuTopic = "imu";
-const char* currentTopic = "current_left";
+const char* currentLeftTopic = "current_left";
+const char* currentRightTopic = "current_right";
 const char* leftName = "encoder_left";
 const char* rightName = "encoder_right";
 
@@ -21,7 +22,8 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
 		CoreNode::CoreNode(name, priority),
 		imu_pub(imuTopic, &ros_imu_msg),
-		current_pub(currentTopic, &ros_current_msg),
+		current_left_pub(currentLeftTopic, &ros_current_left_msg),
+		current_right_pub(currentRightTopic, &ros_current_right_msg),
 		encoder_left_pub(leftName, &ros_left_msg),
 		encoder_right_pub(rightName, &ros_right_msg),
 		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
@@ -29,7 +31,8 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 	_workingAreaSize = 512;
 
 	imuNew = false;
-	currentNew = false;
+	currentLeft = false;
+	currentRight = false;
 	encoderLeft = false;
 	encoderRight = false;
 }
@@ -40,8 +43,11 @@ bool RosSerialPublisher::onPrepareMW() {
 	subscribe(_subscriberImu, imuTopic);
 	_subscriberImu.set_callback(imuCallback);
 
-	subscribe(_subscriberCurrent, currentTopic);
-	_subscriberCurrent.set_callback(currentCallback);
+	subscribe(_subscriberCurrentLeft, currentLeftTopic);
+	_subscriberCurrentLeft.set_callback(currentLeftCallback);
+
+	subscribe(_subscriberCurrentRight, currentRightTopic);
+	_subscriberCurrentRight.set_callback(currentRightCallback);
 
 	subscribe(_subscriberLeft, leftName);
 	_subscriberLeft.set_callback(encoderLeftCallback);
@@ -76,15 +82,28 @@ bool RosSerialPublisher::imuCallback(
    return true;
 }
 
-bool RosSerialPublisher::currentCallback(
+bool RosSerialPublisher::currentLeftCallback(
 	   const core::actuator_msgs::Setpoint_f32& msg,
 	   core::mw::Node* node)
 {
 	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
 
-	tmp->ros_current_msg.data = msg.value;
+	tmp->ros_current_left_msg.data = msg.value;
 
-	tmp->currentNew = true;
+	tmp->currentLeft = true;
+
+   return true;
+}
+
+bool RosSerialPublisher::currentRightCallback(
+	   const core::actuator_msgs::Setpoint_f32& msg,
+	   core::mw::Node* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_current_right_msg.data = msg.value;
+
+	tmp->currentRight = true;
 
    return true;
 }
@@ -123,10 +142,16 @@ bool RosSerialPublisher::onLoop() {
 			imuNew = false;
 		}
 
-		if(currentNew)
+		if(currentLeft)
 		{
-			current_pub.publish(&ros_current_msg);
-			currentNew = false;
+			current_left_pub.publish(&ros_current_left_msg);
+			currentLeft = false;
+		}
+
+		if(currentRight)
+		{
+			current_right_pub.publish(&ros_current_right_msg);
+			currentRight = false;
 		}
 
 		if(encoderLeft)
@@ -151,7 +176,8 @@ bool RosSerialPublisher::onLoop() {
 bool RosSerialPublisher::onStart() {
 	nh.initNode();
 	nh.advertise(imu_pub);
-	nh.advertise(current_pub);
+	nh.advertise(current_left_pub);
+	nh.advertise(current_right_pub);
 	nh.subscribe(setpoint_sub);
 	nh.advertise(encoder_left_pub);
 	nh.advertise(encoder_right_pub);

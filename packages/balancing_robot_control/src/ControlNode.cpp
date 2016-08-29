@@ -139,7 +139,7 @@ float ControlNode::computeMeanTorque(float theta, float omega, float omegaR) {
 	float speedTorque = _linearVelocityPID.update(linearVelocity);
 
 	//compute the mean torque
-	return /*-speedTorque*/ - stabilizingTorque;
+	return /*speedTorque*/ - stabilizingTorque;
 }
 
 float ControlNode::computeDifferentialTorque(float dPsi) {

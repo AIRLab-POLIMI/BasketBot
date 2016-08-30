@@ -27,7 +27,7 @@ public:
       virtual
       ~CurrentPID();
 
-      void controlCallback(float currentPeak);
+      void controlCallback(float currentPeak, float Vcc);
 
 private:
       CurrentSensor& _currentSensor;
@@ -42,6 +42,8 @@ private:
       float _current;
       uint32_t _controlCounter;
       uint32_t _controlCycles;
+
+      bool _underVoltage;
 
 
 private:
@@ -65,6 +67,8 @@ private:
 
       static bool callback(const actuator_msgs::Setpoint_f32& msg,
          core::mw::Node* node);
+
+      bool checkDriverState(float Vcc);
    };
 } 
 }

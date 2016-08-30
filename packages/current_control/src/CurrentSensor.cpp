@@ -1,6 +1,5 @@
 #include <core/current_control/CurrentSensor.hpp>
 
-#include <Module.hpp>
 namespace core {
 
 namespace current_control {
@@ -10,15 +9,15 @@ namespace current_control {
 /*===========================================================================*/
 
 CurrentSensorConfiguration CurrentSensor::configuration;
-std::function<void(CurrentSensor::DataType)> CurrentSensor::adcCallback;
+std::function<void(CurrentSensor::DataType, CurrentSensor::DataType)> CurrentSensor::adcCallback;
 adcsample_t CurrentSensor::adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 bool CurrentSensor::onCycle;
 float CurrentSensor::currentPeakHigh;
 float CurrentSensor::currentPeakLow;
-
+float CurrentSensor::Vcc;
 
 void
-CurrentSensor::setCallback(std::function<void(DataType)>& callback)
+CurrentSensor::setCallback(std::function<void(DataType, DataType)>& callback)
 {
 	adcCallback = callback;
 }
@@ -30,11 +29,15 @@ void CurrentSensor::current_callback(ADCDriver *adcp, adcsample_t *buffer, size_
 
 	//Compute current
 	chSysLockFromISR();
+
+	Vcc = (4.7+39.0)*3.3/4095.0/4.7*buffer[1];
+
 	if(onCycle)
 	{
 		currentPeakHigh = (configuration.a * buffer[0] + configuration.b);
+
 		if(adcCallback)
-			adcCallback(currentPeakHigh);
+			adcCallback(currentPeakHigh, Vcc);
 	}
 	else
 		currentPeakLow = (configuration.a * buffer[0] + configuration.b);
@@ -49,7 +52,7 @@ static const ADCConversionGroup adcgrpcfg = {
   TRUE, // circular
   ADC_NUM_CHANNELS, // num channels
   CurrentSensor::current_callback, // end callback
-  CurrentSensor::tension_callback, // error callback
+  nullptr, // error callback
   ADC_CFGR_EXTEN_RISING | ADC_CFGR_EXTSEL_SRC(9), // CFGR
   ADC_TR(0, 4095),                                // TR1
   ADC_CCR_DUAL(1),                                // CCR
@@ -78,19 +81,6 @@ static const ADCConversionGroup adcgrpcfg = {
 #endif
 };
 
-void CurrentSensor::tension_callback(ADCDriver *adcp, adcerror_t err)
-{
-	if(err == ADC_ERR_AWD1){
-		Module::led.toggle();
-		adcp->adcs->ISR &= ~ADC_ISR_AWD1;
-	}
-
-	chSysLockFromISR();
-	adcStartConversionI(&ADCD3, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
-	chSysUnlockFromISR();
-}
-
-
 CurrentSensor::CurrentSensor()
 {
 	_data = 0;
@@ -114,9 +104,6 @@ bool CurrentSensor::start()
 {
     // Start the ADC driver and conversion
 	adcStart(&ADCD3, NULL);
-	ADCD3.adcs->TR1 = ADC_TR(1000, 4095);
-	ADCD3.adcs->CFGR |= ADC_CFGR_AWD1EN | ADC_CFGR_AWD1_ALL;
-	ADCD3.adcs->IER = ADC_IER_OVR | ADC_IER_AWD1;
 	adcStartConversion(&ADCD3, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 
 	return true;

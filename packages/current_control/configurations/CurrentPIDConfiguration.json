@@ -40,6 +40,12 @@
       "size": 1 
     },
     {
+      "name": "Voff", 
+      "description": "Motor driver minimum voltage", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },
+    {
       "name": "Kt", 
       "description": "Motor torque constant", 
       "type": "FLOAT32", 

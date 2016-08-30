@@ -18,7 +18,6 @@
 #include <core/QEI_driver/QEI.hpp>
 #include <core/A4957_driver/A4957.hpp>
 #include <core/current_control/CurrentPID.hpp>
-#include <core/current_control/Calibration.hpp>
 #include <core/current_control/Broadcaster.hpp>
 
 // *** DO NOT MOVE ***
@@ -102,6 +101,7 @@ extern "C" {
 
       //current Pid configuration
       currentPid_conf.maxV = 24;
+      currentPid_conf.Voff = 5.0;
       currentPid_conf.R = 0.299f;
       currentPid_conf.L = 8.2e-5f;
       currentPid_conf.T = 0.0115f;

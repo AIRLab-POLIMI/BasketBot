@@ -44,23 +44,21 @@ public:
 
 public:
 	static void
-	setCallback(std::function<void(DataType)>& callback);
+	setCallback(std::function<void(DataType, DataType)>& callback);
 
 	static void
 	current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
-
-	static void
-	tension_callback(ADCDriver *adcp, adcerror_t err);
 
 public:
 	static CurrentSensorConfiguration configuration;
 
 private:
-	static std::function<void(DataType)> adcCallback;
+	static std::function<void(DataType, DataType)> adcCallback;
 	static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 	static bool onCycle;
 	static float currentPeakHigh;
 	static float currentPeakLow;
+	static float Vcc;
 
 protected:
 	core::os::Time _timestamp;

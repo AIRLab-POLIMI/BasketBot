@@ -28,6 +28,8 @@ CurrentPID::CurrentPID(const char* name,
 	  _current = 0.0f;
 	  _controlCounter = 0;
 	  _controlCycles = 0;
+	  _underVoltage = false;
+
       _workingAreaSize = 256;
    }
 
@@ -36,31 +38,35 @@ CurrentPID::~CurrentPID()
     teardown();
 }
 
-void CurrentPID::controlCallback(float currentPeak)
+void CurrentPID::controlCallback(float currentPeak, float Vcc)
 {
-	//Add new current peak, only if in a meaningful region
-	if(std::abs(_currentPID.getLastOutput()) > 0.1)
-		_current += currentPeak;
 
-	//Count cycle
-	_controlCounter++;
+	if(checkDriverState(Vcc))
+	{
+		//Add new current peak, only if in a meaningful region
+		if(std::abs(_currentPID.getLastOutput()) > 0.1)
+			_current += currentPeak;
 
-	//compute control if control cycle
-	if (_controlCounter == _controlCycles) {
+		//Count cycle
+		_controlCounter++;
 
-		// Compute mean current
-		_current /= _controlCycles;
+		//compute control if control cycle
+		if (_controlCounter == _controlCycles) {
 
-		// Compute control
-		float voltage = _currentPID.update(_current);
+			// Compute mean current
+			_current /= _controlCycles;
 
-		//Compute pwm signal
-		float pwm = _Kpwm * voltage;
-		_pwm.set(pwm);
+			// Compute control
+			float voltage = _currentPID.update(_current);
 
-		// reset variables
-		_current = 0;
-		_controlCounter = 0;
+			//Compute pwm signal
+			float pwm = _Kpwm * voltage;
+			_pwm.set(pwm);
+
+			// reset variables
+			_current = 0;
+			_controlCounter = 0;
+		}
 	}
 
 }
@@ -105,7 +111,7 @@ bool
 CurrentPID::onPrepareHW()
 {
     // Start the ADC driver and conversion
-	std::function<void(float)> adcCallback = std::bind(&CurrentPID::controlCallback, this, _1);
+	std::function<void(float,float)> adcCallback = std::bind(&CurrentPID::controlCallback, this, _1, _2);
 	_currentSensor.setCallback(adcCallback);
 
 	// Initialize the H bridge driver
@@ -135,6 +141,7 @@ CurrentPID::callback(
    chSysLock();
 
    float currentSetpoint = _this->_sign*_this->_Ktorque*msg.value;
+   currentSetpoint = msg.value;
 
    _this->_currentPID.set(currentSetpoint);
    chSysUnlock();
@@ -174,6 +181,21 @@ CurrentPID::onStop() {
 	_pwm.stop();
 	_currentSensor.stop();
 	return true;
+}
+
+bool CurrentPID::checkDriverState(float Vcc)
+{
+    if(Vcc < configuration().Voff)
+    {
+    	_currentPID.reset();
+   		_underVoltage = true;
+    }
+    else if(_underVoltage)
+    {
+    	_underVoltage = false;
+    }
+
+    return !_underVoltage;
 }
 
 } /* namespace current_control */

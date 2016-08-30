@@ -6,7 +6,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#define ADC_NUM_CHANNELS   1
+#define ADC_NUM_CHANNELS   2
 #define ADC_BUF_DEPTH      1
 
 namespace core {
@@ -48,6 +48,9 @@ public:
 
 	static void
 	current_callback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
+
+	static void
+	tension_callback(ADCDriver *adcp, adcerror_t err);
 
 public:
 	static CurrentSensorConfiguration configuration;

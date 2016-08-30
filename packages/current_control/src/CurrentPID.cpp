@@ -141,7 +141,6 @@ CurrentPID::callback(
    chSysLock();
 
    float currentSetpoint = _this->_sign*_this->_Ktorque*msg.value;
-   currentSetpoint = msg.value;
 
    _this->_currentPID.set(currentSetpoint);
    chSysUnlock();

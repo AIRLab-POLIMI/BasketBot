@@ -71,7 +71,6 @@ extern "C" {
       qei_conf.invert = 1;
       module.qei.setConfiguration(qei_conf);
 
-      pwm_conf.kappa = 1.0;
       pwm_conf.frequency = 72000000;
       pwm_conf.period = 4096/2;
       module.hbridge_pwm.setConfiguration(pwm_conf);

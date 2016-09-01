@@ -82,7 +82,7 @@ bool ControlNode::onLoop() {
 	float dPsi = (speedRight - speedLeft) * configuration().R / configuration().L;
 
 	//Compute orientation
-	float omega = imu->angular_velocity[1];
+	volatile float omega = imu->angular_velocity[1];
 	float q[4];
 	q[0]=imu->orientation[0];
 	q[1]=imu->orientation[1];
@@ -139,7 +139,7 @@ float ControlNode::computeMeanTorque(float theta, float omega, float omegaR) {
 	float speedTorque = _linearVelocityPID.update(linearVelocity);
 
 	//compute the mean torque
-	return /*speedTorque*/ - stabilizingTorque;
+	return speedTorque - stabilizingTorque;
 }
 
 float ControlNode::computeDifferentialTorque(float dPsi) {

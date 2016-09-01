@@ -48,6 +48,15 @@ public:
 	currentRightCallback(const core::actuator_msgs::Setpoint_f32& msg,
 					   core::mw::Node* node);
 
+	static bool
+	torqueLeftCallback(const core::actuator_msgs::Setpoint_f32& msg,
+				   core::mw::Node* node);
+
+	static bool
+	torqueRightCallback(const core::actuator_msgs::Setpoint_f32& msg,
+					   core::mw::Node* node);
+
+
 
 	static bool
 	encoderLeftCallback(const core::sensor_msgs::Delta_f32& msg,
@@ -79,12 +88,16 @@ private:
 	core::mw::Subscriber<core::sensor_msgs::Imu, 5> _subscriberImu;
 	core::mw::Subscriber<core::actuator_msgs::Setpoint_f32, 5> _subscriberCurrentLeft;
 	core::mw::Subscriber<core::actuator_msgs::Setpoint_f32, 5> _subscriberCurrentRight;
+	core::mw::Subscriber<core::actuator_msgs::Setpoint_f32, 5> _subscriberTorqueLeft;
+	core::mw::Subscriber<core::actuator_msgs::Setpoint_f32, 5> _subscriberTorqueRight;
 	core::mw::Subscriber<core::sensor_msgs::Delta_f32, 5> _subscriberLeft;
 	core::mw::Subscriber<core::sensor_msgs::Delta_f32, 5> _subscriberRight;
 	core::mw::Publisher<core::actuator_msgs::Setpoint_f32> _publisher;
 
 	bool currentLeft;
 	bool currentRight;
+	bool torqueLeft;
+	bool torqueRight;
 	bool imuNew;
 	bool encoderLeft;
 	bool encoderRight;
@@ -93,12 +106,16 @@ private:
 	geometry_msgs::Vector3 ros_imu_msg;
 	std_msgs::Float32 ros_current_left_msg;
 	std_msgs::Float32 ros_current_right_msg;
+	std_msgs::Float32 ros_torque_left_msg;
+	std_msgs::Float32 ros_torque_right_msg;
 	std_msgs::Float32 ros_left_msg;
 	std_msgs::Float32 ros_right_msg;
 
 	ros::Publisher imu_pub;
 	ros::Publisher current_left_pub;
 	ros::Publisher current_right_pub;
+	ros::Publisher torque_left_pub;
+	ros::Publisher torque_right_pub;
 	ros::Publisher encoder_left_pub;
 	ros::Publisher encoder_right_pub;
 	ros::Subscriber<std_msgs::Float32> setpoint_sub;

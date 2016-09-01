@@ -7,6 +7,8 @@ ros::NodeHandle nh;
 const char* imuTopic = "imu";
 const char* currentLeftTopic = "current_left";
 const char* currentRightTopic = "current_right";
+const char* torqueLeftTopic = "torque_left";
+const char* torqueRightTopic = "torque_right";
 const char* leftName = "encoder_left";
 const char* rightName = "encoder_right";
 
@@ -24,6 +26,8 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		imu_pub(imuTopic, &ros_imu_msg),
 		current_left_pub(currentLeftTopic, &ros_current_left_msg),
 		current_right_pub(currentRightTopic, &ros_current_right_msg),
+		torque_left_pub(torqueLeftTopic, &ros_torque_left_msg),
+		torque_right_pub(torqueRightTopic, &ros_torque_right_msg),
 		encoder_left_pub(leftName, &ros_left_msg),
 		encoder_right_pub(rightName, &ros_right_msg),
 		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
@@ -33,6 +37,8 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 	imuNew = false;
 	currentLeft = false;
 	currentRight = false;
+	torqueLeft = false;
+	torqueRight = false;
 	encoderLeft = false;
 	encoderRight = false;
 }
@@ -48,6 +54,12 @@ bool RosSerialPublisher::onPrepareMW() {
 
 	subscribe(_subscriberCurrentRight, currentRightTopic);
 	_subscriberCurrentRight.set_callback(currentRightCallback);
+
+	subscribe(_subscriberTorqueLeft, torqueLeftTopic);
+	_subscriberTorqueLeft.set_callback(torqueLeftCallback);
+
+	subscribe(_subscriberTorqueRight, torqueRightTopic);
+	_subscriberTorqueRight.set_callback(torqueRightCallback);
 
 	subscribe(_subscriberLeft, leftName);
 	_subscriberLeft.set_callback(encoderLeftCallback);
@@ -108,6 +120,32 @@ bool RosSerialPublisher::currentRightCallback(
    return true;
 }
 
+bool RosSerialPublisher::torqueLeftCallback(
+	   const core::actuator_msgs::Setpoint_f32& msg,
+	   core::mw::Node* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_torque_left_msg.data = msg.value;
+
+	tmp->torqueLeft = true;
+
+   return true;
+}
+
+bool RosSerialPublisher::torqueRightCallback(
+	   const core::actuator_msgs::Setpoint_f32& msg,
+	   core::mw::Node* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_torque_right_msg.data = msg.value;
+
+	tmp->torqueRight = true;
+
+   return true;
+}
+
 bool RosSerialPublisher::encoderLeftCallback(const core::sensor_msgs::Delta_f32& msg,
 			   core::mw::Node* node)
 {
@@ -154,6 +192,18 @@ bool RosSerialPublisher::onLoop() {
 			currentRight = false;
 		}
 
+		if(torqueLeft)
+		{
+			torque_left_pub.publish(&ros_torque_left_msg);
+			torqueLeft = false;
+		}
+
+		if(torqueRight)
+		{
+			torque_right_pub.publish(&ros_torque_right_msg);
+			torqueRight = false;
+		}
+
 		if(encoderLeft)
 		{
 			encoder_left_pub.publish(&ros_left_msg);
@@ -178,6 +228,8 @@ bool RosSerialPublisher::onStart() {
 	nh.advertise(imu_pub);
 	nh.advertise(current_left_pub);
 	nh.advertise(current_right_pub);
+	nh.advertise(torque_left_pub);
+	nh.advertise(torque_right_pub);
 	nh.subscribe(setpoint_sub);
 	nh.advertise(encoder_left_pub);
 	nh.advertise(encoder_right_pub);

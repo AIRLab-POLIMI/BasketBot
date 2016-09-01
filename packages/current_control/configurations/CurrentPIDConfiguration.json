@@ -46,6 +46,12 @@
       "size": 1 
     },
     {
+      "name": "Von", 
+      "description": "Motor driver switch-on voltage", 
+      "type": "FLOAT32", 
+      "size": 1 
+    },	
+    {
       "name": "Kt", 
       "description": "Motor torque constant", 
       "type": "FLOAT32", 

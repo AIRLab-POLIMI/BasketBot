@@ -188,9 +188,9 @@ bool CurrentPID::checkDriverState(float Vcc)
     {
     	_currentPID.reset();
     	_pwm.stop();
-   	_underVoltage = true;
+    	_underVoltage = true;
     }
-    else if(_underVoltage)
+    else if(_underVoltage && Vcc > configuration().Von)
     {
     	_pwm.start();
     	_underVoltage = false;

@@ -101,6 +101,7 @@ extern "C" {
       //current Pid configuration
       currentPid_conf.maxV = 24;
       currentPid_conf.Voff = 5.0;
+      currentPid_conf.Von = 10.0;
       currentPid_conf.R = 0.299f;
       currentPid_conf.L = 8.2e-5f;
       currentPid_conf.T = 0.0115f;

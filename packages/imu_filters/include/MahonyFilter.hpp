@@ -38,6 +38,8 @@ namespace imu_filters
 
 		float bias_p, bias_q, bias_r;
 
+		float omegaHat[3];
+
 		bool needReset;
 
    };

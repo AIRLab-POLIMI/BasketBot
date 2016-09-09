@@ -21,6 +21,10 @@ MahonyFilter::MahonyFilter(const char* name)
 	bias_q = 0;
 	bias_r = 0;
 
+	omegaHat[0] = 0;
+	omegaHat[1] = 0;
+	omegaHat[2] = 0;
+
 	needReset = true;
 }
 
@@ -93,9 +97,13 @@ void MahonyFilter::operator()(const measurement& measure) {
 	linear_acceleration[1] = -measure.acc[1]*9.81;
 	linear_acceleration[2] = -measure.acc[2]*9.81;
 
-	angular_velocity[0] = omega[0];
-	angular_velocity[1] = omega[1];
-	angular_velocity[2] = omega[2];
+	omegaHat[0] = 0.9*omegaHat[0] + 0.1*omega[0];
+	omegaHat[1] = 0.9*omegaHat[1] + 0.1*omega[1];
+	omegaHat[2] = 0.9*omegaHat[2] + 0.1*omega[2];
+
+	angular_velocity[0] = omegaHat[0];
+	angular_velocity[1] = omegaHat[1];
+	angular_velocity[2] = omegaHat[2];
 
 }
 

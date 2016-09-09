@@ -143,15 +143,16 @@ extern "C" {
 		control_node_conf.L = 0.40;
 		control_node_conf.R = 0.2;
 
-		control_node_conf.K_theta = -130.1918;
-		control_node_conf.K_omega = -51.0960;
-		control_node_conf.K_omegaR = -3.0436;
+		control_node_conf.K_theta = -104.7208;
+		control_node_conf.K_omega = -38.7995;
+		control_node_conf.K_omegaR = -1.8589;
+
 
 		control_node_conf.K_linear = 3.55;
 		control_node_conf.Ti_linear = 1.3498;
 		control_node_conf.Td_linear = 0.1411;
 
-		control_node_conf.K_angular = 0.0;
+		control_node_conf.K_angular = 10.0;
 
 		control_node.setConfiguration(control_node_conf);
 

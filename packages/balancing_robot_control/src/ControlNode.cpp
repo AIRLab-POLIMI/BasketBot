@@ -29,7 +29,7 @@ bool ControlNode::onConfigure() {
 			configuration().Td_linear, _Ts.to_s(), 100.0, -20.0, 20.0);
 
 	_angularVelocityPID.config(configuration().K_angular, 0.0,
-			0.0, 1.0/configuration().frequency, 100.0, -5.0, 5.0);
+			0.0, 1.0/configuration().frequency, 100.0, -10.0, 10.0);
 
 
 	_linearVelocityPID.set(0);
@@ -139,12 +139,11 @@ float ControlNode::computeMeanTorque(float theta, float omega, float omegaR) {
 	float speedTorque = _linearVelocityPID.update(linearVelocity);
 
 	//compute the mean torque
-	return speedTorque - stabilizingTorque;
+	return /*speedTorque*/ - stabilizingTorque;
 }
 
 float ControlNode::computeDifferentialTorque(float dPsi) {
-	//TODO implement
-	return 0;
+	return _angularVelocityPID.update(dPsi);
 }
 
 }

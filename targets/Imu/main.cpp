@@ -143,9 +143,9 @@ extern "C" {
 		control_node_conf.L = 0.40;
 		control_node_conf.R = 0.2;
 
-		control_node_conf.K_theta = -104.7208;
-		control_node_conf.K_omega = -38.7995;
-		control_node_conf.K_omegaR = -1.8589;
+		control_node_conf.K_theta = -130.1918;
+		control_node_conf.K_omega = -51.0960;
+		control_node_conf.K_omegaR = -3.0436;
 
 
 		control_node_conf.K_linear = 3.55;

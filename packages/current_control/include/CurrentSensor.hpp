@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/current_control/CurrentSensorConfiguration.hpp>
-#include <core/mw/CoreSensor.hpp>
+#include <core/utils/BasicSensor.hpp>
 
 #include "ch.h"
 #include "hal.h"
@@ -13,7 +13,7 @@ namespace core {
 
 namespace current_control {
 
-class CurrentSensor: public core::mw::CoreSensor<float> {
+class CurrentSensor: public core::utils::BasicSensor<float> {
 public:
 	CurrentSensor();
 

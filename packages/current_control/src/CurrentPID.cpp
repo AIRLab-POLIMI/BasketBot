@@ -16,7 +16,7 @@ namespace current_control
 
 CurrentPID::CurrentPID(const char* name,
 					   CurrentSensor& currentSensor,
-					   core::mw::CoreActuator<float>& pwm,
+					   core::utils::BasicActuator<float>& pwm,
 					   core::os::Thread::PriorityEnum priority) :
       CoreNode::CoreNode(name, priority),
 	  core::mw::CoreConfigurable<core::current_control::CurrentPIDConfiguration>(name),

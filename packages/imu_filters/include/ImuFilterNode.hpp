@@ -3,7 +3,6 @@
 #include <core/mw/Publisher.hpp>
 #include <core/mw/Subscriber.hpp>
 #include <core/mw/CoreNode.hpp>
-#include <core/mw/CoreSensor.hpp>
 #include <core/os/Callback.hpp>
 
 #include <ModuleConfiguration.hpp>

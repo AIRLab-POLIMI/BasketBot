@@ -2,7 +2,7 @@
 
 #include <core/mw/CoreNode.hpp>
 #include <core/mw/Subscriber.hpp>
-#include <core/mw/CoreActuator.hpp>
+#include <core/utils/BasicActuator.hpp>
 
 #include <core/current_control/CurrentSensor.hpp>
 #include <core/current_control/CurrentPIDConfiguration.hpp>
@@ -20,7 +20,7 @@ public:
       CurrentPID(
          const char* name,
 		 CurrentSensor& currentSensor,
-		 core::mw::CoreActuator<float>& pwm,
+		 core::utils::BasicActuator<float>& pwm,
          core::os::Thread::PriorityEnum priority = core::os::Thread::PriorityEnum::NORMAL
       );
 
@@ -31,7 +31,7 @@ public:
 
 private:
       CurrentSensor& _currentSensor;
-      core::mw::CoreActuator<float>& _pwm;
+      core::utils::BasicActuator<float>& _pwm;
       core::mw::Subscriber<actuator_msgs::Setpoint_f32, 5> _subscriber;
 
       pid_ie::PID_IE _currentPID;

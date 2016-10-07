@@ -79,15 +79,30 @@ bool RosSerialPublisher::imuCallback(
 {
 	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
 
-	float q[4];
-	q[0]=msg.orientation[0];
-	q[1]=msg.orientation[1];
-	q[2]=msg.orientation[2];
-	q[3]=msg.orientation[3];
+	tmp->ros_imu_msg.orientation.x = msg.orientation[0];
+	tmp->ros_imu_msg.orientation.y = msg.orientation[1];
+	tmp->ros_imu_msg.orientation.z = msg.orientation[2];
+	tmp->ros_imu_msg.orientation.w = msg.orientation[3];
 
-	tmp->ros_imu_msg.x = quaternions::Utils::getRoll(q) * 180 / 3.14;
-	tmp->ros_imu_msg.y = quaternions::Utils::getPitch(q) * 180 / 3.14;
-	tmp->ros_imu_msg.z = quaternions::Utils::getYaw(q) * 180 / 3.14;
+	tmp->ros_imu_msg.linear_acceleration.x = msg.linear_acceleration[0];
+	tmp->ros_imu_msg.linear_acceleration.y = msg.linear_acceleration[1];
+	tmp->ros_imu_msg.linear_acceleration.z = msg.linear_acceleration[2];
+
+	tmp->ros_imu_msg.angular_velocity.x = msg.angular_velocity[0];
+	tmp->ros_imu_msg.angular_velocity.y = msg.angular_velocity[1];
+	tmp->ros_imu_msg.angular_velocity.z = msg.angular_velocity[2];
+
+	tmp->ros_imu_msg.header.frame_id = "imu_link";
+
+	core::os::Time stamp = core::os::Time::now();
+
+	auto sec = stamp.s();
+	auto nsec = stamp.to_us()*1e3 - sec*1e9;
+
+	tmp->ros_imu_msg.header.stamp.sec = sec;
+	tmp->ros_imu_msg.header.stamp.nsec = nsec;
+
+
 
 	tmp->imuNew = true;
 

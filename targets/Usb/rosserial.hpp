@@ -15,7 +15,6 @@
 //ROS msgs
 #include <sensor_msgs/Imu.h>
 #include <std_msgs/Float32.h>
-#include <geometry_msgs/Vector3.h>
 
 #define USE_USB_SERIAL 1
 #include "ch.h"
@@ -102,7 +101,7 @@ private:
 	bool encoderRight;
 
 	//ROS
-	geometry_msgs::Vector3 ros_imu_msg;
+	sensor_msgs::Imu ros_imu_msg;
 	std_msgs::Float32 ros_current_left_msg;
 	std_msgs::Float32 ros_current_right_msg;
 	std_msgs::Float32 ros_torque_left_msg;

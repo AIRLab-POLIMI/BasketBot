@@ -104,7 +104,7 @@ extern "C" {
       currentPid_conf.Von = 10.0;
       currentPid_conf.R = 0.299f;
       currentPid_conf.L = 8.2e-5f;
-      currentPid_conf.T = 0.0115f;
+      currentPid_conf.T = 1.0/transmissionRatio;
       currentPid_conf.Kt = 30.2e-3;
 
       currentPid_conf.controlCycles = 1;
